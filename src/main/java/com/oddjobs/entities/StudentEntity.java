@@ -1,0 +1,62 @@
+package com.oddjobs.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.oddjobs.entities.users.ParentUser;
+import com.oddjobs.entities.wallets.StudentWalletAccount;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
+import java.util.UUID;
+
+@EqualsAndHashCode(callSuper = true)
+@Table(name="student")
+@Entity
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true, value = {"version", "createdAt","createdBy","lastModifiedAt", "lastModifiedBy","deleted","enabled"})
+public class StudentEntity extends BaseEntity{
+
+    @Column(columnDefinition = "TEXT")
+    private String image; // base64 string
+    private String firstName;
+    private String lastName;
+    private String middleName;
+    @Column(unique = true)
+    private String regNo= UUID.randomUUID().toString();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="class_room_id", nullable=false)
+    private ClassRoom classRoom;
+
+    @OneToOne(mappedBy = "student")
+    private StudentWalletAccount walletAccount;
+
+    @ManyToOne
+    @JoinColumn(name="primary_parent")
+    private ParentUser primaryParent; //can have multiple primary parents
+
+    @ManyToMany
+    private List<ParentUser> parents;
+
+    @ManyToOne
+    @JoinColumn(name="school_id", nullable=false, referencedColumnName = "id")
+    private School school;
+
+
+    @Transient
+    public String fullName(){
+        return String.format("%s %s %s", firstName, middleName, lastName);
+    }
+    @Override
+    public String toString() {
+        return "StudentEntity{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", regNo='" + regNo + '\'' +
+                ", School='" + school.getName() + '\'' +
+                ", classRoom=" + classRoom +
+                '}';
+    }
+}
