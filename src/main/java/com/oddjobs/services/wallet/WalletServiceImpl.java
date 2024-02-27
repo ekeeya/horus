@@ -130,6 +130,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public AccountEntity updateWalletBalance(AccountEntity account, Double amount) {
+        log.info("Updating wallet balance by user: {}", contextProvider.getPrincipal());
         BigDecimal newAmount =  new BigDecimal(amount);
         BigDecimal balance =  account.getBalance();
         balance =  balance.add(newAmount); // parse a negative for debits

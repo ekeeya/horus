@@ -6,7 +6,7 @@ import logo from '@src/assets/images/logo/logo-full.png'
 //Template config options
 const themeConfig = {
   app: {
-    appName: 'Rackup Konnect',
+    appName: 'Horus',
     appLogoImage: logo
   },
   layout: {
@@ -21,7 +21,7 @@ const themeConfig = {
     navbar: {
       // ? For horizontal menu, navbar type will work for navMenu type
       type: 'floating', // static , sticky , floating, hidden
-      backgroundColor: 'white' // BS color options [primary, success, etc]
+      backgroundColor: 'primary' // BS color options [primary, success, etc]
     },
     footer: {
       type: 'static' // static, sticky, hidden

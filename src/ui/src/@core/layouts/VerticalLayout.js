@@ -215,7 +215,7 @@ const VerticalLayout = props => {
       >
         {footer ? footer : <FooterComponent footerType={footerType} footerClasses={footerClasses} />}
       </footer>
-      
+
 
       {themeConfig.layout.scrollTop === true ? (
         <div className='scroll-to-top'>

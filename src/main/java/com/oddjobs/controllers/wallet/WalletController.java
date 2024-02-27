@@ -5,11 +5,13 @@ import com.oddjobs.components.Mapper;
 import com.oddjobs.dtos.base.BaseResponse;
 import com.oddjobs.dtos.base.ListResponseDTO;
 import com.oddjobs.dtos.requests.PaymentRequestDTO;
+import com.oddjobs.dtos.requests.UpdateWalletRequest;
 import com.oddjobs.dtos.requests.WalletDepositDTO;
 import com.oddjobs.dtos.requests.WalletManagementRequestDTO;
 import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.exceptions.ExceedDailyExpenditureException;
 import com.oddjobs.exceptions.InsufficientBalanceException;
 import com.oddjobs.exceptions.WalletAccountNotFoundException;
@@ -113,6 +115,27 @@ public class WalletController {
         }
     }
 
+    @PostMapping("/wallet-top-up")
+    @Secured({"ROLE_SCHOOL"})
+    public ResponseEntity<?> updateWalletBalance(@Valid @RequestBody UpdateWalletRequest request, BindingResult result){
+        BaseResponse response;
+        try{
+            response = new BaseResponse(result);
+            if(response.isSuccess()){
+                AccountEntity account = walletService.findByCardNo(request.getCardNo());
+                account = walletService.updateWalletBalance(account, request.getAmount());
+                String successMsg = String.format("Wallet account with cardNo: %s has been topped up to [%s]", request.getCardNo(), account.getBalance().toString());
+                response.setMessage(successMsg);
+                response.setData(account);
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.badRequest().body(response);
+        }catch (Exception e){
+            response = new BaseResponse(e);
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
     @PostMapping("/deposit")
     @Secured({"ROLE_PARENT"})
     public ResponseEntity<?> depositToWallet(@Valid @RequestBody WalletDepositDTO request, BindingResult result){
