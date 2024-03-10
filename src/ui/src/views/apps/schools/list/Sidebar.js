@@ -151,6 +151,7 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
     return (
         <Sidebar
             size='lg'
+            className={"root"}
             open={open}
             title='Register School'
             headerClassName='mb-1'

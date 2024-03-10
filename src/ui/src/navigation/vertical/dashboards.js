@@ -1,11 +1,11 @@
 // ** Icons Import
-import { Home } from 'react-feather'
+import { CiHome } from "react-icons/ci";
 
 export default [
   {
     id: 'dashboards',
-    title: 'Home',
-    icon: <Home size={20} />,
+    title: 'Dashboad',
+    icon: <CiHome size={20} />,
     navLink: '/dashboard/',
     action:"manage",
     resource:"dashboard"

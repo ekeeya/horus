@@ -31,7 +31,7 @@ const AppAuthComponent = ({ setShow, setShowDetailModal }) => {
   }
 
   return (
-    <Fragment>
+    <Fragment className="root">
       <h1 className='text-center mb-2 pb-50'>Add Authenticator App</h1>
       <h4>Authenticator Apps</h4>
       <div>
@@ -107,8 +107,8 @@ const TwoFactorAuth = () => {
     setShowDetailModal(true)
   }
   return (
-    <Fragment>
-      <Card>
+    <Fragment classNmae="root">
+      <Card >
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Two-step verification</CardTitle>
         </CardHeader>
@@ -123,7 +123,7 @@ const TwoFactorAuth = () => {
           </Button>
         </CardBody>
       </Card>
-      <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg'>
+      <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg root'>
         <ModalHeader className='bg-transparent' toggle={() => setShow(!show)}></ModalHeader>
         <ModalBody className='pb-5 px-sm-5 mx-50'>
           <h1 className='text-center mb-1'>Select Authentication Method</h1>
@@ -185,7 +185,7 @@ const TwoFactorAuth = () => {
       <Modal
         isOpen={showDetailModal}
         toggle={() => setShowDetailModal(!showDetailModal)}
-        className='modal-dialog-centered modal-lg'
+        className='modal-dialog-centered modal-lg root'
       >
         <ModalHeader className='bg-transparent' toggle={() => setShowDetailModal(!showDetailModal)}></ModalHeader>
         <ModalBody className='pb-5 px-sm-5 mx-50'>

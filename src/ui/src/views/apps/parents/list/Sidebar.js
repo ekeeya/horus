@@ -66,7 +66,7 @@ const SidebarNewUsers = ({open, toggleSidebar}) => {
         setData(data)
         const registerData = {
             role: `ROLE_${userData.role}`,
-            accountType: userData.accountType,
+            accountType: "PARENT",
             schoolId: userData.schoolId,
             firstName: data.firstName,
             lastName: data.lastName,

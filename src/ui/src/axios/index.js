@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 
-//const domain = "https://schools.rackupkonnect.com";
-const domain = "http://127.0.0.1:8181";
+const domain = "http://127.0.0.1:8000";
 //const domain = "";
 
 const prefix = "/";

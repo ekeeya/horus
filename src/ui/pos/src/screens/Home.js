@@ -23,13 +23,14 @@ import {GestureHandlerRootView} from "react-native-gesture-handler";
 import PaymentConfirmationSheet from "../components/PaymentConfirmationSheet";
 import RecentTransactionsSheet from "../components/RecentTransationsSheet";
 const {width, height} = Dimensions.get("window");
-import NfcManager, {NfcTech} from 'react-native-nfc-manager';
+import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
 import {handleLogout} from "../store/auth";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigation} from "@react-navigation/native";
 import { CommonActions } from '@react-navigation/native';
 import {getCard, resetError, resetCardDetails, setPaid, setPaymentAmount, getTransactions} from "../store/payment";
 import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
+import {cleanTag} from "../utils";
 
 const Home =()=>  {
 
@@ -64,15 +65,15 @@ const Home =()=>  {
                  console.log("Scanning for NFC tags")
                  // register for the NFC tag with NDEF in it
                  await NfcManager.requestTechnology(NfcTech.Ndef)
-                 setCardNo("6534566850742394")
                  // the resolved tag object will contain `ndefMessage` property
                  const tag = await NfcManager.getTag();
-                 console.log('Tag found', tag);
+                 const tagValue = Ndef.uri.decodePayload(tag.ndefMessage[0].payload).toString();
+                 setCardNo(cleanTag(tagValue))
              } catch (ex) {
                  console.warn('Oops!', ex);
              } finally {
                  // stop the nfc scanning
-                 NfcManager.cancelTechnologyRequest();
+                 await NfcManager.cancelTechnologyRequest();
              }
          }
     }

@@ -43,7 +43,7 @@ import {Minus, Plus, X} from "react-feather";
 import Select from "react-select";
 import {registerStudent, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
-import {addDaysToDate, formatCreditCardNumber, midnight} from "@utils";
+import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
 
 const roleColors = {
     PARENT: 'light-info',
@@ -70,6 +70,7 @@ const UserInfoCard = ({selectedStudent}) => {
     const [showSuspend, setShowSuspend] = useState(false);
     const [selectedClass, setSelectedClass] = useState({});
     const [selectedParent, setSelectedParent] = useState({});
+    const [parents, setParents] = useState([])
 
     const dispatch = useDispatch();
     const {loading, submitted, users, error} = useSelector((store) => store.users);
@@ -89,26 +90,14 @@ const UserInfoCard = ({selectedStudent}) => {
         }
     })
 
-    const handleParentSearch = val => {
+    const handleParentSearch =  val => {
         const configs = {
             page: 0,
             size: 10,
-            accountType: "PARENT",
+            parents:true,
             name: val
         }
-        setTimeout(() => {
-            dispatch(fetchUsers(configs))
-        }, 400)
-    }
-    const parents = () => {
-        return users.map(parent => {
-            if (parent.role === "PARENT") {
-                return {
-                    value: parent.id,
-                    label: `${parent.fullName} (${parent.telephone})`
-                }
-            }
-        })
+       dispatch(fetchUsers(configs))
     }
     useEffect(()=>{
         if(loading && !error) {
@@ -124,8 +113,37 @@ const UserInfoCard = ({selectedStudent}) => {
             label: `${selectedStudent.primaryParent.fullName} (${selectedStudent.primaryParent.telephone})`
         } : null;
         setSelectedClass(classRoom)
-        setSelectedParent(parent)
+        if (parent !== null){
+            setSelectedParent(parent)
+            setParents([parent])
+        }
+
     }, [selectedStudent]);
+
+    useEffect(()=>{
+
+       async function fetchParents(){
+           const configs = {
+               page: 0,
+               size: 10,
+               parents:true
+           }
+           await dispatch(fetchUsers(configs))
+        }
+        fetchParents().catch((error=>{console.log(error)}))
+
+    }, [])
+
+    useEffect(()=>{
+        const ps =   users.map(parent => {
+            return {
+                value: parent.id,
+                label: `${parent.fullName} (${parent.telephone})`
+            }
+        });
+        console.log(ps)
+        setParents(ps)
+    }, [users])
 
     useEffect(() => {
         dispatch(setEditing(true))
@@ -473,11 +491,13 @@ const UserInfoCard = ({selectedStudent}) => {
                                         value={selectedParent}
                                         isLoading={loading}
                                         placeholder="Select Guardian"
-                                        options={parents()}
+                                        options={parents}
                                         name="primaryParent"
                                         onInputChange={(val) => handleParentSearch(val)}
                                         classNamePrefix='select'
-                                        onChange={v => setSelectedParent(v)}
+                                        onChange={v => {
+                                            setSelectedParent(v)
+                                        }}
                                     />
                                 </div>
                             </Col>

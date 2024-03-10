@@ -37,7 +37,7 @@ const App = () => {
 
     }, [userData, accessToken, refreshToken]);
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={null} className="root">
       <Router />
     </Suspense>
   )

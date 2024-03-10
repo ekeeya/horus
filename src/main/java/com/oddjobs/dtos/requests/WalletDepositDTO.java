@@ -7,6 +7,7 @@ import java.io.Serializable;
 @Data
 public class WalletDepositDTO implements Serializable {
     private String msisdn;
+    private Boolean isSystem=false;
     private String cardNo;
     private Long studentId;
     private Double amount;

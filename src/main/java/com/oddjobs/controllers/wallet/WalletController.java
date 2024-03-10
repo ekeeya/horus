@@ -123,6 +123,10 @@ public class WalletController {
             response = new BaseResponse(result);
             if(response.isSuccess()){
                 AccountEntity account = walletService.findByCardNo(request.getCardNo());
+                WalletDepositDTO r = new WalletDepositDTO();
+                r.setCardNo(request.getCardNo());
+                r.setAmount(request.getAmount());
+                CollectionTransaction t = walletService.depositIntoWallet(r);
                 account = walletService.updateWalletBalance(account, request.getAmount());
                 String successMsg = String.format("Wallet account with cardNo: %s has been topped up to [%s]", request.getCardNo(), account.getBalance().toString());
                 response.setMessage(successMsg);

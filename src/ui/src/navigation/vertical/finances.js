@@ -1,6 +1,5 @@
 // ** Icons Import
-import {FaPiggyBank, FaMoneyBillTransfer, FaMoneyBill1Wave} from 'react-icons/fa6'
-
+import { GrAtm } from "react-icons/gr";
 export default [
   {
     header: 'Finances'
@@ -8,7 +7,7 @@ export default [
   {
     id: 'withdraw-requests',
     title: 'Withdraw Requests',
-    icon: <FaMoneyBill1Wave size={20} />,
+    icon: <GrAtm size={20} />,
     navLink: '/finance/withdraws-requests'
   },
 

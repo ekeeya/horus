@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 
 @Transactional
@@ -163,7 +164,7 @@ public class UserServiceImpl implements UserService {
         try{
             User user = contextProvider.getPrincipal();
             User u = userRepository.findById(id).get();
-            if (user instanceof  SchoolUser){
+            if (!Objects.equals(user.getId(), u.getId()) && user instanceof  SchoolUser){
                 if(u instanceof  SchoolUser || u instanceof AdminUser){
                     throw new ResourceFobidenException(String.format("User %s is forbidden from seeing details of user %s", user, u));
                 }

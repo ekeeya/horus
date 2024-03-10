@@ -62,7 +62,7 @@ public class Utils {
     }
 
     public static enum PROVIDER{
-        MTN(Values.MTN), AIRTEL(Values.AIRTEL), EASY_PAY(Values.EASY_PAY),FLUTTER_WAVE(Values.FLUTTER_WAVE),BEYONIC(Values.BEYONIC);
+        MTN(Values.MTN), AIRTEL(Values.AIRTEL), EASY_PAY(Values.EASY_PAY),FLUTTER_WAVE(Values.FLUTTER_WAVE),BEYONIC(Values.BEYONIC),SYSTEM(Values.SYSTEM);
         private PROVIDER (String val) {
             // force equality between name of enum instance, and value of constant
             if (!this.name().equals(val))
@@ -75,6 +75,7 @@ public class Utils {
             public static final String EASY_PAY= "EASY_PAY";
             public static final String FLUTTER_WAVE= "FLUTTER_WAVE";
             public static final String BEYONIC= "BEYONIC";
+            public static final String SYSTEM= "SYSTEM";
         }
     }
 

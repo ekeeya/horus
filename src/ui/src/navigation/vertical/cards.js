@@ -1,13 +1,13 @@
-import { CreditCard } from 'react-feather'
+import { FcNfcSign } from "react-icons/fc";
 
 export default [
     {
-        header: 'Card Provisioning'
+        header: 'Bracelets Provisioning'
     },
     {
         id: 'cards',
-        title: 'Card Requests',
+        title: 'RFID Requests',
         navLink: '/cards/provisioning',
-        icon: <CreditCard size={20} />
+        icon: <FcNfcSign size={20} />
     }
 ]

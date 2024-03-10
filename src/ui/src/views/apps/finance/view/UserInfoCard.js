@@ -70,10 +70,8 @@ const UserInfoCard = ({selectedStudent}) => {
     const [showSuspend, setShowSuspend] = useState(false);
     const [selectedClass, setSelectedClass] = useState({});
     const [selectedParent, setSelectedParent] = useState({});
-
     const dispatch = useDispatch();
     const {loading, submitted, users, error} = useSelector((store) => store.users);
-    //const {userData} = useSelector((store) => store.auth);
 
     // ** Hook
     const {
@@ -98,7 +96,7 @@ const UserInfoCard = ({selectedStudent}) => {
         }
         setTimeout(() => {
             dispatch(fetchUsers(configs))
-        }, 400)
+        }, 200)
     }
     const parents = () => {
         return users.map(parent => {
@@ -151,13 +149,11 @@ const UserInfoCard = ({selectedStudent}) => {
         )
     }
     const onSubmit = data => {
-
+        console.log("Fuck for sure")
         if (Object.values(data).every(field => field.length > 0)) {
             const formData = data;
             const parent = selectedParent.value
-            console.log(selectedClass)
             const classRoom = selectedClass.value;
-
             formData["id"] = selectedStudent.id;
             formData["parent"] = parent;
             formData["editing"] = true; // in order to override the primary parent
@@ -235,7 +231,7 @@ const UserInfoCard = ({selectedStudent}) => {
 
     return (
         <Fragment>
-            <Card>
+            <Card className="root">
                 <CardBody>
                     <div className='user-avatar-section'>
                         <div className='d-flex align-items-center flex-column'>
@@ -408,7 +404,7 @@ const UserInfoCard = ({selectedStudent}) => {
                     </Button>
                 </ModalFooter>
             </Modal>
-            <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg'>
+            <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg root'>
                 <ModalHeader className='bg-transparent' toggle={() => setShow(!show)}></ModalHeader>
                 <ModalBody className='px-sm-5 pt-50 pb-5'>
                     <div className='text-center mb-2'>

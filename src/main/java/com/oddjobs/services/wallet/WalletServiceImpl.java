@@ -46,10 +46,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -162,54 +159,49 @@ public class WalletServiceImpl implements WalletService {
             if (settings != null){
                 mmProviderType =  settings.getProvider().toString();
             }
-            Utils.PROVIDER provider =  mobileMoneyService.isTelecom() ? mobileMoneyService.determineProvider(request.getMsisdn()) : Utils.PROVIDER.valueOf(mmProviderType);
-            String msisdn;
-            switch (provider) {
-                case MTN -> {
-                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), null);
-                    Payer payer = new Payer();
-                    payer.setPartyId(msisdn);
-                    payer.setPartyIdType("MSISDN");
-                    requestToPay = new MomoRequestToPayDTO();
-                    ((MomoRequestToPayDTO) requestToPay).setPayer(payer);
-                    ((MomoRequestToPayDTO) requestToPay).setCurrency("EUR");
-                }
-                case AIRTEL -> {
-                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.AIRTEL);
-                    requestToPay = new AirtelRequestToPayDTO();
-                    ((AirtelRequestToPayDTO) requestToPay).setMsisdn(msisdn);
-                }
-                case FLUTTER_WAVE -> {
-                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.FLUTTER_WAVE);
-                    requestToPay = new FlutterwaveRequestToPayDTO();
-                    // get parent email
-                    ((FlutterwaveRequestToPayDTO) requestToPay).setEmail(parent.getEmail());
-                    ((FlutterwaveRequestToPayDTO) requestToPay).setPhone_number(msisdn);
-                }
-                default -> {
-                    //TODO we need to treat easyPay differently
-                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), null);
-                    requestToPay = new EasyPayRequestToPayDTO();
-                    requestToPay.setAmount(request.getAmount());
-                    requestToPay.setProvider(Utils.PROVIDER.EASY_PAY);
-                    ((EasyPayRequestToPayDTO) requestToPay).setPhone(msisdn);
-                }
+            Utils.PROVIDER provider = Utils.PROVIDER.valueOf(mmProviderType);
+            if (request.getIsSystem()){
+                provider = Utils.PROVIDER.SYSTEM;
+            }else{
+                provider =  mobileMoneyService.isTelecom() ? mobileMoneyService.determineProvider(request.getMsisdn()) : Utils.PROVIDER.valueOf(mmProviderType);
             }
-            requestToPay.setAmount(request.getAmount());
-            requestToPay.setProvider(provider);
-            Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
-            MMTransaction t =  mmTransactionRepository.findById(mmTransactionId).get();
-            // Collection Transaction
+
+            String msisdn;
             CollectionTransaction transaction =  new CollectionTransaction();
-            transaction.setMmTransaction(t);
-            transaction.setCurrency(t.getCurrency());
-            transaction.setAmount(t.getAmount());
-            transaction.setDescription(t.getDescription());
+            if (Objects.requireNonNull(provider) == Utils.PROVIDER.FLUTTER_WAVE) {
+                msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.FLUTTER_WAVE);
+                requestToPay = new FlutterwaveRequestToPayDTO();
+                // get parent email
+                ((FlutterwaveRequestToPayDTO) requestToPay).setEmail(parent.getEmail());
+                ((FlutterwaveRequestToPayDTO) requestToPay).setPhone_number(msisdn);
+                Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
+                MMTransaction t =  mmTransactionRepository.findById(mmTransactionId).get();
+                requestToPay.setAmount(request.getAmount());
+                requestToPay.setProvider(provider);
+                transaction.setMmTransaction(t);
+                transaction.setCurrency(t.getCurrency());
+                transaction.setAmount(t.getAmount());
+                transaction.setDescription(t.getDescription());
+            }else{
+                // It is a system deposit
+                log.info("Making a system deposit to account: {} of UGX: {}", wallet, request.getAmount());
+                transaction.setMmTransaction(null);
+                transaction.setCurrency("UGX");
+                transaction.setAmount(BigDecimal.valueOf(request.getAmount()));
+                transaction.setDescription("TOP-UP from Bursary");
+            }
+            // Collection Transaction
             transaction.setReceiver(student);
             transaction.setSender(parent);
             transaction.setCreditAccount(student.getWalletAccount());
             transaction.setSchool(student.getSchool());
             transaction.setTransactionId(Utils.generateTransactionId());
+            if (provider == Utils.PROVIDER.SYSTEM){
+                transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
+                // this will create handle the balance update right?
+                transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
+                transactionRepository.save(transaction);
+            }
             // DB trigger will handle the rest at this point
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);
 

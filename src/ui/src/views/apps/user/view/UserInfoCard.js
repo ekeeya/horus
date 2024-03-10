@@ -159,7 +159,7 @@ const UserInfoCard = ({selectedUser}) => {
 
     return (
         <Fragment>
-            <Card>
+            <Card className="root">
                 <CardBody>
                     <div className='user-avatar-section'>
                         <div className='d-flex align-items-center flex-column'>
@@ -226,7 +226,7 @@ const UserInfoCard = ({selectedUser}) => {
                     </div>
                 </CardBody>
             </Card>
-            <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg'>
+            <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg root'>
                 <ModalHeader className='bg-transparent' toggle={() => setShow(!show)}></ModalHeader>
                 <ModalBody className='px-sm-5 pt-50 pb-5'>
                     <div className='text-center mb-2'>

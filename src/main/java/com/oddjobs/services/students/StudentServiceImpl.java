@@ -67,7 +67,13 @@ public class StudentServiceImpl implements StudentService{
         }
         ClassRoom classRoom = null;
         try{
-            classRoom =  classRoomRepository.findClassRoomByNameAndSchool(request.getClassRoom(), school);
+            if (request.getId() == null){
+                classRoom =  classRoomRepository.findClassRoomByNameAndSchool(request.getClassRoom(), school);
+            }else{
+                Long classId =  Long.parseLong(request.getClassRoom());
+                classRoom =  classRoomRepository.findClassRoomById(classId);
+            }
+
         }catch (NoSuchElementException ignored){}
         if(classRoom == null){
             throw new GenericException(String.format("Class room with Id %s not found in the database", request.getClassRoom()));

@@ -55,6 +55,9 @@ export const generateError = (error)=>{
     return errorMsg;
 }
 
+export const cleanTag =(value)=>{
+    return value.replace("https://www.en", "");
+}
 export const renderDateTime = (date)=>{
     const m =  moment(date);
     return m.format('hh:mmA | DD.MM.YYYY');

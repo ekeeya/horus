@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const domain = "https://schools.rackupkonnect.com";
+const domain = "http://192.168.21.5:8000";
 
 const prefix = "/";
 

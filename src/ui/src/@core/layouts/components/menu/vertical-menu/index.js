@@ -64,11 +64,11 @@ const Sidebar = props => {
             <div className='shadow-bottom' ref={shadowRef}></div>
             {/* Perfect Scrollbar */}
             <PerfectScrollbar
-              className='main-menu-content'
+              className='main-menu-content mt-3'
               options={{ wheelPropagation: false }}
               onScrollY={container => scrollMenu(container)}
             >
-              <ul className='navigation navigation-main'>
+              <ul className='navigation navigation-main border-2 border-danger rounded-2 root'>
                 <VerticalNavMenuItems
                   items={menuData}
                   menuData={menuData}

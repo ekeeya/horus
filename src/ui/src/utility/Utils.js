@@ -221,3 +221,8 @@ export const formatCreditCardNumber = (number) =>{
   const formatPattern = /(\d{4})(?=\d)/g;
   return number.replace(formatPattern, '$1 ');
 }
+export function sleep(microseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, microseconds / 1000);
+  });
+}

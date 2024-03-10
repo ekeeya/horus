@@ -1,7 +1,10 @@
 // ** Icons Import
 import { Circle} from 'react-feather'
-import {FaFileInvoiceDollar, FaFileZipper, FaFileExcel, FaMoneyBill1Wave} from "react-icons/fa6"
-
+import {FaFileExcel, FaMoneyBill1Wave} from "react-icons/fa6"
+import { GiReceiveMoney } from "react-icons/gi";
+import { CiBoxList } from "react-icons/ci";
+import { GiBuyCard } from "react-icons/gi";
+import { GiMoneyStack } from "react-icons/gi";
 export default [
   {
     header: 'Reports'
@@ -28,33 +31,26 @@ export default [
   {
     id: 'transactions',
     title: 'Transactions',
-    icon: <FaFileExcel size={20} />,
+    icon: <CiBoxList size={20} />,
     children: [
       {
         id: 'collections',
         title: 'Collections',
-        icon: <Circle size={12} />,
+        icon: <GiReceiveMoney size={12} />,
         navLink: '/transactions/collections'
       },
       {
         id: 'payments',
         title: 'Payments',
-        icon: <Circle size={12} />,
+        icon: <GiBuyCard size={12} />,
         navLink: '/transactions/payments'
       },
       {
         id: 'withdraws',
         title: 'Withdraws',
-        icon: <FaMoneyBill1Wave size={20} />,
+        icon: <GiMoneyStack size={20} />,
         navLink: '/transactions/withdraws'
       },
     ]
   },
-  /*{
-    id: 'others',
-    title: 'Other Reports',
-    icon: <FaFileZipper size={20} />,
-
-    navLink: '/forms/wizard'
-  }*/
 ]

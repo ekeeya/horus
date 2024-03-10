@@ -23,9 +23,9 @@ import { horizontalScale, moderateScale, verticalScale } from "../utils/Metrics"
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 const Login = ()=>{
 
-    const [username, setUsername] = useState("")
+    const [username, setUsername] = useState("parvin")
     const [secureText, setSecureText] =  useState(true)
-    const [password, setPassword] = useState("")
+    const [password, setPassword] = useState("12345678")
 
     // dispatch
     const dispatch =  useDispatch();
