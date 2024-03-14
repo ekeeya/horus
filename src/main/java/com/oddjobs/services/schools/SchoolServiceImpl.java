@@ -102,7 +102,7 @@ public class SchoolServiceImpl implements SchoolService{
                 // Also add a subscription
                 SubscriptionRequestDTO subscriptionRequest = new SubscriptionRequestDTO(null,school.getId(), null, null,0.0,
                         school.getCommissionRate(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
-                subscriptionService.register(subscriptionRequest
+                subscriptionService.register(subscriptionRequest);
                 return school.getId();
             }catch (Exception e){
                 throw new RuntimeException(e);
