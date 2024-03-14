@@ -153,7 +153,6 @@ public class WalletServiceImpl implements WalletService {
             }
 
             User user = contextProvider.getPrincipal();
-            ParentUser parent = (ParentUser) user;
             BaseRequestToPay requestToPay;
             Settings settings = settingService.getSettings();
             if (settings != null){
@@ -172,6 +171,7 @@ public class WalletServiceImpl implements WalletService {
                 msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.FLUTTER_WAVE);
                 requestToPay = new FlutterwaveRequestToPayDTO();
                 // get parent email
+                ParentUser parent = (ParentUser) user;
                 ((FlutterwaveRequestToPayDTO) requestToPay).setEmail(parent.getEmail());
                 ((FlutterwaveRequestToPayDTO) requestToPay).setPhone_number(msisdn);
                 Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
@@ -182,8 +182,10 @@ public class WalletServiceImpl implements WalletService {
                 transaction.setCurrency(t.getCurrency());
                 transaction.setAmount(t.getAmount());
                 transaction.setDescription(t.getDescription());
+                transaction.setSender(parent);
             }else{
                 // It is a system deposit
+                // SchoolUser parent = (SchoolUser) user;
                 log.info("Making a system deposit to account: {} of UGX: {}", wallet, request.getAmount());
                 transaction.setMmTransaction(null);
                 transaction.setCurrency("UGX");
@@ -191,16 +193,16 @@ public class WalletServiceImpl implements WalletService {
                 transaction.setDescription("TOP-UP from Bursary");
             }
             // Collection Transaction
+            transaction.setSender(user); // who initiated it, can be a Parent to School user
             transaction.setReceiver(student);
-            transaction.setSender(parent);
             transaction.setCreditAccount(student.getWalletAccount());
             transaction.setSchool(student.getSchool());
             transaction.setTransactionId(Utils.generateTransactionId());
             if (provider == Utils.PROVIDER.SYSTEM){
                 transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
+                transaction =transactionRepository.save(transaction); // save it first to get the id
                 // this will create handle the balance update right?
                 transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
-                transactionRepository.save(transaction);
             }
             // DB trigger will handle the rest at this point
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);

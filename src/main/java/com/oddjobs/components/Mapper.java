@@ -3,8 +3,6 @@ package com.oddjobs.components;
 import com.oddjobs.dtos.responses.*;
 import com.oddjobs.entities.users.*;
 import com.oddjobs.entities.wallets.SchoolWalletAccount;
-import com.oddjobs.entities.website.FAQs;
-import com.oddjobs.entities.website.Feedbacks;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
@@ -62,15 +60,6 @@ public class Mapper {
         return userDto;
     }
 
-    public FAQResponseDto toFAQRequestDto(FAQs faqs) {
-        FAQResponseDto faqsDto = new FAQResponseDto(faqs);
-        return faqsDto;
-    }
-
-    public FeedbackResponseDto toFeedbackRequestDto(Feedbacks feedbacks) {
-        FeedbackResponseDto feedbacksDto = new FeedbackResponseDto(feedbacks);
-        return feedbacksDto;
-    }
 
     public StudentResponseDTO toStudentDTO(StudentEntity student, boolean showWallet) {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);

@@ -6,14 +6,16 @@ import com.oddjobs.entities.wallets.StudentWalletAccount;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Table(name="student")
 @Entity
-@Data
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"version", "createdAt","createdBy","lastModifiedAt", "lastModifiedBy","deleted","enabled"})
 public class StudentEntity extends BaseEntity{
 
@@ -25,7 +27,7 @@ public class StudentEntity extends BaseEntity{
     @Column(unique = true)
     private String regNo= UUID.randomUUID().toString();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="class_room_id", nullable=false)
     private ClassRoom classRoom;
 

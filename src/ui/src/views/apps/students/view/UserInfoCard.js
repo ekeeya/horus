@@ -141,7 +141,6 @@ const UserInfoCard = ({selectedStudent}) => {
                 label: `${parent.fullName} (${parent.telephone})`
             }
         });
-        console.log(ps)
         setParents(ps)
     }, [users])
 

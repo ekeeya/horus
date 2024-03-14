@@ -47,10 +47,13 @@ public class TransactionResponseDTO implements Serializable {
             setSender(new UserResponseDto(((CollectionTransaction) t).getSender()));
             setReceiver(new StudentResponseDTO(((CollectionTransaction) t).getReceiver(),true));
             setCreditAccount(new AccountResponseDTO(((CollectionTransaction) t).getCreditAccount()));
-            MMTransaction mmTransaction =((CollectionTransaction) t).getMmTransaction();
-            setProvider(mmTransaction.getProvider().name());
-            if(mmTransaction instanceof FlutterWaveTransaction){
-                setRedirectUrl(((FlutterWaveTransaction) mmTransaction).getRedirectUrl());
+            if (((CollectionTransaction) t).getMmTransaction() != null ){
+                MMTransaction mmTransaction =((CollectionTransaction) t).getMmTransaction();
+                setProvider(mmTransaction.getProvider().name());
+
+                if(mmTransaction instanceof FlutterWaveTransaction){
+                    setRedirectUrl(((FlutterWaveTransaction) mmTransaction).getRedirectUrl());
+                }
             }
         }else if(t instanceof PaymentTransaction) {
             setDebitAccount(new AccountResponseDTO(((PaymentTransaction) t).getDebitAccount()));

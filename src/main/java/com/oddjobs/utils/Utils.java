@@ -83,6 +83,18 @@ public class Utils {
         PENDING, INACTIVE, ACTIVE
     }
 
+    public static enum SUBSCRIPTION_PLAN{
+        MONTHLY (1), TERMLY(3), ANNUALLY(12);
+        private final int months;
+
+        SUBSCRIPTION_PLAN(int months) {
+            this.months = months;
+        }
+
+        public int getMonths() {
+            return months;
+        }
+    }
     public static enum TRANSACTION_TYPE{
         COLLECTION(Values.COLLECTION), DISBURSEMENT(Values.DISBURSEMENT), PAYMENT(Values.PAYMENT),SYSTEM(Values.SYSTEM),;
         private TRANSACTION_TYPE (String val) {

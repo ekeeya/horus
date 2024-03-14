@@ -8,6 +8,7 @@ import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.dtos.requests.UpdateWalletRequest;
 import com.oddjobs.dtos.requests.WalletDepositDTO;
 import com.oddjobs.dtos.requests.WalletManagementRequestDTO;
+import com.oddjobs.dtos.responses.AccountResponseDTO;
 import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
@@ -126,11 +127,12 @@ public class WalletController {
                 WalletDepositDTO r = new WalletDepositDTO();
                 r.setCardNo(request.getCardNo());
                 r.setAmount(request.getAmount());
+                r.setIsSystem(true);
                 CollectionTransaction t = walletService.depositIntoWallet(r);
-                account = walletService.updateWalletBalance(account, request.getAmount());
                 String successMsg = String.format("Wallet account with cardNo: %s has been topped up to [%s]", request.getCardNo(), account.getBalance().toString());
+                AccountResponseDTO ac = new AccountResponseDTO(account);
                 response.setMessage(successMsg);
-                response.setData(account);
+                response.setData(ac);
                 return ResponseEntity.ok(response);
             }
             return ResponseEntity.badRequest().body(response);

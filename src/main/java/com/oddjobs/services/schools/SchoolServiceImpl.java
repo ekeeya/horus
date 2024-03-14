@@ -2,6 +2,7 @@ package com.oddjobs.services.schools;
 
 import com.oddjobs.dtos.requests.ClassRoomDTO;
 import com.oddjobs.dtos.requests.SchoolRequestDTO;
+import com.oddjobs.dtos.requests.SubscriptionRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
@@ -43,6 +44,7 @@ public class SchoolServiceImpl implements SchoolService{
     private final ClassRoomRepository classRoomRepository;
     private final WalletAccountRepository walletAccountRepository;
     private final TransactionalExecutorService executorService;
+    private final SubscriptionService subscriptionService;
 
     @Override
     public Long register(SchoolRequestDTO request) {
@@ -97,6 +99,10 @@ public class SchoolServiceImpl implements SchoolService{
                     u.setSchoolId(school.getId());
                     userService.registerOrUpdateUser(request.getUser());
                 }
+                // Also add a subscription
+                SubscriptionRequestDTO subscriptionRequest = new SubscriptionRequestDTO(null,school.getId(), null, null,0.0,
+                        school.getCommissionRate(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
+                subscriptionService.register(subscriptionRequest
                 return school.getId();
             }catch (Exception e){
                 throw new RuntimeException(e);

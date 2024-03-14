@@ -40,10 +40,12 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
   const [selectedParent, setSelectedParent] =  useState({});
   const [selectedSchool, setSelectedSchool] =  useState({});
   const [selectedClass, setSelectedClass] =  useState({});
+  const [parents, setParents] = useState([])
 
   const { userData } = useSelector((store) => store.auth);
   const schoolStore = useSelector(state => state.schools)
   const userStore= useSelector(state => state.users)
+  const { users, error} = useSelector((store) => store.users);
 
 
   // ** Store Vars
@@ -57,8 +59,26 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
         classes:userData.school.classes,
       });
     }
+    async function fetchParents(){
+      const configs = {
+        page: 0,
+        size: 10,
+        parents:true
+      }
+      await dispatch(fetchUsers(configs))
+    }
+    fetchParents().catch((error=>{console.log(error)}))
   },[])
 
+  useEffect(()=>{
+    const ps =   users.map(parent => {
+      return {
+        value: parent.id,
+        label: `${parent.fullName} (${parent.telephone})`
+      }
+    });
+    setParents(ps)
+  }, [users])
 
   const schoolSearchFunction=(val)=>{
     dispatch(fetchSchools({page:0, size:10, name:val}))
@@ -73,7 +93,7 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
     const  configs = {
       page:0,
       size:10,
-      accountType:"PARENT",
+      parents:true,
       name:val
     }
     setTimeout(()=>{
@@ -92,17 +112,6 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
         value:school.id,
         label:school.name,
         classes:school.classes
-      }
-    })
-  }
-
-  const parents = ()=>{
-    return userStore.users.map(parent=>{
-      if(parent.role === "PARENT"){
-        return{
-          value:parent.id,
-          label: `${parent.fullName} (${parent.telephone})`
-        }
       }
     })
   }
@@ -269,7 +278,7 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
                         isClearable={true}
                         isLoading={userStore.loading}
                         placeholder="Select Guardian"
-                        options={parents()}
+                        options={parents}
                         name="selectedParent"
                         onInputChange={(val) => handleParentSearch(val)}
                         classNamePrefix='select'

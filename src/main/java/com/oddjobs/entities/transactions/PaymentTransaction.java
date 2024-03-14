@@ -13,23 +13,24 @@
 
 package com.oddjobs.entities.transactions;
 
-import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
+import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @DiscriminatorValue(value= Utils.TRANSACTION_TYPE.Values.PAYMENT)
 public class PaymentTransaction extends  Transaction{
 
-    @OneToOne
-    @JoinColumn(name = "attendant", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "attendant_id", referencedColumnName = "id")
     private POSAttendant attendant;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private StudentWalletAccount debitAccount;
 }

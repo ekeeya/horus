@@ -18,10 +18,10 @@ import lombok.Setter;
         "lastModifiedBy","deleted","enabled", "receiver"})
 public class WithDrawTransaction extends  Transaction{
 
-    @OneToOne
+    @ManyToOne
     private SchoolWalletAccount creditAccount;
 
-    @OneToOne
+    @ManyToOne
     private AccountEntity debitAccount;
 
     @OneToOne(cascade=CascadeType.ALL)

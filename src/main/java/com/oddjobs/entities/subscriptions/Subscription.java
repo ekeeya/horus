@@ -21,18 +21,20 @@ import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
 @DynamicUpdate
 @Transactional
-@Data
+@Setter
+@Getter
 @Table(name="subscription", indexes = {@Index(name="subscription_idx1", columnList = "school_id")})
 public class Subscription extends BaseEntity {
 
@@ -50,6 +52,8 @@ public class Subscription extends BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
 
+    @Enumerated(EnumType.STRING)
+    private  Utils.SUBSCRIPTION_PLAN plan = Utils.SUBSCRIPTION_PLAN.MONTHLY;
 
     @Enumerated(EnumType.STRING)
     private Utils.SUBSCRIPTION_STATE state= Utils.SUBSCRIPTION_STATE.PENDING;
@@ -63,7 +67,19 @@ public class Subscription extends BaseEntity {
     private Double rate = 0.2;
 
     @Transient
-    private Boolean isActive() {
-        return this.getEnabled();
+    public Boolean isActive() {
+        return this.getState() == Utils.SUBSCRIPTION_STATE.ACTIVE;
+    }
+
+    @Override
+    public String toString() {
+        return "Subscription{" +
+                "school=" + school.getName() +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", state=" + state +
+                ", amount=" + amount +
+                ", rate=" + rate +
+                '}';
     }
 }

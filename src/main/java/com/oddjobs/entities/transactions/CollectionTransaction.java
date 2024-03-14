@@ -15,6 +15,7 @@ package com.oddjobs.entities.transactions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.users.User;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.ParentUser;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
@@ -23,9 +24,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @DiscriminatorValue(value= Utils.TRANSACTION_TYPE.Values.COLLECTION)
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"version",
         "createdAt","createdBy","lastModifiedAt",
@@ -38,12 +39,13 @@ public  class CollectionTransaction extends Transaction {
 
     @ManyToOne
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
-    private ParentUser sender;
+    private User sender;
 
     @OneToOne(cascade = CascadeType.ALL)
     private StudentEntity receiver;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "credit_account_id", referencedColumnName = "id")
     private StudentWalletAccount creditAccount;
 
     @OneToOne(cascade = CascadeType.ALL)

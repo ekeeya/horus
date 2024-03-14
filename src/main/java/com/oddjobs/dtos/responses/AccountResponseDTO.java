@@ -19,9 +19,11 @@ public class AccountResponseDTO implements Serializable {
     private BigDecimal balance;
     private Utils.WALLET_ACCOUNT_TYPES accountType;
     private Long studentId;
+    private Long schoolId;
+    private String  SchoolName;
     private String student;
     private String className;
-    private SchoolResponseDTO school;
+    // private SchoolResponseDTO school;
     public AccountResponseDTO(AccountEntity account){
         setAccountNo(account.getAccountNo());
         setName(account.getName());
@@ -32,9 +34,11 @@ public class AccountResponseDTO implements Serializable {
             setStudentId(((StudentWalletAccount) account).getStudent().getId());
             setStudent(((StudentWalletAccount) account).getStudent().fullName());
             setClassName(((StudentWalletAccount) account).getStudent().getClassRoom().getName());
-            setSchool(new SchoolResponseDTO(((StudentWalletAccount) account).getStudent().getSchool()));
+            setSchoolId(((StudentWalletAccount) account).getStudent().getSchool().getId());
+            setSchoolName(((StudentWalletAccount) account).getStudent().getSchool().getName());
         } else if (account instanceof SchoolWalletAccount){
-            setSchool(new SchoolResponseDTO(((SchoolWalletAccount) account).getSchool()));
+            setSchoolName(((SchoolWalletAccount) account).getSchool().getName());
+            setSchoolId(((SchoolWalletAccount) account).getSchool().getId());
         }
         setAccountType(account.getAccountType());
         setBalance(account.getBalance());

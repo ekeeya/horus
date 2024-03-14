@@ -91,7 +91,7 @@ public class StudentServiceImpl implements StudentService{
         }
         // attach to parent if any
         if(request.getParent() != null){
-            linkStudentToParent(student, request.getParent(), true);
+            linkStudentToParent(student, request.getParent(), false);
         }
         return s;
     }
