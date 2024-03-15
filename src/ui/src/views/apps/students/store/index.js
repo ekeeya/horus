@@ -112,6 +112,16 @@ export const walletManagement = createAsyncThunk('appStudent/walletManagement', 
     }
 });
 
+export const topupWallet = createAsyncThunk('appStudent/topupWallet', async (payload, thunkAPI) => {
+    try {
+        const response = await client.post(`api/v1/wallet/wallet-top-up`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error)
+        return thunkAPI.rejectWithValue(generateError(error))
+    }
+});
+
 export const appStudentSlice = createSlice({
     name: 'appStudent',
     initialState: {
@@ -220,7 +230,6 @@ export const appStudentSlice = createSlice({
                 state.loading = true;
             })
             .addCase(walletManagement.fulfilled, (state, {payload}) => {
-                console.log(payload)
                 state.loading = false;
                 state.selectedStudent = payload;
             })
@@ -228,7 +237,17 @@ export const appStudentSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload
             })
-
+            .addCase(topupWallet.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(topupWallet.fulfilled, (state, {payload}) => {
+                state.loading = false;
+                state.selectedStudent = payload.data;
+            })
+            .addCase(topupWallet.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload
+            })
             .addCase(getLinkRequests.pending, (state) => {
                 state.loading = true;
             })

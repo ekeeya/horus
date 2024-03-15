@@ -3,6 +3,8 @@ package com.oddjobs.components;
 import com.oddjobs.dtos.responses.*;
 import com.oddjobs.entities.users.*;
 import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.StudentWalletAccount;
+import com.oddjobs.exceptions.WalletAccountNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
@@ -61,7 +63,7 @@ public class Mapper {
     }
 
 
-    public StudentResponseDTO toStudentDTO(StudentEntity student, boolean showWallet) {
+    public StudentResponseDTO toStudentDTO(StudentEntity student, boolean showWallet)  {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);
         if(student.getParents() !=null && student.getParents().size() > 0){
             List<ParentUser> contributors = student.getParents();

@@ -75,7 +75,7 @@ export const columns = [
                         <small className='mb-0'>{row.debitAccount.student}</small>
                     </Link>
                     <small className='text-body mb-0'>Card:&nbsp;<small className='text-muted mb-0'>{row.debitAccount.cardNo}</small></small>
-                    <small className='text-truncate text-muted mb-0'>{row.debitAccount.school.name}</small>
+                    <small className='text-truncate text-muted mb-0'>{row.debitAccount.schoolName}</small>
                 </div>
             </div>
         ) : (<span>None</span>)

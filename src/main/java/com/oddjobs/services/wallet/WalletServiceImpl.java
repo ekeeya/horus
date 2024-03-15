@@ -36,6 +36,9 @@ import com.oddjobs.entities.wallets.SchoolWalletAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.services.mm.MobileMoneyService;
 import com.oddjobs.services.schools.SchoolService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +53,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class WalletServiceImpl implements WalletService {
 
@@ -67,6 +71,8 @@ public class WalletServiceImpl implements WalletService {
     private final ContextProvider contextProvider;
     private  final SettingService settingService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
     protected boolean exceedsDailyExpenditureLimit(StudentWalletAccount account){
         if (!account.getEnableDailyLimit()){
@@ -158,7 +164,7 @@ public class WalletServiceImpl implements WalletService {
             if (settings != null){
                 mmProviderType =  settings.getProvider().toString();
             }
-            Utils.PROVIDER provider = Utils.PROVIDER.valueOf(mmProviderType);
+            Utils.PROVIDER provider;
             if (request.getIsSystem()){
                 provider = Utils.PROVIDER.SYSTEM;
             }else{
@@ -185,7 +191,12 @@ public class WalletServiceImpl implements WalletService {
                 transaction.setSender(parent);
             }else{
                 // It is a system deposit
-                // SchoolUser parent = (SchoolUser) user;
+                if (user instanceof SchoolUser bursar){
+                    if (!Objects.equals(bursar.getSchool().getId(), student.getSchool().getId())){
+                        log.error("User {} not allowed to update balance for student {}", bursar, student);
+                        throw new ResourceFobidenException("You are not allowed to update balance");
+                    }
+                }
                 log.info("Making a system deposit to account: {} of UGX: {}", wallet, request.getAmount());
                 transaction.setMmTransaction(null);
                 transaction.setCurrency("UGX");
@@ -205,9 +216,13 @@ public class WalletServiceImpl implements WalletService {
                 transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
             }
             // DB trigger will handle the rest at this point
+            transactionRepository.save(transaction);
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);
-
-            return transactionRepository.save(transaction);
+            StudentWalletAccount w = entityManager.merge(wallet);
+            entityManager.flush();
+            entityManager.refresh(w);
+            transaction.getReceiver().setWalletAccount(w);
+            return transaction;
         }catch (Exception e){
             log.error(e.getMessage(), e);
             throw new RuntimeException();

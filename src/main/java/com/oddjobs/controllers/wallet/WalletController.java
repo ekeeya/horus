@@ -26,6 +26,7 @@ import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.services.schools.SchoolService;
+import com.oddjobs.services.students.StudentService;
 import com.oddjobs.services.wallet.WalletService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class WalletController {
     private final WalletService walletService;
     private final SchoolService schoolService;
     private final ContextProvider contextProvider;
+    private final StudentService studentService;
     private final Mapper mapper;
 
 
@@ -130,9 +132,9 @@ public class WalletController {
                 r.setIsSystem(true);
                 CollectionTransaction t = walletService.depositIntoWallet(r);
                 String successMsg = String.format("Wallet account with cardNo: %s has been topped up to [%s]", request.getCardNo(), account.getBalance().toString());
-                AccountResponseDTO ac = new AccountResponseDTO(account);
+                StudentResponseDTO s =  mapper.toStudentDTO(t.getReceiver(), true);
                 response.setMessage(successMsg);
-                response.setData(ac);
+                response.setData(s);
                 return ResponseEntity.ok(response);
             }
             return ResponseEntity.badRequest().body(response);

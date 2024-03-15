@@ -41,7 +41,7 @@ public  class CollectionTransaction extends Transaction {
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private StudentEntity receiver;
 
     @ManyToOne

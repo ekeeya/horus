@@ -41,9 +41,12 @@ import {
 } from "@src/views/apps/user/store";
 import {Minus, Plus, X} from "react-feather";
 import Select from "react-select";
-import {registerStudent, walletManagement} from "@src/views/apps/students/store";
+import {registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
 import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
+import {Link} from "react-router-dom";
+import {FaHandHoldingDollar} from "react-icons/fa6";
+import {FaPlus} from "react-icons/fa";
 
 const roleColors = {
     PARENT: 'light-info',
@@ -64,8 +67,10 @@ const MySwal = withReactContent(Swal)
 const UserInfoCard = ({selectedStudent}) => {
     // ** State
     const [show, setShow] = useState(false);
+    const [showBalanceUpdate, setShowBalanceUpdate] = useState(false);
     const [useDate, setUseDate] = useState(false)
     const [suspendDays, setSuspendDays] = useState(10);
+    const [topUpAmount, setTopUpAmount] = useState(10000);
     const [liftDate, setLiftDate] = useState(new Date());
     const [showSuspend, setShowSuspend] = useState(false);
     const [selectedClass, setSelectedClass] = useState({});
@@ -278,8 +283,22 @@ const UserInfoCard = ({selectedStudent}) => {
                                 <span>{formatCreditCardNumber(selectedStudent.wallet.cardNo)}</span>
                             </li>
                             <li className='mb-75'>
+                                <hr/>
                                 <span className='fw-bolder me-25'>Balance:</span>
-                                <span>UGX: {selectedStudent.wallet.balance.toLocaleString()}</span>
+                                <div className="row">
+                                    <div className="col">
+                                        UGX: {selectedStudent.wallet.balance.toLocaleString()}
+                                    </div>
+                                    <div className="col">
+                                        <Button onClick={() => setShowBalanceUpdate(true)} className="btn btn-sm btn-icon mb-10 btn-success" id={`pw-tooltip-top-up`}>
+                                            <FaPlus color='white' size={15}/> Top-up
+                                        </Button>
+                                        <UncontrolledTooltip placement='top' target={`pw-tooltip-top-up`}>
+                                            Top-up wallet balance
+                                        </UncontrolledTooltip>
+                                    </div>
+                                </div>
+                                    <hr/>
                             </li>
                             <li className='mb-75'>
                                 <span className='fw-bolder me-25'>Status:</span>
@@ -328,8 +347,7 @@ const UserInfoCard = ({selectedStudent}) => {
             <Modal
                 isOpen={showSuspend}
                 className='modal-dialog-centered'
-                modalClassName="danger"
-            >
+                modalClassName="danger">
                 <ModalHeader>Suspend card {selectedStudent.wallet.cardNo}</ModalHeader>
                 <ModalBody>
                     <div className='mb-2'>
@@ -421,6 +439,66 @@ const UserInfoCard = ({selectedStudent}) => {
                         dispatch(walletManagement(payload))
                     }}>
                         Suspend
+                    </Button>
+                </ModalFooter>
+            </Modal>
+            <Modal
+                isOpen={showBalanceUpdate}
+                className='modal-dialog-centered'
+                modalClassName="danger">
+                <ModalHeader className='bg-transparent' toggle={() => setShowBalanceUpdate(!showBalanceUpdate)}>
+                    Top-Up balance for card {selectedStudent.wallet.cardNo}
+                </ModalHeader>
+                <ModalBody>
+                    <div className='mb-2'>
+                        <Row className='gy-1 pt-75'>
+                            <Col xs={12}>
+                                <Label className='form-label' for='suspendDays'>
+                                    Top-up wallet by: <small className='text-muted'>(UGX)</small>
+                                </Label>
+                                <InputNumber step={1000} className="w-50" id='basic-number-input2' defaultValue={topUpAmount} upHandler={<Plus/>}
+                                             downHandler={<Minus/>} onChange={(val) => setTopUpAmount(val)}/>
+                                <small className='text-muted'>
+                                    Specify how much you want to top-up this wallet account with.
+                                </small>
+                            </Col>
+                        </Row>
+                        <Alert color='info' className="mt-1">
+                            <div className='alert-body font-small-2'>
+                                <p>
+                                    <small className='me-lg-1'>
+                                        <span className='fw-bold'>Note:</span>
+                                    </small>
+                                </p>
+                                <p>
+                                    <small className='me-50'>
+                                        The balance will be incremented by the figure used above, use a negative figure to reduce the balance!
+                                    </small>
+                                </p>
+                            </div>
+                            <X
+                                onClick={() => dispatch(clearError())}
+                                id='clear-error-tip'
+                                className='position-absolute'
+                                size={18}
+                                style={{top: '10px', right: '10px'}}
+                            />
+                            <UncontrolledTooltip target='clear-error-tip' placement='top'>
+                                Collapse
+                            </UncontrolledTooltip>
+                        </Alert>
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="success" onClick={async () => {
+                        const payload = {
+                            amount:topUpAmount,
+                            cardNo:selectedStudent.wallet.cardNo
+                        }
+                        await dispatch(topupWallet(payload))
+                        setShowBalanceUpdate(false);
+                    }}>
+                        Top-Up
                     </Button>
                 </ModalFooter>
             </Modal>

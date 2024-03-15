@@ -157,7 +157,9 @@ public class DashboardController {
 
             List<School> schools = schoolService.fetchAll(0, Integer.MAX_VALUE).getContent();
             List<Object> results = new ArrayList<>();
-            Date now = Calendar.getInstance().getTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            Date now = calendar.getTime();
             for (School school:schools ) {
                 Map<String, Object> record = new HashMap<>();
                 List<Double> sales = new ArrayList<>();
