@@ -184,40 +184,38 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     public void updateTransactionOnCallback(CallBackDataDTO data) throws TransactionDoesNotExistException {
-        log.info("Entering update transaction on callcack with data {}", data);
-        MMTransaction mmTransaction = null;
+        log.info("Entering update transaction on callback with data {}", data);
+        MMTransaction mmTransaction;
         switch (data.getProvider()){
-            case MTN -> {
-                mmTransaction =  findByMMTransactionXrefId(data.getXRef());
-            }
-            case AIRTEL -> {
-                mmTransaction =  findByMMTransactionTransactionId(data.getTransactionId());
-            }
-            case EASY_PAY, FLUTTER_WAVE -> {
-                mmTransaction =  findByMMTransactionRef(data.getXRef());
-            }
+            case MTN -> mmTransaction =  findByMMTransactionXrefId(data.getXRef());
+            case AIRTEL -> mmTransaction =  findByMMTransactionTransactionId(data.getTransactionId());
+            default -> mmTransaction =  findByMMTransactionRef(data.getXRef());
         }
 
         if (mmTransaction ==  null){
             // this should never happen.
+            log.error("We could not retrieve mobile money transaction");
             throw new TransactionDoesNotExistException(data.toString());
         }
         if (mmTransaction.getStatus() != Utils.TRANSACTION_STATUS.PENDING){
             // already been updated by poller
+            log.warn("Transaction has been updated {}", mmTransaction);
             return;
         }
         Utils.TRANSACTION_STATUS tStatus = Utils.TRANSACTION_STATUS.valueOf(data.getStatus());
         mmTransaction.setStatus(tStatus);
+        mmTransaction.setCharge(BigDecimal.valueOf(data.getCharge()));
         mmTransaction.setResponse(data.getPayload());
         mmTransactionRepository.save(mmTransaction);
         // Update collections transaction.
         CollectionTransaction transaction = findTransactionByMMTransaction(mmTransaction);
         if (transaction == null){
             // should never happen either.
+            log.error("We could not retrieve collections transaction {}", mmTransaction);
             String msg = String.format("Collections Transaction from mmTransaction ref %s",mmTransaction);
             throw new TransactionDoesNotExistException(msg);
         }
-        transaction.setTotalPlusCharges(BigDecimal.valueOf(data.getCharge() + data.getAmount())); // TODO implement charge calculations for others
+        transaction.setTotalPlusCharges(BigDecimal.valueOf(data.getCharge() + data.getAmount()));
         transactionRepository.updateTransactionStatus(tStatus.toString(), transaction.getId());
         transactionRepository.save(transaction);
         log.info("Leaving update transaction on callback with transaction {}", transaction);

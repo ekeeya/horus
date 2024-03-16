@@ -13,7 +13,6 @@ public class MobileMoneyProductConfigDTO{
     private Utils.PRODUCT_TYPE productType;
     @NotNull
     private Utils.PROVIDER provider;
-    @NotNull
     private String callBackUrl;
     private String description;
     private String hashKey;
@@ -21,6 +20,7 @@ public class MobileMoneyProductConfigDTO{
     private String secondaryKey;
     private String clientId;
     private String username;
+    private String apiKey; //relworx
     private String password;
     private String clientSecretKey;
     @NotNull

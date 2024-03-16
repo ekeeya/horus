@@ -3,7 +3,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.oddjobs.entities.transactions.CollectionTransaction;
 import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
-import com.oddjobs.entities.transactions.mm.FlutterWaveTransaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.utils.Utils;
 import lombok.Data;
@@ -50,10 +49,6 @@ public class TransactionResponseDTO implements Serializable {
             if (((CollectionTransaction) t).getMmTransaction() != null ){
                 MMTransaction mmTransaction =((CollectionTransaction) t).getMmTransaction();
                 setProvider(mmTransaction.getProvider().name());
-
-                if(mmTransaction instanceof FlutterWaveTransaction){
-                    setRedirectUrl(((FlutterWaveTransaction) mmTransaction).getRedirectUrl());
-                }
             }
         }else if(t instanceof PaymentTransaction) {
             setDebitAccount(new AccountResponseDTO(((PaymentTransaction) t).getDebitAccount()));

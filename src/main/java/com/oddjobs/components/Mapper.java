@@ -3,13 +3,12 @@ package com.oddjobs.components;
 import com.oddjobs.dtos.responses.*;
 import com.oddjobs.entities.users.*;
 import com.oddjobs.entities.wallets.SchoolWalletAccount;
-import com.oddjobs.entities.wallets.StudentWalletAccount;
-import com.oddjobs.exceptions.WalletAccountNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.repositories.students.StudentRepository;
+import com.oddjobs.services.students.StudentService;
 import com.oddjobs.services.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ public class Mapper {
     private final StudentRepository studentRepository;
     private final ClassRoomRepository classRoomRepository;
     private final WalletService walletService;
+    private  final StudentService studentService;
 
     public UserResponseDto toUserDTO(User user) {
         UserResponseDto userDto = new UserResponseDto(user);
@@ -58,8 +58,7 @@ public class Mapper {
     }
 
     public ProspectResponseDto toProspectUserDTO(Prospect user) {
-        ProspectResponseDto userDto = new ProspectResponseDto(user);
-        return userDto;
+        return new ProspectResponseDto(user);
     }
 
 

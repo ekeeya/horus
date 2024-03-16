@@ -31,10 +31,7 @@ public class Constants {
 
     public static String AIRTEL_GET_ACC_BALANCE="/standard/v1/users/balance";
 
-    public static String FLUTTER_WAVE_REQUEST_TO_PAY="/charges?type=mobile_money_uganda";
-    public static String FLUTTER_WAVE_TRANSACTION_STATUS="/transactions/{variable}/verify";
-
-    // MFS BEYONIC
-    public static String MFS_BEYONIC_REQUEST_TO_PAY = "/collectionrequests";
+    public  static String RELWORX_ACCEPT_HEADER = "application/vnd.relworx.v2";
+    public static String RELWORX_REQUEST_PAYMENT ="/mobile-money/request-payment";
 
 }

@@ -1,5 +1,6 @@
-package com.oddjobs.entities.transactions.mm;
+package com.oddjobs.entities.transactions.mm.airtel;
 
+import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -11,7 +12,7 @@ import lombok.*;
 @Entity
 @Data
 @DiscriminatorValue(value= Utils.PROVIDER.Values.AIRTEL)
-public class AirtelTransaction extends MMTransaction{
+public class AirtelTransaction extends MMTransaction {
 
     @Column(name="response_code")
     private String responseCode;

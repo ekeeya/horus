@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MMTransactionRepository extends JpaRepository<MMTransaction, Long> {
 
-    @Query("SELECT t FROM MMTransaction t WHERE (TYPE(t) = EasyPayTransaction OR TYPE(t) = FlutterWaveTransaction) AND t.reference = :reference")
+    @Query("SELECT t FROM MMTransaction t WHERE (TYPE(t) = RelworxTransaction ) AND t.reference = :reference")
     <T extends MMTransaction> T findMMTransactionByRef(@Param("reference") String reference);
 
     @Query("SELECT t FROM MMTransaction t WHERE TYPE(t) = MTNTransaction AND t.xReferenceId = :xReferenceId")

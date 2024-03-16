@@ -15,17 +15,12 @@ public class UserResponseDto {
     private Long id;
     private Utils.ACCOUNT_TYPE accountType;
     private String username;
-
     private String role;
-
     private String email;
     private String address;
-
     private String firstName;
-
     private String lastName;
     private String middleName;
-
     private  String fullName;
     private String status;
     private String qrCode;

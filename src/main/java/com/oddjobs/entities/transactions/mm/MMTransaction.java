@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
@@ -14,14 +16,14 @@ import org.hibernate.annotations.Type;
 import java.math.BigDecimal;
 
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
 @DynamicUpdate
 @Transactional
 @DiscriminatorColumn(name = "provider")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Data
+@Setter
+@Getter
 @Table(name="mm_transaction")
 public abstract class MMTransaction  extends BaseEntity {
 
@@ -43,6 +45,8 @@ public abstract class MMTransaction  extends BaseEntity {
     private String description;
 
     private BigDecimal amount=new BigDecimal(0);
+
+    private BigDecimal charge=new BigDecimal(0);
 
     @Enumerated(EnumType.STRING)
     @Column(insertable=false, updatable=false)

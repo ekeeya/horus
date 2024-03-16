@@ -25,9 +25,9 @@ public class MMTransactionDTO implements Serializable {
     private BigDecimal amount=new BigDecimal(0);
 
     private String responseCode;
-
     private String xReferenceId;
     private String reference;
+    private String internalReference;
 
     private Utils.PROVIDER provider;
     private String redirectUrl; // flutterwave

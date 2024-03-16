@@ -11,19 +11,21 @@
  * NOTICE: All information contained herein is, and remains the property of Oddjobs. - www.oddjobs.tech
  */
 
-package com.oddjobs.entities.mm;
+package com.oddjobs.entities.mm.relworx;
 
+import com.oddjobs.entities.mm.MobileMoneyProduct;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
-@DiscriminatorValue(value= Utils.PROVIDER.Values.EASY_PAY)
-public class EasyPayApiUser extends  APIUser{
-    private String username;
-    private String password;
+@Setter
+@Getter
+@DiscriminatorValue(value= Utils.PROVIDER.Values.RELWORX)
+public class RelworxProduct extends MobileMoneyProduct {
+    private String description;
 }

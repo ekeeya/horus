@@ -21,7 +21,6 @@ const renderType=(type)=>{
 }
 const renderDate = (date) => {
     //const d = new Date(date)
-    console.log(date)
     const m = moment(date)
     const humanReadable = m.format('ddd MMM DD YYYY : hh:mm:ss A')
     return (

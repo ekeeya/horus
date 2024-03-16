@@ -16,7 +16,7 @@ public class Utils {
         Delete, Disable, Enable
     }
     public static enum PROVIDER_TYPES{
-        TELECOMS, EASY_PAY, FLEX_PAY, FLUTTER_WAVE, BEYONIC
+        TELECOMS, RELWORX
     }
 
     public  static enum WALLET_ACCOUNT_TYPES{
@@ -62,7 +62,11 @@ public class Utils {
     }
 
     public static enum PROVIDER{
-        MTN(Values.MTN), AIRTEL(Values.AIRTEL), EASY_PAY(Values.EASY_PAY),FLUTTER_WAVE(Values.FLUTTER_WAVE),BEYONIC(Values.BEYONIC),SYSTEM(Values.SYSTEM);
+        MTN(Values.MTN),
+        AIRTEL(Values.AIRTEL),
+        RELWORX(Values.RELWORX),
+
+        SYSTEM(Values.SYSTEM);
         private PROVIDER (String val) {
             // force equality between name of enum instance, and value of constant
             if (!this.name().equals(val))
@@ -71,10 +75,8 @@ public class Utils {
 
         public static class Values {
             public static final String MTN= "MTN";
+            public static final String RELWORX = "RELWORX";
             public static final String AIRTEL= "AIRTEL";
-            public static final String EASY_PAY= "EASY_PAY";
-            public static final String FLUTTER_WAVE= "FLUTTER_WAVE";
-            public static final String BEYONIC= "BEYONIC";
             public static final String SYSTEM= "SYSTEM";
         }
     }
@@ -349,16 +351,21 @@ public class Utils {
         }
         if (provider == null){
             if (tel.startsWith("0")){
-                return String.format("256%s", tel.substring(1,tel.length()));
+                return String.format("256%s", tel.substring(1));
             } else if (tel.startsWith("+256")) {
-                return tel.substring(1,tel.length());
+                return tel.substring(1);
             }
         }else{
+            String cleanTel = "";
             if (tel.startsWith("0")){
-                return tel.substring(1,tel.length());
+                cleanTel = tel.substring(1);
             } else if (tel.startsWith("+256")) {
-                return tel.substring(4,tel.length());
+                cleanTel = tel.substring(4);
             }
+            if (provider == PROVIDER.RELWORX){
+                return  "+256" + cleanTel;
+            }
+            return cleanTel;
         }
 
         return tel.substring(3,tel.length());

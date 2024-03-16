@@ -20,19 +20,21 @@ import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @DiscriminatorColumn(name = "provider")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DynamicInsert
 @DynamicUpdate
 @Transactional
-@Data
+@Setter
+@Getter
 @Table(name="mm_api_user")
 public abstract class APIUser  extends BaseEntity {
     @Enumerated(EnumType.STRING)

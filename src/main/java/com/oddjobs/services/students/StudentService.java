@@ -20,6 +20,8 @@ import com.oddjobs.exceptions.GenericException;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface StudentService {
 
     StudentEntity registerStudent(StudentRequestDTO request) throws SchoolNotFoundException, GenericException;

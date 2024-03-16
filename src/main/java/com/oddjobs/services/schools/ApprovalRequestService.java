@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ApprovalRequestService {
 
-    void approvePrimaryParent(SchoolApprovalRequest request, boolean approve, boolean force) throws Exception;
+    void approvePrimaryParent(SchoolApprovalRequest request, boolean approve, boolean force, boolean fromBulk) throws Exception;
 
     void approveSecondaryParent(ParentApprovalRequest request, boolean approve) throws Exception;
 

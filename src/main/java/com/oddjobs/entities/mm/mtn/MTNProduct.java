@@ -11,8 +11,9 @@
  * NOTICE: All information contained herein is, and remains the property of Oddjobs. - www.oddjobs.tech
  */
 
-package com.oddjobs.entities.mm;
+package com.oddjobs.entities.mm.mtn;
 
+import com.oddjobs.entities.mm.MobileMoneyProduct;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

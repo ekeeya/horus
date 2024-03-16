@@ -150,7 +150,7 @@ public class StudentServiceImpl implements StudentService{
             r.setParent(parent.getId());
             SchoolApprovalRequest approvalRequest = (SchoolApprovalRequest) approvalRequestService.createApprovalRequest(r, true);
             // approve it
-            approvalRequestService.approvePrimaryParent(approvalRequest, true,true);
+            approvalRequestService.approvePrimaryParent(approvalRequest, true,true, true);
 
         }else{
             log.warn(String.format("Could not create parent user for student %s since phone number is not provided", student));

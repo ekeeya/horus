@@ -11,8 +11,9 @@
  * NOTICE: All information contained herein is, and remains the property of Oddjobs. - www.oddjobs.tech
  */
 
-package com.oddjobs.entities.mm;
+package com.oddjobs.entities.mm.airtel;
 
+import com.oddjobs.entities.mm.MobileMoneyProduct;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -23,17 +24,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@DiscriminatorValue(value= Utils.PROVIDER.Values.MTN)
-public class MTNApiUser extends  APIUser{
-    @Column(name="primary_key")
-    private String primaryKey;
-
-    @Column(name="secondary_key")
-    private String secondaryKey;
-
-    @Column(name="api_key")
-    private  String apiKey;
-
-    @Column(name="user_uuid")
-    private String userUuid;
+@DiscriminatorValue(value= Utils.PROVIDER.Values.AIRTEL)
+public class AirtelProduct extends MobileMoneyProduct {
+        @Column(name="hash_key")
+        private String hashKey;
 }

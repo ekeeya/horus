@@ -36,9 +36,10 @@ public class StudentEntity extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name="primary_parent")
-    private ParentUser primaryParent; //can have multiple primary parents
+    private ParentUser primaryParent;
 
     @ManyToMany
+    @JoinTable(name = "student_parents", joinColumns = @JoinColumn(name = "parent_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"))
     private List<ParentUser> parents;
 
     @ManyToOne

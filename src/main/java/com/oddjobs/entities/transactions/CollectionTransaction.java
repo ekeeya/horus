@@ -40,17 +40,24 @@ public  class CollectionTransaction extends Transaction {
     @ManyToOne
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
-
     @ManyToOne
     private StudentEntity receiver;
-
     @ManyToOne
     @JoinColumn(name = "credit_account_id", referencedColumnName = "id")
     private StudentWalletAccount creditAccount;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mm_transaction", referencedColumnName = "id")
     private MMTransaction mmTransaction;
-
     private BigDecimal totalPlusCharges;
+
+    @Override
+    public String toString() {
+        return "CollectionTransaction{" +
+                "sender=" + sender +
+                ", receiver=" + receiver +
+                ", creditAccount=" + creditAccount +
+                ", mmTransaction=" + mmTransaction +
+                ", totalPlusCharges=" + totalPlusCharges +
+                '}';
+    }
 }

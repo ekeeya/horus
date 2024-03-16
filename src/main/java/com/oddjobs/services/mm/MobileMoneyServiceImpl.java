@@ -6,22 +6,27 @@ import com.oddjobs.dtos.airtel.requests.AirtelAccessTokenRequestDTO;
 import com.oddjobs.dtos.airtel.requests.AirtelPaymentRequestDTO;
 import com.oddjobs.dtos.airtel.requests.AirtelRequestToPayDTO;
 import com.oddjobs.dtos.airtel.responses.PaymentResponseDTO;
-import com.oddjobs.dtos.easypay.ConstantUtils;
-import com.oddjobs.dtos.easypay.requests.EasyPayRequestToPayDTO;
-import com.oddjobs.dtos.easypay.requests.EasyPaymentRequestDTO;
-import com.oddjobs.dtos.easypay.response.EasyPayResponseDTO;
-import com.oddjobs.dtos.flutterwave.requests.FlutterwavePaymentRequestDTO;
-import com.oddjobs.dtos.flutterwave.requests.FlutterwaveRequestToPayDTO;
-import com.oddjobs.dtos.flutterwave.response.FlutterwaveResponseDTO;
 import com.oddjobs.dtos.mtn.requests.MomoAccessTokenRequestDTO;
 import com.oddjobs.dtos.mtn.requests.MomoRequestToPayDTO;
 import com.oddjobs.dtos.mtn.responses.APIkeyResponseDTO;
 import com.oddjobs.dtos.mtn.responses.EmptyResponseDTO;
+import com.oddjobs.dtos.relworx.requests.RelworxPaymentRequestDTO;
+import com.oddjobs.dtos.relworx.requests.RelworxRequestToPayDTO;
+import com.oddjobs.dtos.relworx.response.RelworxPaymentResponseDTO;
 import com.oddjobs.dtos.requests.BaseRequestToPay;
 import com.oddjobs.dtos.requests.MMTransactionDTO;
 import com.oddjobs.dtos.requests.MobileMoneyProductConfigDTO;
 import com.oddjobs.entities.mm.*;
+import com.oddjobs.entities.mm.airtel.AirtelApiUser;
+import com.oddjobs.entities.mm.airtel.AirtelProduct;
+import com.oddjobs.entities.mm.mtn.MTNApiUser;
+import com.oddjobs.entities.mm.mtn.MTNProduct;
+import com.oddjobs.entities.mm.relworx.RelworxProduct;
+import com.oddjobs.entities.mm.relworx.RelworxUser;
 import com.oddjobs.entities.transactions.mm.*;
+import com.oddjobs.entities.transactions.mm.airtel.AirtelTransaction;
+import com.oddjobs.entities.transactions.mm.mtn.MTNTransaction;
+import com.oddjobs.entities.transactions.mm.relworx.RelworxTransaction;
 import com.oddjobs.repositories.mm.APIUserRepository;
 import com.oddjobs.repositories.mm.MMProductRepository;
 import com.oddjobs.repositories.mm.MMTransactionRepository;
@@ -81,14 +86,11 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                     product = new AirtelProduct();
                 }
                 ((AirtelProduct) product).setHashKey(config.getHashKey());
-            } else if (config.getProvider().equals(Utils.PROVIDER.FLUTTER_WAVE)) {
+            }
+            else{
+                // For relworx we only need one product
                 if(product == null){
-                    product = new FlutterWaveProduct();
-                }
-            } else{
-                // For easy-pay we only need one product
-                if(product == null){
-                    product = new EasyPayProduct();
+                    product = new RelworxProduct();
                 }
             }
             product.setProductType(config.getProductType());
@@ -99,7 +101,6 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
             // create User
             try {
                 AccessTokenResponseDTO response;
-                // now we have the user UUID let's generate the API Key
                 switch (product.getProvider()) {
                     case MTN -> {
                         String userUuid = externalRequests.sendCreateMomoAPIUser(config.getPrimaryKey(), config.getCallBackUrl());
@@ -130,20 +131,12 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                         apiUser.setAccessToken(response.getAccess_token());
                         apiUser.setAccessTokenExpiresIn(response.getExpires_in());
                     }
-                    case FLUTTER_WAVE -> {
-                        apiUser =  apiUser == null ? new FlutterWaveApiUser() : apiUser;
-                        ((FlutterWaveApiUser) apiUser).setEncryptionKey(config.getEncryptionKey());
-                        ((FlutterWaveApiUser) apiUser).setPublicKey(config.getPublicKey());
-                        ((FlutterWaveApiUser) apiUser).setSecretKey(config.getSecretKey());
-                    }
                     default -> {
-                        // This is EASY_PAY
-                        apiUser = apiUser==null ? new EasyPayApiUser(): apiUser;
-                        ((EasyPayApiUser) apiUser).setUsername(config.getUsername());
-                        ((EasyPayApiUser) apiUser).setPassword(config.getPassword());
+                        // This is RELWORX
+                        apiUser = apiUser==null ? new RelworxUser(): apiUser;
+                        apiUser.setAccessToken(config.getApiKey());
                     }
                 }
-
                 apiUser.setEnvironment(config.getEnvironment());
                 apiUser.setProvider(config.getProvider());
                 apiUser.setProduct(product);
@@ -185,7 +178,7 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
 
     @Override
     public APIUser refreshAccessToken(APIUser user) throws InstantiationException, IllegalAccessException {
-        List<Utils.PROVIDER> providersNotForRefreshTokens = List.of(Utils.PROVIDER.EASY_PAY, Utils.PROVIDER.FLUTTER_WAVE);
+        List<Utils.PROVIDER> providersNotForRefreshTokens = List.of(Utils.PROVIDER.RELWORX);
         if(!providersNotForRefreshTokens.contains(user.getProvider())){
             Calendar tokenCreationDate = Calendar.getInstance();
             tokenCreationDate.setTime(user.getAccessTokenAdded());
@@ -228,14 +221,10 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                 transaction = new AirtelTransaction();
                 ((AirtelTransaction) transaction).setResponseCode(data.getResponseCode());
             }
-            case FLUTTER_WAVE -> {
-                transaction = new FlutterWaveTransaction();
-                ((FlutterWaveTransaction) transaction).setRedirectUrl(data.getRedirectUrl());
-                ((FlutterWaveTransaction) transaction).setReference(data.getReference());
-            }
             default -> {
-                transaction = new EasyPayTransaction();
-                ((EasyPayTransaction) transaction).setReference(data.getReference());
+                transaction = new RelworxTransaction();
+                ((RelworxTransaction) transaction).setReference(data.getReference());
+                ((RelworxTransaction) transaction).setInternal_reference(data.getInternalReference());
             }
         }
         transaction.setTransactionId(data.getTransactionId());
@@ -287,40 +276,20 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                     config.setResponseCode(response.getData().get("transaction").get("id"));
                     config.setMsisdn(((AirtelRequestToPayDTO) request).getMsisdn());
                 }
-                case FLUTTER_WAVE -> {
-                    FlutterWaveApiUser flutterWaveApiUser = (FlutterWaveApiUser) apiUser;
-                    FlutterwaveRequestToPayDTO r = (FlutterwaveRequestToPayDTO) request;
-                    String network = determineProvider(r.getPhone_number()).toString();
-                    FlutterwavePaymentRequestDTO req =  new FlutterwavePaymentRequestDTO(
-                            r.getPhone_number(),
-                            network,
+                default -> {
+                    RelworxUser relworxUser = (RelworxUser) apiUser;
+                    RelworxRequestToPayDTO r = (RelworxRequestToPayDTO) request;
+                    RelworxPaymentRequestDTO req =  new RelworxPaymentRequestDTO(
+                            r.getAccount_no(),
+                            config.getReference(),
                             r.getAmount(),
                             "UGX",
-                            r.getEmail(),
-                            config.getReference()
+                            r.getDescription(),
+                            r.getMsisdn()
                     );
-                    FlutterwaveResponseDTO response = externalRequests.flutterWaveInitiatePayment(flutterWaveApiUser, req);
-                    String redirect = response.getMeta().getAuthorization().getRedirect();
-                    config.setRedirectUrl(redirect);
-                    config.setMsisdn(r.getPhone_number());
-                }
-                default -> {
-                    EasyPayApiUser easyPayApiUser = (EasyPayApiUser) apiUser;
-                    String reason = String.format("Deposit UGX:%s to Wallet Cashless", request.getAmount());
-                    EasyPayRequestToPayDTO r = (EasyPayRequestToPayDTO)  request;
-                    EasyPaymentRequestDTO req =  new EasyPaymentRequestDTO(
-                            easyPayApiUser.getUsername(),
-                            easyPayApiUser.getPassword(),
-                            ConstantUtils.ACTIONS.mmdeposit.toString(),
-                            request.getAmount(),
-                            config.getCurrency(),
-                            r.getPhone(),
-                            config.getReference(),
-                            reason
-                    );
-                    EasyPayResponseDTO response = externalRequests.easyInitiatePayment(easyPayApiUser, req);
-                    log.info(String.valueOf(response));
-                    config.setMsisdn(r.getPhone());
+                    RelworxPaymentResponseDTO response = externalRequests.relworxInitiatePayment(relworxUser, req);
+                    config.setInternalReference(response.getInternal_reference());
+                    config.setMsisdn(r.getMsisdn());
                 }
             }
         } catch (Exception e) {

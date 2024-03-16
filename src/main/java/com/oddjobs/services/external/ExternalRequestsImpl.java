@@ -11,23 +11,22 @@
 
 package com.oddjobs.services.external;
 
+import com.oddjobs.components.JsonUtils;
 import com.oddjobs.dtos.airtel.requests.AirtelAccessTokenRequestDTO;
 import com.oddjobs.dtos.airtel.requests.AirtelPaymentRequestDTO;
 import com.oddjobs.dtos.airtel.responses.PaymentResponseDTO;
-import com.oddjobs.dtos.easypay.requests.EasyPaymentRequestDTO;
-import com.oddjobs.dtos.easypay.requests.EasypayStatusRequest;
-import com.oddjobs.dtos.easypay.response.EasyPayResponseDTO;
-import com.oddjobs.dtos.easypay.response.EasypayStatusResponse;
-import com.oddjobs.dtos.flutterwave.requests.FlutterwavePaymentRequestDTO;
-import com.oddjobs.dtos.flutterwave.response.FlutterwaveResponseDTO;
-import com.oddjobs.dtos.flutterwave.response.FlutterwaveStatusResponse;
 import com.oddjobs.dtos.mtn.requests.MomoAccessTokenRequestDTO;
 import com.oddjobs.dtos.mtn.requests.MomoRequestToPayDTO;
 import com.oddjobs.dtos.mtn.responses.APIkeyResponseDTO;
 import com.oddjobs.dtos.mtn.responses.EmptyResponseDTO;
 import com.oddjobs.dtos.mtn.responses.RequestToPayStatusResponseDTO;
+import com.oddjobs.dtos.relworx.requests.RelworxPaymentRequestDTO;
+import com.oddjobs.dtos.relworx.response.RelworxPaymentResponseDTO;
 import com.oddjobs.dtos.requests.GetUserRequestDTO;
 import com.oddjobs.entities.mm.*;
+import com.oddjobs.entities.mm.airtel.AirtelApiUser;
+import com.oddjobs.entities.mm.mtn.MTNApiUser;
+import com.oddjobs.entities.mm.relworx.RelworxUser;
 import com.oddjobs.utils.RequestBuilder;
 import com.oddjobs.dtos.responses.AccessTokenResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +38,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -56,11 +53,16 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     @Value("${airtel.baseUrl}")
     private String AIRTEL_BASE_URL;
 
-    @Value("${easypay.baseUrl}")
-    private String EASY_PAY_BASE_URL;
+    @Value("${application.relworx.baseUrl}")
+    private String RELWORX_BASE_URL;
 
-    @Value("${flutterwave.baseUrl}")
-    private String FLUTTER_WAVE_BASE_URL;
+
+    private final JsonUtils jsonUtils;
+    protected <T extends APIUser> HttpHeaders setAuthHeader(T user, HttpHeaders headers) {
+        String bearerToken = String.format("Bearer %s", user.getAccessToken());
+        headers.set("Authorization", bearerToken);
+        return headers;
+    }
     @Override
     public String sendCreateMomoAPIUser(String primaryKey, String callBack) throws InstantiationException, IllegalAccessException {
         String referenceId = UUID.randomUUID().toString();
@@ -200,93 +202,15 @@ public class ExternalRequestsImpl implements  ExternalRequests{
         log.info(""+ response);
         return response;
     }
-
-    @Override
-    public EasyPayResponseDTO easyInitiatePayment(EasyPayApiUser user, EasyPaymentRequestDTO request) throws InstantiationException, IllegalAccessException {
-        HttpHeaders headers =  new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestBuilder requestBuilder =  RequestBuilder.builder()
-                .url(EASY_PAY_BASE_URL)
-                .client(template)
-                .method(HttpMethod.POST)
-                .headers(headers)
-                .payload(request)
-                .build();
-        EasyPayResponseDTO response =  requestBuilder.sendRequest(EasyPayResponseDTO.class);
-        log.info(""+response);
-        return response;
-    }
-
-    @Override
-    public EasypayStatusResponse easyTransactionStatus(EasyPayApiUser user, String reference) throws InstantiationException, IllegalAccessException {
-        EasypayStatusRequest payload = new EasypayStatusRequest();
-        payload.setReference(reference);
-        payload.setPassword(user.getPassword());
-        payload.setUsername(user.getUsername());
-        HttpHeaders headers =  new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestBuilder requestBuilder = RequestBuilder.builder()
-                .url(EASY_PAY_BASE_URL)
-                .client(template)
-                .method(HttpMethod.POST)
-                .payload(payload)
-                .build();
-        EasypayStatusResponse response = requestBuilder.sendRequest(EasypayStatusResponse.class);
-        log.info(response.toString());
-        return  response;
-    }
-
-    @Override
-    public FlutterwaveResponseDTO flutterWaveInitiatePayment(FlutterWaveApiUser user, FlutterwavePaymentRequestDTO payload) throws InstantiationException, IllegalAccessException {
-        String URL =  FLUTTER_WAVE_BASE_URL+Constants.FLUTTER_WAVE_REQUEST_TO_PAY;
-        String bearerToken =  String.format("Bearer %s", user.getSecretKey());
-        HttpHeaders headers =  new HttpHeaders();
-        headers.set("Authorization",bearerToken);
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestBuilder requestBuilder =  RequestBuilder.builder()
-                .url(URL)
-                .client(template)
-                .method(HttpMethod.POST)
-                .headers(headers)
-                .payload(payload)
-                .build();
-        FlutterwaveResponseDTO response =  requestBuilder.sendRequest(FlutterwaveResponseDTO.class);
-        log.info(response.toString());
-        //TODO record transaction Id.
-        return response;
-    }
-
-    @Override
-    public FlutterwaveStatusResponse flutterWaveTransactionInquiry(FlutterWaveApiUser user, String reference) throws InstantiationException, IllegalAccessException {
-        String URL =  FLUTTER_WAVE_BASE_URL+Constants.FLUTTER_WAVE_REQUEST_TO_PAY;
-        String bearerToken =  String.format("Bearer %s", user.getSecretKey());
-        HttpHeaders headers =  new HttpHeaders();
-        headers.set("Authorization",bearerToken);
-        Map<String ,Object> params=  new HashMap<>();
-        params.put("tx_ref", reference);
-        RequestBuilder requestBuilder =  RequestBuilder.builder()
-                .url(URL)
-                .client(template)
-                .method(HttpMethod.POST)
-                .headers(headers)
-                .params(params)
-                .build();
-        FlutterwaveStatusResponse response = requestBuilder.sendRequest(FlutterwaveStatusResponse.class);
-        //TODO handle local transactions after.
-        log.info(response.toString());
-        return response;
-    }
-
     @Override
     public PaymentResponseDTO airtelTransactionInquiry(AirtelApiUser user, String transactionId) throws InstantiationException, IllegalAccessException {
         String URL = AIRTEL_BASE_URL+Constants.AIRTEL_TRANSACTION_STATUS;
-        String bearerToken = String.format("Bearer %s", user.getAccessToken());
         HttpHeaders headers =  new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         headers.add(HttpHeaders.ACCEPT, MediaType.ALL_VALUE);
         headers.set("X-Country", "UG");
         headers.set("X-Currency", "UGX");
-        headers.set("Authorization",bearerToken);
+        headers =  setAuthHeader(user, headers);
         RequestBuilder request = RequestBuilder.builder()
                 .url(URL)
                 .client(template)
@@ -296,6 +220,27 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .build();
         PaymentResponseDTO response = request.sendRequest(PaymentResponseDTO.class);
         log.info(""+response);
+        return response;
+    }
+
+
+
+    @Override
+    public RelworxPaymentResponseDTO relworxInitiatePayment(RelworxUser user, RelworxPaymentRequestDTO request) throws InstantiationException, IllegalAccessException {
+        HttpHeaders headers =  new HttpHeaders();
+        headers =  setAuthHeader(user, headers);
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        headers.add(HttpHeaders.ACCEPT, Constants.RELWORX_ACCEPT_HEADER);
+        String URL = RELWORX_BASE_URL+Constants.RELWORX_REQUEST_PAYMENT;
+        RequestBuilder externalRequest = RequestBuilder.builder()
+                .url(URL)
+                .client(template)
+                .method(HttpMethod.POST)
+                .headers(headers)
+                .build();
+        log.info("Preparing to make external call to url {} using payload: {}", URL, jsonUtils.convertToJson(request));
+        RelworxPaymentResponseDTO response = externalRequest.sendRequest(RelworxPaymentResponseDTO.class);
+        log.info("Received response from RELWORX: "+response);
         return response;
     }
 }

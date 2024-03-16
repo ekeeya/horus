@@ -11,8 +11,10 @@
  * NOTICE: All information contained herein is, and remains the property of Oddjobs. - www.oddjobs.tech
  */
 
-package com.oddjobs.entities.mm;
+package com.oddjobs.entities.mm.airtel;
 
+
+import com.oddjobs.entities.mm.APIUser;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -24,7 +26,11 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Data
 @DiscriminatorValue(value= Utils.PROVIDER.Values.AIRTEL)
-public class AirtelProduct extends MobileMoneyProduct{
-        @Column(name="hash_key")
-        private String hashKey;
+public class AirtelApiUser extends APIUser {
+
+    @Column(name="client_id")
+    private String clientId;
+
+    @Column(name="client_secret_key")
+    private String clientSecretKey;
 }

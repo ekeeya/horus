@@ -26,5 +26,6 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
     List<StudentEntity> searchStudentsBySchoolAndName(@Param("schoolId") Long schoolId, @Param("keyword") String keyword);
     Page<StudentEntity> findStudentEntitiesBySchoolAndClassRoom(School school, ClassRoom classRoom, Pageable pageable);
     List<StudentEntity> findStudentEntitiesByParentsContaining(ParentUser parent);
+
     Page<StudentEntity> findStudentEntitiesBySchool(School school, Pageable pageable);
 }

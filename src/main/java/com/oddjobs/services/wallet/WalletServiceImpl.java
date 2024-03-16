@@ -2,10 +2,9 @@ package com.oddjobs.services.wallet;
 
 import com.oddjobs.components.ContextProvider;
 import com.oddjobs.dtos.airtel.requests.AirtelRequestToPayDTO;
-import com.oddjobs.dtos.easypay.requests.EasyPayRequestToPayDTO;
-import com.oddjobs.dtos.flutterwave.requests.FlutterwaveRequestToPayDTO;
 import com.oddjobs.dtos.mtn.Payer;
 import com.oddjobs.dtos.mtn.requests.MomoRequestToPayDTO;
+import com.oddjobs.dtos.relworx.requests.RelworxRequestToPayDTO;
 import com.oddjobs.dtos.requests.BaseRequestToPay;
 import com.oddjobs.dtos.requests.CardProvisioningMarkRequest;
 import com.oddjobs.dtos.requests.PaymentRequestDTO;
@@ -40,6 +39,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.flogger.Flogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -71,6 +71,14 @@ public class WalletServiceImpl implements WalletService {
     private final ContextProvider contextProvider;
     private  final SettingService settingService;
 
+
+
+    @Value("${application.default.currency}")
+    private String DEFAULT_CURRENCY;
+
+
+    @Value("${application.default.account.number}")
+    private String ACCOUNT_NUMBER;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -173,14 +181,59 @@ public class WalletServiceImpl implements WalletService {
 
             String msisdn;
             CollectionTransaction transaction =  new CollectionTransaction();
-            if (Objects.requireNonNull(provider) == Utils.PROVIDER.FLUTTER_WAVE) {
-                msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.FLUTTER_WAVE);
-                requestToPay = new FlutterwaveRequestToPayDTO();
+            switch (provider) {
+                case MTN -> {
+                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), null);
+                    Payer payer = new Payer();
+                    payer.setPartyId(msisdn);
+                    payer.setPartyIdType("MSISDN");
+                    requestToPay = new MomoRequestToPayDTO();
+                    ((MomoRequestToPayDTO) requestToPay).setPayer(payer);
+                    ((MomoRequestToPayDTO) requestToPay).setCurrency("EUR");
+                }
+                case AIRTEL -> {
+                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.AIRTEL);
+                    requestToPay = new AirtelRequestToPayDTO();
+                    ((AirtelRequestToPayDTO) requestToPay).setMsisdn(msisdn);
+                }
+                case RELWORX -> {
+                    msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.RELWORX);
+                    requestToPay = new RelworxRequestToPayDTO();
+                    ((RelworxRequestToPayDTO) requestToPay).setMsisdn(msisdn);
+                }
+                default -> {
+                    if (user instanceof SchoolUser bursar){
+                        if (!Objects.equals(bursar.getSchool().getId(), student.getSchool().getId())){
+                            log.error("User {} not allowed to update balance for student {}", bursar, student);
+                            throw new ResourceFobidenException("You are not allowed to update balance");
+                        }
+                    }
+                    log.info("Making a system deposit to account: {} of UGX: {}", wallet, request.getAmount());
+                    transaction.setMmTransaction(null);
+                    transaction.setCurrency(DEFAULT_CURRENCY);
+                    transaction.setAmount(BigDecimal.valueOf(request.getAmount()));
+                    transaction.setDescription("TOP-UP from Bursary");
+                }
+            }
+            if (provider == Utils.PROVIDER.SYSTEM){
+                transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
+                transaction =transactionRepository.save(transaction); // save it first to get the id
+                // this will create handle the balance update right?
+                transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
+            }else{
+                msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.RELWORX);
+                requestToPay = new RelworxRequestToPayDTO();
                 // get parent email
                 ParentUser parent = (ParentUser) user;
-                ((FlutterwaveRequestToPayDTO) requestToPay).setEmail(parent.getEmail());
-                ((FlutterwaveRequestToPayDTO) requestToPay).setPhone_number(msisdn);
+                ((RelworxRequestToPayDTO) requestToPay).setMsisdn(msisdn);
+                requestToPay.setProvider(provider);
+                requestToPay.setAmount(request.getAmount());
+                ((RelworxRequestToPayDTO) requestToPay).setDescription("Wallet top-up from Trinity pocket app system.");
+                ((RelworxRequestToPayDTO) requestToPay).setAccount_no(ACCOUNT_NUMBER);
                 Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
+                if (mmTransactionId == null){
+                    log.error("External mobile money request to pay call failed");
+                }
                 MMTransaction t =  mmTransactionRepository.findById(mmTransactionId).get();
                 requestToPay.setAmount(request.getAmount());
                 requestToPay.setProvider(provider);
@@ -189,19 +242,6 @@ public class WalletServiceImpl implements WalletService {
                 transaction.setAmount(t.getAmount());
                 transaction.setDescription(t.getDescription());
                 transaction.setSender(parent);
-            }else{
-                // It is a system deposit
-                if (user instanceof SchoolUser bursar){
-                    if (!Objects.equals(bursar.getSchool().getId(), student.getSchool().getId())){
-                        log.error("User {} not allowed to update balance for student {}", bursar, student);
-                        throw new ResourceFobidenException("You are not allowed to update balance");
-                    }
-                }
-                log.info("Making a system deposit to account: {} of UGX: {}", wallet, request.getAmount());
-                transaction.setMmTransaction(null);
-                transaction.setCurrency("UGX");
-                transaction.setAmount(BigDecimal.valueOf(request.getAmount()));
-                transaction.setDescription("TOP-UP from Bursary");
             }
             // Collection Transaction
             transaction.setSender(user); // who initiated it, can be a Parent to School user
@@ -209,12 +249,7 @@ public class WalletServiceImpl implements WalletService {
             transaction.setCreditAccount(student.getWalletAccount());
             transaction.setSchool(student.getSchool());
             transaction.setTransactionId(Utils.generateTransactionId());
-            if (provider == Utils.PROVIDER.SYSTEM){
-                transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
-                transaction =transactionRepository.save(transaction); // save it first to get the id
-                // this will create handle the balance update right?
-                transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
-            }
+
             // DB trigger will handle the rest at this point
             transactionRepository.save(transaction);
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);
@@ -297,8 +332,10 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public void createCardProvisioningRequest(StudentEntity student) {
-        CardProvisionRequest request;
-        request =  cardProvisionRequestRepository.findCardProvisionRequestsByStudent_WalletAccount_CardNo(student.getWalletAccount().getCardNo());
+        CardProvisionRequest request = null;
+       try{
+           request =  cardProvisionRequestRepository.findCardProvisionRequestsByStudent_WalletAccount_CardNo(student.getWalletAccount().getCardNo());
+       }catch (Exception ignored){}
         if(request == null){
             request = new CardProvisionRequest();
             request.setStudent(student);

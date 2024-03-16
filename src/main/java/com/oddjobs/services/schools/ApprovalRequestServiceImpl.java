@@ -71,13 +71,13 @@ public class ApprovalRequestServiceImpl implements ApprovalRequestService{
 
     protected void approveRejectRequest(ApprovalRequest r, boolean approve) throws Exception {
         if (r.getType().equals(Utils.APPROVAL_TYPES.SCHOOL_APPROVAL)){
-            approvePrimaryParent((SchoolApprovalRequest) r,approve, false);
+            approvePrimaryParent((SchoolApprovalRequest) r,approve, false, false);
         }else{
             approveSecondaryParent((ParentApprovalRequest) r, approve);
         }
     }
     @Override
-    public void approvePrimaryParent(SchoolApprovalRequest request, boolean approve, boolean force) throws Exception {
+    public void approvePrimaryParent(SchoolApprovalRequest request, boolean approve, boolean force,  boolean fromBulk) throws Exception {
         // approve the request
         String msg;
         User u =  contextProvider.getPrincipal();
