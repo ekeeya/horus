@@ -7,13 +7,14 @@ import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @DiscriminatorColumn(name = "account_type")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -22,7 +23,8 @@ import java.util.UUID;
 @DynamicUpdate
 @Transactional
 @JsonIgnoreProperties(ignoreUnknown = true,value = {"version", "createdAt","lastModifiedAt", "lastModifiedBy", "createdBy"})
-@Data
+@Setter
+@Getter
 public abstract class AccountEntity extends BaseEntity {
 
     @Column(unique = true)

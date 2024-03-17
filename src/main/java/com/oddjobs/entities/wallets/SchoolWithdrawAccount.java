@@ -11,10 +11,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@DiscriminatorValue(value= Utils.WALLET_ACCOUNT_TYPES.Values.SCHOOL)
-public class SchoolWalletAccount extends  AccountEntity{
+@DiscriminatorValue(value= Utils.WALLET_ACCOUNT_TYPES.Values.SCHOOL_WITHDRAW)
+public class SchoolWithdrawAccount extends  AccountEntity{
 
     @ManyToOne
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", unique = true)
     private School school;
 }

@@ -20,7 +20,7 @@ public class Utils {
     }
 
     public  static enum WALLET_ACCOUNT_TYPES{
-        SYSTEM(Values.SYSTEM), SCHOOL(Values.SCHOOL), STUDENT(Values.STUDENT);
+        SYSTEM(Values.SYSTEM), SCHOOL(Values.SCHOOL), SCHOOL_WITHDRAW(Values.SCHOOL_WITHDRAW), STUDENT(Values.STUDENT);
         private WALLET_ACCOUNT_TYPES (String val) {
             // force equality between name of enum instance, and value of constant
             if (!this.name().equals(val))
@@ -30,6 +30,7 @@ public class Utils {
         public static class Values {
             public static final String SYSTEM= "SYSTEM";
             public static final String SCHOOL= "SCHOOL";
+            public static final String SCHOOL_WITHDRAW= "SCHOOL_WITHDRAW";
             public static final String STUDENT= "STUDENT";
         }
     }
@@ -98,7 +99,11 @@ public class Utils {
         }
     }
     public static enum TRANSACTION_TYPE{
-        COLLECTION(Values.COLLECTION), DISBURSEMENT(Values.DISBURSEMENT), PAYMENT(Values.PAYMENT),SYSTEM(Values.SYSTEM),;
+        COLLECTION(Values.COLLECTION),
+        DISBURSEMENT(Values.DISBURSEMENT),
+        PAYMENT(Values.PAYMENT),
+        CASH_OUT(Values.CASH_OUT),
+        SYSTEM(Values.SYSTEM),;
         private TRANSACTION_TYPE (String val) {
             // force equality between name of enum instance, and value of constant
             if (!this.name().equals(val))
@@ -108,6 +113,7 @@ public class Utils {
         public static class Values {
             public static final String COLLECTION= "COLLECTION";
             public static final String DISBURSEMENT= "DISBURSEMENT";
+            public static final String CASH_OUT="CASH_OUT";
             public static final String PAYMENT= "PAYMENT";
             public static final String SYSTEM= "SYSTEM";
         }

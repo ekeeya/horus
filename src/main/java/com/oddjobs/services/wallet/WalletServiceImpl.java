@@ -39,7 +39,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.flogger.Flogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -215,12 +214,7 @@ public class WalletServiceImpl implements WalletService {
                     transaction.setDescription("TOP-UP from Bursary");
                 }
             }
-            if (provider == Utils.PROVIDER.SYSTEM){
-                transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
-                transaction =transactionRepository.save(transaction); // save it first to get the id
-                // this will create handle the balance update right?
-                transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
-            }else{
+            if (provider != Utils.PROVIDER.SYSTEM){
                 msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.RELWORX);
                 requestToPay = new RelworxRequestToPayDTO();
                 // get parent email
@@ -253,6 +247,13 @@ public class WalletServiceImpl implements WalletService {
             // DB trigger will handle the rest at this point
             transactionRepository.save(transaction);
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);
+            if (provider == Utils.PROVIDER.SYSTEM){
+                transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
+                transaction =transactionRepository.save(transaction); // save it first to get the id
+                // this will create handle the balance update right?
+                String status = Utils.TRANSACTION_STATUS.SUCCESS.toString();
+                transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
+            }
             StudentWalletAccount w = entityManager.merge(wallet);
             entityManager.flush();
             entityManager.refresh(w);
@@ -276,6 +277,15 @@ public class WalletServiceImpl implements WalletService {
             throw new WalletAccountNotFoundException();
         }
         return wallet;
+    }
+
+    @Override
+    public StudentWalletAccount findByStudentId(Long studentId) throws StudentNotFoundException {
+        StudentEntity student = studentRepository.findStudentEntityById(studentId);
+        if (student == null){
+            throw new StudentNotFoundException(studentId);
+        }
+        return student.getWalletAccount();
     }
 
     @Override

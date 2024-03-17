@@ -41,12 +41,13 @@ import {
 } from "@src/views/apps/user/store";
 import {Minus, Plus, X} from "react-feather";
 import Select from "react-select";
-import {registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
+import {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
 import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
 import {Link} from "react-router-dom";
 import {FaHandHoldingDollar} from "react-icons/fa6";
 import {FaPlus} from "react-icons/fa";
+import {GiReceiveMoney} from "react-icons/gi";
 
 const roleColors = {
     PARENT: 'light-info',
@@ -68,9 +69,11 @@ const UserInfoCard = ({selectedStudent}) => {
     // ** State
     const [show, setShow] = useState(false);
     const [showBalanceUpdate, setShowBalanceUpdate] = useState(false);
+    const [showCashOut, setShowCashOut] = useState(false);
     const [useDate, setUseDate] = useState(false)
     const [suspendDays, setSuspendDays] = useState(10);
     const [topUpAmount, setTopUpAmount] = useState(10000);
+    const [cashOutAmount, setCashOutAmount] = useState(selectedStudent.wallet.balance);
     const [liftDate, setLiftDate] = useState(new Date());
     const [showSuspend, setShowSuspend] = useState(false);
     const [selectedClass, setSelectedClass] = useState({});
@@ -290,13 +293,22 @@ const UserInfoCard = ({selectedStudent}) => {
                                         UGX: {selectedStudent.wallet.balance.toLocaleString()}
                                     </div>
                                     <div className="col">
-                                        <Button onClick={() => setShowBalanceUpdate(true)} className="btn btn-sm btn-icon mb-10 btn-success" id={`pw-tooltip-top-up`}>
-                                            <FaPlus color='white' size={15}/> Top-up
-                                        </Button>
-                                        <UncontrolledTooltip placement='top' target={`pw-tooltip-top-up`}>
-                                            Top-up wallet balance
-                                        </UncontrolledTooltip>
+                                        <div className="btn-group btn-group-sm">
+                                            <Button onClick={() => setShowBalanceUpdate(true)} className="btn btn-sm btn-icon btn-success" id={`pw-tooltip-top-up`}>
+                                                <FaPlus color='white' size={13}/>&nbsp;Top-Up
+                                            </Button>
+                                            <UncontrolledTooltip placement='top' target={`pw-tooltip-top-up`}>
+                                                Top-up wallet balance
+                                            </UncontrolledTooltip>
+                                            <Button onClick={() => setShowCashOut(true)} className="btn btn-sm btn-icon btn-info" id={`pw-tooltip-cash-out`}>
+                                                <GiReceiveMoney size={13} />&nbsp;Cash Out
+                                            </Button>
+                                            <UncontrolledTooltip placement='top' target={`pw-tooltip-cash-out`}>
+                                                Click to initiate a cash out.
+                                            </UncontrolledTooltip>
+                                        </div>
                                     </div>
+
                                 </div>
                                     <hr/>
                             </li>
@@ -499,6 +511,69 @@ const UserInfoCard = ({selectedStudent}) => {
                         setShowBalanceUpdate(false);
                     }}>
                         Top-Up
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
+            <Modal
+                isOpen={showCashOut}
+                className='modal-dialog-centered'
+                modalClassName="danger">
+                <ModalHeader className='bg-transparent' toggle={() => setShowCashOut(!showCashOut)}>
+                    Initiate a cash-out from card {selectedStudent.wallet.cardNo}
+                </ModalHeader>
+                <ModalBody>
+                    <div className='mb-2'>
+                        <Row className='gy-1 pt-75'>
+                            <Col xs={12}>
+                                <Label className='form-label' for='suspendDays'>
+                                    Withdraw Cash: <small className='text-muted'>(UGX)</small>
+                                </Label>
+                                <InputNumber max={selectedStudent.wallet.balance} step={1000} className="w-50" id='basic-number-input3' defaultValue={cashOutAmount} upHandler={<Plus/>}
+                                             downHandler={<Minus/>} onChange={(val) => setCashOutAmount(val)}/>
+                                <small className='text-muted'>
+                                    Specify how much the student wants to withdraw as cash from their account.
+                                </small>
+                            </Col>
+                        </Row>
+                        <Alert color='info' className="mt-1">
+                            <div className='alert-body font-small-2'>
+                                <p>
+                                    <small className='me-lg-1'>
+                                        <span className='fw-bold'>Note:</span>
+                                    </small>
+                                </p>
+                                <p>
+                                    <small className='me-50'>
+                                        Upon cash-out, the student's wallet will be reduced by the withdraw amount. However.
+                                        A cash-out withdraw request will be automatically created and approved under <b>FINANCE</b> ==- <b>Withdraw Requests</b>.
+                                        You will be required to withdraw this money outside the system then upload the withdraw proof receipt.. to have this money removed permanently from the collections account.
+                                    </small>
+                                </p>
+                            </div>
+                            <X
+                                onClick={() => dispatch(clearError())}
+                                id='clear-error-tip'
+                                className='position-absolute'
+                                size={18}
+                                style={{top: '10px', right: '10px'}}
+                            />
+                            <UncontrolledTooltip target='clear-error-tip' placement='top'>
+                                Collapse
+                            </UncontrolledTooltip>
+                        </Alert>
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="success" onClick={async () => {
+                        const payload = {
+                            amount:cashOutAmount,
+                            cardNo:selectedStudent.wallet.cardNo
+                        }
+                        await dispatch(cashOut(payload))
+                        setShowBalanceUpdate(false);
+                    }}>
+                        Cash-Out
                     </Button>
                 </ModalFooter>
             </Modal>

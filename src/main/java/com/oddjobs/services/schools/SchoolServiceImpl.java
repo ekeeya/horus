@@ -6,6 +6,7 @@ import com.oddjobs.dtos.requests.SubscriptionRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
+import com.oddjobs.entities.wallets.SchoolWithdrawAccount;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
@@ -71,6 +72,11 @@ public class SchoolServiceImpl implements SchoolService{
                     account.setName(school.getName());
                     account.setSchool(school);
                     walletAccountRepository.save(account);
+                    // Withdraw school account
+                    SchoolWithdrawAccount withdrawAccount =  new SchoolWithdrawAccount();
+                    withdrawAccount.setSchool(school);
+                    withdrawAccount.setName(school.getName()+" Withdraw");
+                    walletAccountRepository.save(withdrawAccount);
                 }
                 // check if Classes were provided and add them
                 List<ClassRoom> requestRooms = new ArrayList<>();

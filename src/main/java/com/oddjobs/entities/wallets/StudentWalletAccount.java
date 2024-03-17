@@ -22,7 +22,7 @@ public class StudentWalletAccount extends AccountEntity {
 
     private Boolean enableDailyLimit = false;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="student", referencedColumnName = "id")
     private StudentEntity student;
 

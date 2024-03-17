@@ -75,6 +75,14 @@ const columns = [
         )
     },
     {
+        name: 'Type',
+        sortable: true,
+        minWidth: '180px',
+        sortField: 'type',
+        selector: row => row.type,
+        cell: row => row.type
+    },
+    {
         name: 'Amount(UGX)',
         minWidth: '180px',
         sortable: true,
@@ -114,7 +122,7 @@ const columns = [
         name: 'Action',
         minWidth: '420px',
         cell: row => {
-            const allowReject = ["PENDING", "APPROVED"]
+            const allowReject = ["PENDING"]
             return (
                     <div className='column-action d-flex align-items-center'>
                         <Button size="sm" outline color='info'
@@ -140,7 +148,7 @@ const columns = [
                             )
                         }
                         {
-                            (userData.role === "ADMIN" &&  row.status === "APPROVED") && (
+                            (row.status === "APPROVED") && (
                                 <>
                                     <Button size="sm" color='success' outline
                                             onClick={() => setForUpdate(row, "settle")}

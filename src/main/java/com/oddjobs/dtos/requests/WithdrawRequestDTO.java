@@ -11,6 +11,7 @@ public class WithdrawRequestDTO implements Serializable {
 
     private Long id; // for update
     private WithdrawRequest.Status status;
+    private WithdrawRequest.TYPE type = WithdrawRequest.TYPE.PAYMENTS; // can be cashouts
     private Long schoolId;
     private Double amount;
     private List<String> receipts; //upon marking processed, we shall upload receipts using base64 strings

@@ -3,9 +3,12 @@ package com.oddjobs.controllers.finance;
 import com.oddjobs.components.ContextProvider;
 import com.oddjobs.dtos.base.BaseResponse;
 import com.oddjobs.dtos.base.ListResponseDTO;
+import com.oddjobs.dtos.requests.CashOutRequestDTO;
 import com.oddjobs.dtos.requests.WithdrawRequestDTO;
+import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
+import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.exceptions.ResourceFobidenException;
 import com.oddjobs.repositories.WithdrawRequestRepository;
 import com.oddjobs.services.WithdrawRequestService;
@@ -63,6 +66,25 @@ public class WithdrawRequestController {
         }
     }
 
+    @PostMapping("/pocket-money-cashout")
+    @Secured({"ROLE_SCHOOL"})
+    public ResponseEntity<?> processCashout(
+            @Valid @RequestBody CashOutRequestDTO request, BindingResult result){
+        try{
+            BaseResponse response =  new BaseResponse(result);
+            if(response.isSuccess()){
+                StudentWalletAccount r =  withdrawRequestService.cashOut(request);
+                StudentResponseDTO res =  new StudentResponseDTO(r.getStudent(), true);
+                response.setData(res);
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.badRequest().body(response);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/withdraw-requests/{id}")
     @Secured({"ROLE_ADMIN", "ROLE_SCHOOL"})
     public ResponseEntity<?> getWithDrawRequest(
@@ -95,7 +117,7 @@ public class WithdrawRequestController {
     public ResponseEntity<?> getWithdrawRequests(
             @RequestParam(name="schoolId", required = false) Long schoolId,
             @RequestParam(name="referenceNo", required = false) String referenceNo,
-            @RequestParam(name="status", defaultValue = "PENDING") WithdrawRequest.Status status,
+            @RequestParam(name="status", required = false) WithdrawRequest.Status status,
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestParam(name="size", defaultValue = "10") int size
     ){

@@ -24,10 +24,19 @@ public class WithdrawRequest extends BaseEntity{
         APPROVED, CANCELLED, PENDING, PROCESSED
     }
 
+    public static enum TYPE {
+        CASH_OUTS, PAYMENTS
+    }
+
     private String referenceNo= Utils.generateRandomRefNo();
+
+
 
     @Enumerated(EnumType.STRING)
     private Status status= Status.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    private TYPE type;
 
     @ManyToOne
     @JoinColumn(name="school_id", nullable=false, referencedColumnName = "id")

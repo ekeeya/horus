@@ -57,7 +57,7 @@ export const getLinkRequests = createAsyncThunk('appStudent/getLinkRequests', as
     }
 });
 
-export const bulkStudentUpload  = createAsyncThunk('appStudent/bulkStudentUpload', async (formData, thunkAPI) => {
+export const bulkStudentUpload = createAsyncThunk('appStudent/bulkStudentUpload', async (formData, thunkAPI) => {
     try {
         const schoolId = formData.get("schoolId");
         let url = `/api/v1/bulky-load-students/${schoolId}`;
@@ -122,6 +122,16 @@ export const topupWallet = createAsyncThunk('appStudent/topupWallet', async (pay
     }
 });
 
+export const cashOut = createAsyncThunk('appStudent/cashOut', async (payload, thunkAPI) => {
+    try {
+        const response = await client.post(`/api/v1/finance/pocket-money-cashout`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error)
+        return thunkAPI.rejectWithValue(generateError(error))
+    }
+});
+
 export const appStudentSlice = createSlice({
     name: 'appStudent',
     initialState: {
@@ -129,7 +139,7 @@ export const appStudentSlice = createSlice({
         students: [],
         pages: 0,
         edit: false,
-        submitted:false,
+        submitted: false,
         selectedStudent: null,
         linkRequests: [],
         cardProvisioningNotifications: [],
@@ -201,21 +211,20 @@ export const appStudentSlice = createSlice({
             ).addCase(
             bulkStudentUpload.fulfilled, (state, action) => {
                 state.loading = false
-                state.submitted=true
+                state.submitted = true
                 toast.success(action.payload.message, {position: "top-center"})
             }
-        ).addCase(
-            bulkStudentUpload.rejected, (state, action) => {
-                state.loading = false
-                state.error = action.payload
-            },
-        )
-
+            ).addCase(
+                bulkStudentUpload.rejected, (state, action) => {
+                    state.loading = false
+                    state.error = action.payload
+                },
+            )
             .addCase(
-            getStudent.pending, (state) => {
-                state.loading = true
-            }
-        ).addCase(
+                getStudent.pending, (state) => {
+                    state.loading = true
+                }
+            ).addCase(
             getStudent.fulfilled, (state, action) => {
                 state.loading = false
                 state.selectedStudent = action.payload
@@ -248,6 +257,18 @@ export const appStudentSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload
             })
+
+            .addCase(cashOut.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(cashOut.fulfilled, (state, {payload}) => {
+                state.loading = false;
+                state.selectedStudent = payload.data;
+            })
+            .addCase(cashOut.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload
+            })
             .addCase(getLinkRequests.pending, (state) => {
                 state.loading = true;
             })
@@ -266,7 +287,7 @@ export const appStudentSlice = createSlice({
             })
             .addCase(approveLinkRequest.fulfilled, (state, {payload}) => {
                 state.loading = false;
-                state.linkRequests= state.linkRequests.map((request) => {
+                state.linkRequests = state.linkRequests.map((request) => {
                     const similar = payload.find((r) => r.id === request.id);
                     if (similar) {
                         return {...request, ...similar};// merge properties

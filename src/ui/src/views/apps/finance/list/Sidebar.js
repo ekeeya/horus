@@ -183,6 +183,15 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                             </Col>
                             <hr/>
                             <Col md='4' sm='12'>
+                                Type:
+                            </Col>
+                            <Col md='6' sm='12'>
+                                <div>
+                                    <h6 className='mb-0'>{selectedRequest.type}</h6>
+                                </div>
+                            </Col>
+                            <hr/>
+                            <Col md='4' sm='12'>
                                 Date:
                             </Col>
                             <Col md='6' sm='12'>

@@ -28,4 +28,6 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
     List<StudentEntity> findStudentEntitiesByParentsContaining(ParentUser parent);
 
     Page<StudentEntity> findStudentEntitiesBySchool(School school, Pageable pageable);
+
+    StudentEntity findStudentEntityById(Long id);
 }

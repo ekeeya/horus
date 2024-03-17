@@ -26,6 +26,7 @@ public interface WalletService {
     CollectionTransaction depositIntoWallet(WalletDepositDTO request) throws WalletAccountNotFoundException;
     boolean isActive(StudentWalletAccount walletAccount);
     StudentWalletAccount findByCardNo(String cardNo) throws WalletAccountNotFoundException;
+    StudentWalletAccount findByStudentId(Long studentId) throws StudentNotFoundException;
     Page<StudentWalletAccount> findBySchool(School school);
     CollectionAccount findCollectionAccount();
     SchoolWalletAccount findWalletBySchool(School school);

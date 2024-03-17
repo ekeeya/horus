@@ -13,6 +13,7 @@ import java.util.List;
 public class WithdrawRequestResponseDTO implements Serializable {
     private Long id;
     private String referenceNo;
+    private String type;
     private WithdrawRequest.Status status;
     private SchoolResponseDTO school;
     private Double amount = 0.0;
@@ -23,6 +24,7 @@ public class WithdrawRequestResponseDTO implements Serializable {
 
     public WithdrawRequestResponseDTO(WithdrawRequest request) {
         setId(request.getId());
+        setType(request.getType().toString());
         setReferenceNo(request.getReferenceNo());
         setStatus(request.getStatus());
         setAmount(request.getAmount().doubleValue());

@@ -114,17 +114,17 @@ const WithdrawRequestList = () => {
     const [nativeError, setNativeError] = useState(null)
 
     const [statuses, setStatuses] = useState([
+        {label: "All", value: ""},
         {label: "PENDING", value: "PENDING"},
         {label: "APPROVED", value: "APPROVED"},
         {label: "PROCESSED", value: "PROCESSED"},
         {label: "CANCELLED", value: "CANCELLED"}
     ]);
-    const [status, setStatus] = useState({label: "PENDING", value: "PENDING"});
+    const [status, setStatus] = useState({label: "All", value: ""});
 
     const [filterPayLoad, setFilterPayload] = useState({
         page: currentPage,
-        size: rowsPerPage,
-        status:"PENDING"
+        size: rowsPerPage
     })
 
     const toggleSidebar = () => setOpen(!open)
