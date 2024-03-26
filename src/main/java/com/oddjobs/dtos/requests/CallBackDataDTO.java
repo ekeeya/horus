@@ -11,14 +11,16 @@ public class CallBackDataDTO implements Serializable {
     private String xRef;
     private String transactionId;
     private Utils.PROVIDER provider;
+    private String reason;
     private Double amount;
     private Double charge;
     private String status;
     private Object payload;
 
-    public CallBackDataDTO(String xRef, String transactionId, Utils.PROVIDER provider, Double amount, Double charge, String status, Object payload) {
+    public CallBackDataDTO(String xRef, String transactionId,String reason, Utils.PROVIDER provider, Double amount, Double charge, String status, Object payload) {
         this.xRef = xRef;
         this.transactionId = transactionId;
+        this.reason=reason;
         this.provider = provider;
         this.amount = amount;
         this.charge = charge;

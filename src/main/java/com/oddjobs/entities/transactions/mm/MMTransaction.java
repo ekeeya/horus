@@ -37,6 +37,8 @@ public abstract class MMTransaction  extends BaseEntity {
 
     private String currency = "UGX";
 
+    private String reason;
+
     @Enumerated(EnumType.STRING)
     private Utils.TRANSACTION_TYPE transactionType = Utils.TRANSACTION_TYPE.COLLECTION;
 

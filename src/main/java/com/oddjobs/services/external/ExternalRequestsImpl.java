@@ -11,6 +11,7 @@
 
 package com.oddjobs.services.external;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oddjobs.components.JsonUtils;
 import com.oddjobs.dtos.airtel.requests.AirtelAccessTokenRequestDTO;
 import com.oddjobs.dtos.airtel.requests.AirtelPaymentRequestDTO;
@@ -56,7 +57,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     @Value("${application.relworx.baseUrl}")
     private String RELWORX_BASE_URL;
 
-
+    private final ObjectMapper objectMapper;
     private final JsonUtils jsonUtils;
     protected <T extends APIUser> HttpHeaders setAuthHeader(T user, HttpHeaders headers) {
         String bearerToken = String.format("Bearer %s", user.getAccessToken());
@@ -79,7 +80,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .client(template)
                 .payload(payload)
                 .build();
-        EmptyResponseDTO response =  request.sendRequest(null);
+        EmptyResponseDTO response =  request.sendRequest(EmptyResponseDTO.class, objectMapper);
         log.info(response.toString());
         return referenceId;
     }
@@ -98,7 +99,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .method(HttpMethod.POST)
                 .client(template)
                 .build();
-        APIkeyResponseDTO response = request.sendRequest(APIkeyResponseDTO.class);
+        APIkeyResponseDTO response = request.sendRequest(APIkeyResponseDTO.class, objectMapper);
         log.info(response.toString());
         return response;
     }
@@ -114,7 +115,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .headers(headers)
                 .method(HttpMethod.POST)
                 .build();
-        AccessTokenResponseDTO response = requestBuilder.sendRequest(AccessTokenResponseDTO.class);
+        AccessTokenResponseDTO response = requestBuilder.sendRequest(AccessTokenResponseDTO.class, objectMapper);
         log.info(response.toString());
         return response;
     }
@@ -136,7 +137,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .client(template)
                 .payload(request)
                 .build();
-        EmptyResponseDTO response = requestBuilder.sendRequest(EmptyResponseDTO.class);
+        EmptyResponseDTO response = requestBuilder.sendRequest(EmptyResponseDTO.class, objectMapper);
         response.setXReferenceId(referenceId);
         log.info(response.toString());
         return  response;
@@ -157,7 +158,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .pathVariable(transactionReferenceId)
                 .client(template)
                 .build();
-        RequestToPayStatusResponseDTO response =  request.sendRequest(RequestToPayStatusResponseDTO.class);
+        RequestToPayStatusResponseDTO response =  request.sendRequest(RequestToPayStatusResponseDTO.class, objectMapper);
         log.info(response.toString());
         return response;
     }
@@ -176,7 +177,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .payload(payload)
                 .build();
 
-        AccessTokenResponseDTO response =  request.sendRequest(AccessTokenResponseDTO.class);
+        AccessTokenResponseDTO response =  request.sendRequest(AccessTokenResponseDTO.class, objectMapper);
         log.info(""+response);
         return response;
     }
@@ -198,7 +199,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .client(template)
                 .payload(request)
                 .build();
-        PaymentResponseDTO response = requestBuilder.sendRequest(PaymentResponseDTO.class);
+        PaymentResponseDTO response = requestBuilder.sendRequest(PaymentResponseDTO.class, objectMapper);
         log.info(""+ response);
         return response;
     }
@@ -218,7 +219,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .pathVariable(transactionId)
                 .headers(headers)
                 .build();
-        PaymentResponseDTO response = request.sendRequest(PaymentResponseDTO.class);
+        PaymentResponseDTO response = request.sendRequest(PaymentResponseDTO.class, objectMapper);
         log.info(""+response);
         return response;
     }
@@ -236,10 +237,11 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .url(URL)
                 .client(template)
                 .method(HttpMethod.POST)
+                .payload(request)
                 .headers(headers)
                 .build();
         log.info("Preparing to make external call to url {} using payload: {}", URL, jsonUtils.convertToJson(request));
-        RelworxPaymentResponseDTO response = externalRequest.sendRequest(RelworxPaymentResponseDTO.class);
+        RelworxPaymentResponseDTO response = externalRequest.sendRequest(RelworxPaymentResponseDTO.class, objectMapper);
         log.info("Received response from RELWORX: "+response);
         return response;
     }

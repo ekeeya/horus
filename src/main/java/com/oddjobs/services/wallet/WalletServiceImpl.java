@@ -15,10 +15,7 @@ import com.oddjobs.exceptions.*;
 import com.oddjobs.repositories.mm.MMTransactionRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.transactions.TransactionRepository;
-import com.oddjobs.repositories.wallet.CardProvisionRequestRepository;
-import com.oddjobs.repositories.wallet.SchoolWalletAccountRepository;
-import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
-import com.oddjobs.repositories.wallet.WalletAccountRepository;
+import com.oddjobs.repositories.wallet.*;
 import com.oddjobs.services.NotificationService;
 import com.oddjobs.services.SettingService;
 import com.oddjobs.services.transactions.TransactionService;
@@ -60,6 +57,7 @@ public class WalletServiceImpl implements WalletService {
     private  final SchoolService schoolService;
     private final MobileMoneyService mobileMoneyService;
     private final StudentWalletAccountRepository studentWalletAccountRepository;
+    private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
     private final WalletAccountRepository walletAccountRepository;
     private final SchoolWalletAccountRepository schoolWalletAccountRepository;
     private final MMTransactionRepository mmTransactionRepository;
@@ -227,6 +225,7 @@ public class WalletServiceImpl implements WalletService {
                 Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
                 if (mmTransactionId == null){
                     log.error("External mobile money request to pay call failed");
+                    return  null;
                 }
                 MMTransaction t =  mmTransactionRepository.findById(mmTransactionId).get();
                 requestToPay.setAmount(request.getAmount());
@@ -391,5 +390,10 @@ public class WalletServiceImpl implements WalletService {
             throw new Exception("Missing required request parameters");
         }
         return l;
+    }
+
+    @Override
+    public List<? extends AccountEntity> findVirtualAccountBySchool(School school) {
+        return walletAccountRepository.findAccountsBySchool(school);
     }
 }

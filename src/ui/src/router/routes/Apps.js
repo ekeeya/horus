@@ -17,6 +17,7 @@ const CollectionsList = lazy(() => import('../../views/apps/transactions/collect
 const PaymentsList = lazy(() => import('../../views/apps/transactions/payments'))
 const WithDrawsList = lazy(() => import('../../views/apps/transactions/withdraws'))
 const WithdrawRequests = lazy(() => import('../../views/apps/finance/list'))
+const VirtualAccounts = lazy(() => import('../../views/apps/finance/accounts'))
 const AppRoutes = [
 
   {
@@ -134,6 +135,14 @@ const AppRoutes = [
   {
     element: <WithdrawRequests />,
     path: '/finance/withdraws-requests',
+    meta:{
+      action:"manage",
+      resource:"finance"
+    }
+  },
+  {
+    element: <VirtualAccounts />,
+    path: '/finance/virtual-accounts',
     meta:{
       action:"manage",
       resource:"finance"

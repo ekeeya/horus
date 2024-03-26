@@ -25,9 +25,11 @@ import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
+import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.schools.SchoolService;
 import com.oddjobs.services.students.StudentService;
 import com.oddjobs.services.wallet.WalletService;
+import com.oddjobs.utils.Utils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,6 +50,7 @@ import java.util.List;
 public class WalletController {
 
     private final WalletService walletService;
+    private final WalletAccountRepository walletAccountRepository;
     private final SchoolService schoolService;
     private final ContextProvider contextProvider;
     private final StudentService studentService;
@@ -152,7 +156,10 @@ public class WalletController {
             response = new BaseResponse(result);
             if (response.isSuccess()){
                 CollectionTransaction collectionTransaction =  walletService.depositIntoWallet(request);
-                response.setMessage(String.format("Deposit of UGX: %s has been made", request.getAmount()));
+                if (collectionTransaction == null){
+                    throw new Exception("Involved mobile money transaction failed.");
+                }
+                response.setMessage(String.format("Deposit of UGX: %s is being processed, please enter your PIN in the prompt that comes to your phone to proceed.", request.getAmount()));
                 response.setData(new TransactionResponseDTO(collectionTransaction));
                 return ResponseEntity.ok(response);
             }
@@ -202,5 +209,40 @@ public class WalletController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/virtual-accounts")
+    @Secured({"ROLE_ADMIN", "ROLE_SCHOOL"})
+    public ResponseEntity<?> findVirtualWalletAccounts(
+            @RequestParam(name = "schoolId", required = false) Long schoolId
+    ){
+        try{
+            BaseResponse response = new BaseResponse();
+            List<AccountEntity> accounts;
+            School school=null;
+            if (schoolId != null){
+                school =  schoolService.findById(schoolId);
+            }
+            User u =  contextProvider.getPrincipal();
+            if (u instanceof SchoolUser){
+                school = ((SchoolUser) u).getSchool();
+            }
+            if (school != null){
+                accounts = (List<AccountEntity>) walletService.findVirtualAccountBySchool(school);
+            }else{
+                List<Utils.WALLET_ACCOUNT_TYPES> types = List.of(Utils.WALLET_ACCOUNT_TYPES.SYSTEM, Utils.WALLET_ACCOUNT_TYPES.SCHOOL, Utils.WALLET_ACCOUNT_TYPES.SCHOOL_WITHDRAW);
+                accounts = walletAccountRepository.findAccountEntitiesByAccountTypeIn(types);
+            }
+            List<AccountResponseDTO> cleanAccounts = accounts.stream().map(AccountResponseDTO::new).toList();
+            response.setData(cleanAccounts);
+            response.setSuccess(true);
+            response.setStatusCode(200);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 
 }

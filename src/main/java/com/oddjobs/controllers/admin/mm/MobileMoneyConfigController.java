@@ -81,7 +81,7 @@ public class MobileMoneyConfigController {
         }
     }
 
-    @PostMapping("/relworx-callback")
+    @PostMapping("/callback/relworx")
     public ResponseEntity<?> relworxCallback(
             @RequestBody WebHookResponseData request){
         BaseResponse response;
@@ -90,6 +90,7 @@ public class MobileMoneyConfigController {
             CallBackDataDTO callback = new CallBackDataDTO(
                     request.getCustomer_reference(),
                     null,
+                    request.getMessage(),
                     Utils.PROVIDER.RELWORX,
                     request.getAmount(),
                     request.getCharge(),

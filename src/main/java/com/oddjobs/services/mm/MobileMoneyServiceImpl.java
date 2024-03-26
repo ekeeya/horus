@@ -135,6 +135,7 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                         // This is RELWORX
                         apiUser = apiUser==null ? new RelworxUser(): apiUser;
                         apiUser.setAccessToken(config.getApiKey());
+                        ((RelworxUser) apiUser).setAccountNo(config.getAccountNo());
                     }
                 }
                 apiUser.setEnvironment(config.getEnvironment());
@@ -280,7 +281,7 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                     RelworxUser relworxUser = (RelworxUser) apiUser;
                     RelworxRequestToPayDTO r = (RelworxRequestToPayDTO) request;
                     RelworxPaymentRequestDTO req =  new RelworxPaymentRequestDTO(
-                            r.getAccount_no(),
+                            ((RelworxUser) apiUser).getAccountNo(),
                             config.getReference(),
                             r.getAmount(),
                             "UGX",
@@ -288,8 +289,12 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                             r.getMsisdn()
                     );
                     RelworxPaymentResponseDTO response = externalRequests.relworxInitiatePayment(relworxUser, req);
-                    config.setInternalReference(response.getInternal_reference());
-                    config.setMsisdn(r.getMsisdn());
+                    if (response.getSuccess()){
+                        config.setInternalReference(response.getInternal_reference());
+                        config.setMsisdn(r.getMsisdn());
+                    }
+                    // transaction failed, response from external service already logged.
+                    return null;
                 }
             }
         } catch (Exception e) {

@@ -12,4 +12,5 @@ import lombok.Setter;
 @Getter
 @DiscriminatorValue(value= Utils.PROVIDER.Values.RELWORX)
 public class RelworxUser extends APIUser {
+    private  String accountNo;
 }

@@ -1,5 +1,4 @@
 // ** Icons Import
-import { ShoppingCart } from 'react-feather'
 import {MdPointOfSale} from "react-icons/md";
 
 export default [

@@ -37,4 +37,6 @@ public interface WalletService {
     Page<CardProvisionRequest> findProvisioningRequestsBySchoolAndStatus(Long schoolId, boolean provisioned, int page, int size) throws SchoolNotFoundException;
     Page<CardProvisionRequest> findRequestByCardNo(String cardNo);
     List<CardProvisionRequest> markProvisioned(CardProvisioningMarkRequest request) throws Exception;
-}
+
+    List<? extends AccountEntity> findVirtualAccountBySchool(School school);
+ }

@@ -9,8 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.ResponseErrorHandler;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Duration;
 
 @Configuration
@@ -30,7 +35,6 @@ public class RestTemplateConfig {
         return new RestTemplateBuilder();
     }
 
-
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         try (PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager()) {
@@ -41,7 +45,8 @@ public class RestTemplateConfig {
             return builder.requestFactory(() -> requestFactory)
                     .setConnectTimeout(Duration.ofMillis(connectionTimeout))
                     .setReadTimeout(Duration.ofMillis(readTimeout))
-                    .interceptors(new LoggingInterceptor()).build();
+                    .errorHandler(new RestTemplateResponseErrorHandler()).build();
+                    //.interceptors(new LoggingInterceptor()).build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;

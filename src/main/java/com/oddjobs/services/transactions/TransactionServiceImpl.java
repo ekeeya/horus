@@ -198,12 +198,13 @@ public class TransactionServiceImpl implements TransactionService{
             throw new TransactionDoesNotExistException(data.toString());
         }
         if (mmTransaction.getStatus() != Utils.TRANSACTION_STATUS.PENDING){
-            // already been updated by poller
-            log.warn("Transaction has been updated {}", mmTransaction);
+            // already been updated by poller or duplicate callback
+            log.warn("Transaction is already updated {}", mmTransaction);
             return;
         }
         Utils.TRANSACTION_STATUS tStatus = Utils.TRANSACTION_STATUS.valueOf(data.getStatus());
         mmTransaction.setStatus(tStatus);
+        mmTransaction.setReason(data.getReason());
         mmTransaction.setCharge(BigDecimal.valueOf(data.getCharge()));
         mmTransaction.setResponse(data.getPayload());
         mmTransactionRepository.save(mmTransaction);

@@ -20,6 +20,7 @@ public class MobileMoneyProductConfigDTO{
     private String secondaryKey;
     private String clientId;
     private String username;
+    private String accountNo; // relworx
     private String apiKey; //relworx
     private String password;
     private String clientSecretKey;
