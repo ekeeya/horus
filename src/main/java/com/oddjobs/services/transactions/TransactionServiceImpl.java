@@ -1,6 +1,7 @@
 package com.oddjobs.services.transactions;
 
 import com.oddjobs.components.ContextProvider;
+import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.CallBackDataDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
@@ -17,7 +18,7 @@ import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.wallets.AccountEntity;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.dtos.responses.TransactionResponseDTO;
 import com.oddjobs.entities.transactions.WithDrawTransaction;
@@ -118,26 +119,24 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setTransactionId(Utils.generateTransactionId());
         transaction.setAttendant(user);
         transaction.setAmount(amount);
-        transaction.setStatus(Utils.TRANSACTION_STATUS.SUCCESS);
         transaction.setSchool(account.getStudent().getSchool());
         transaction.setNature(Utils.TRANSACTION_NATURE.DEBIT);
         transaction.setDebitAccount(account);
         String description =  String.format("A payment of %s has been made from card %s", amount,account.getCardNo());
         transaction.setDescription(description);
-        return transactionRepository.save(transaction);
+        transaction =  transactionRepository.save(transaction);
+        transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
+        return transaction;
     }
 
     @Override
-    public WithDrawTransaction recordDisbursementTransaction(SchoolWalletAccount account, WithdrawRequest request) {
+    public WithDrawTransaction recordDisbursementTransaction(WithdrawRequest request) {
         WithDrawTransaction transaction = new WithDrawTransaction();
         transaction.setTransactionId(Utils.generateTransactionId());
         transaction.setAmount(request.getAmount());
-        transaction.setSchool(account.getSchool());
-
-        // System account
-        AccountEntity systemAccount =  accountRepository.findAccountEntityByAccountType(Utils.WALLET_ACCOUNT_TYPES.SYSTEM);
-        transaction.setCreditAccount(account);
-        transaction.setDebitAccount(systemAccount);
+        transaction.setSchool(request.getSchool());
+        transaction.setCreditAccount(request.getCreditAccount());
+        transaction.setDebitAccount(request.getDebitAccount());
         transaction.setRequest(request);
         return transactionRepository.save(transaction);
     }
@@ -183,7 +182,18 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public void updateTransactionOnCallback(CallBackDataDTO data) throws TransactionDoesNotExistException {
+    public void updateTransactionOnCallback(WebHookResponseData request) throws TransactionDoesNotExistException {
+
+        CallBackDataDTO data = new CallBackDataDTO(
+                request.getCustomer_reference(),
+                null,
+                request.getMessage(),
+                Utils.PROVIDER.RELWORX,
+                request.getAmount(),
+                request.getCharge(),
+                request.getStatus(),
+                request
+        );
         log.info("Entering update transaction on callback with data {}", data);
         MMTransaction mmTransaction;
         switch (data.getProvider()){

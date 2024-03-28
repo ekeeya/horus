@@ -23,11 +23,13 @@ import com.oddjobs.dtos.mtn.responses.EmptyResponseDTO;
 import com.oddjobs.dtos.mtn.responses.RequestToPayStatusResponseDTO;
 import com.oddjobs.dtos.relworx.requests.RelworxPaymentRequestDTO;
 import com.oddjobs.dtos.relworx.response.RelworxPaymentResponseDTO;
+import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.GetUserRequestDTO;
 import com.oddjobs.entities.mm.*;
 import com.oddjobs.entities.mm.airtel.AirtelApiUser;
 import com.oddjobs.entities.mm.mtn.MTNApiUser;
 import com.oddjobs.entities.mm.relworx.RelworxUser;
+import com.oddjobs.entities.transactions.mm.relworx.RelworxTransaction;
 import com.oddjobs.utils.RequestBuilder;
 import com.oddjobs.dtos.responses.AccessTokenResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -65,7 +69,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
         return headers;
     }
     @Override
-    public String sendCreateMomoAPIUser(String primaryKey, String callBack) throws InstantiationException, IllegalAccessException {
+    public String sendCreateMomoAPIUser(String primaryKey, String callBack) throws IllegalAccessException {
         String referenceId = UUID.randomUUID().toString();
         String url = MTN_BASE_URL+ Constants.MTN_CREATE_USER;
         HttpHeaders headers = new HttpHeaders();
@@ -86,7 +90,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public APIkeyResponseDTO generateMomoAPIKey(String userUUID, String primaryKey) throws InstantiationException, IllegalAccessException {
+    public APIkeyResponseDTO generateMomoAPIKey(String userUUID, String primaryKey) throws IllegalAccessException {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Ocp-Apim-Subscription-Key", primaryKey);
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -105,7 +109,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public AccessTokenResponseDTO generateMomoAccessToken(MomoAccessTokenRequestDTO request) throws InstantiationException, IllegalAccessException {
+    public AccessTokenResponseDTO generateMomoAccessToken(MomoAccessTokenRequestDTO request) throws IllegalAccessException {
         String URL = MTN_BASE_URL+Constants.MTN_GENERATE_COLLECTIONS_ACCESS_TOKEN;
         HttpHeaders headers =  RequestBuilder.generateBasicAuthHeader(request.getUserUuid(), request.getApiKey());
         headers.set("Ocp-Apim-Subscription-Key", request.getPrimaryKey());
@@ -121,7 +125,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public EmptyResponseDTO momoRequestToPay(MomoRequestToPayDTO request, MTNApiUser user) throws InstantiationException, IllegalAccessException {
+    public EmptyResponseDTO momoRequestToPay(MomoRequestToPayDTO request, MTNApiUser user) throws IllegalAccessException {
         String URL = MTN_BASE_URL+Constants.MTN_REQUEST_TO_PAY;
         String referenceId = UUID.randomUUID().toString();
         HttpHeaders headers = new HttpHeaders();
@@ -144,7 +148,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public RequestToPayStatusResponseDTO getRequestToPayStatus(String transactionReferenceId, MTNApiUser user) throws InstantiationException, IllegalAccessException {
+    public RequestToPayStatusResponseDTO getRequestToPayStatus(String transactionReferenceId, MTNApiUser user) throws IllegalAccessException {
         String URL =  MTN_BASE_URL+ Constants.MTN_REQUEST_TO_PAY_STATUS;
         HttpHeaders headers = new HttpHeaders();
         String bearerToken = String.format("Bearer %s", user.getAccessToken());
@@ -164,7 +168,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public AccessTokenResponseDTO generateAirtelAccessToken(AirtelAccessTokenRequestDTO payload) throws InstantiationException, IllegalAccessException {
+    public AccessTokenResponseDTO generateAirtelAccessToken(AirtelAccessTokenRequestDTO payload) throws IllegalAccessException {
 
         String URL = AIRTEL_BASE_URL+Constants.AIRTEL_ACCESS_TOKEN;
         HttpHeaders headers =  new HttpHeaders();
@@ -183,7 +187,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
     }
 
     @Override
-    public PaymentResponseDTO airtelInitiatePayment(AirtelApiUser user, AirtelPaymentRequestDTO request) throws InstantiationException, IllegalAccessException {
+    public PaymentResponseDTO airtelInitiatePayment(AirtelApiUser user, AirtelPaymentRequestDTO request) throws IllegalAccessException {
         String URL = AIRTEL_BASE_URL+Constants.AIRTEL_REQUEST_TO_PAY;
         String bearerToken = String.format("Bearer %s", user.getAccessToken());
         HttpHeaders headers =  new HttpHeaders();
@@ -204,7 +208,7 @@ public class ExternalRequestsImpl implements  ExternalRequests{
         return response;
     }
     @Override
-    public PaymentResponseDTO airtelTransactionInquiry(AirtelApiUser user, String transactionId) throws InstantiationException, IllegalAccessException {
+    public PaymentResponseDTO airtelTransactionInquiry(AirtelApiUser user, String transactionId) throws IllegalAccessException {
         String URL = AIRTEL_BASE_URL+Constants.AIRTEL_TRANSACTION_STATUS;
         HttpHeaders headers =  new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -224,10 +228,8 @@ public class ExternalRequestsImpl implements  ExternalRequests{
         return response;
     }
 
-
-
     @Override
-    public RelworxPaymentResponseDTO relworxInitiatePayment(RelworxUser user, RelworxPaymentRequestDTO request) throws InstantiationException, IllegalAccessException {
+    public RelworxPaymentResponseDTO relworxInitiatePayment(RelworxUser user, RelworxPaymentRequestDTO request) throws IllegalAccessException {
         HttpHeaders headers =  new HttpHeaders();
         headers =  setAuthHeader(user, headers);
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -242,6 +244,28 @@ public class ExternalRequestsImpl implements  ExternalRequests{
                 .build();
         log.info("Preparing to make external call to url {} using payload: {}", URL, jsonUtils.convertToJson(request));
         RelworxPaymentResponseDTO response = externalRequest.sendRequest(RelworxPaymentResponseDTO.class, objectMapper);
+        log.info("Received response from RELWORX: "+response);
+        return response;
+    }
+
+    @Override
+    public WebHookResponseData relworxCheckTransactionStatus(RelworxUser user, RelworxTransaction transaction) throws IllegalAccessException {
+        HttpHeaders headers =  new HttpHeaders();
+        headers =  setAuthHeader(user, headers);
+        headers.add(HttpHeaders.ACCEPT, Constants.RELWORX_ACCEPT_HEADER);
+        String URL = RELWORX_BASE_URL+Constants.RELWORX_CHECK_REQUEST_STATUS;
+        Map<String, String> params = new HashMap<>();
+        params.put("internal_reference", transaction.getInternal_reference());
+        params.put("account_no", user.getAccountNo());
+        RequestBuilder externalRequest = RequestBuilder.builder()
+                .url(URL)
+                .client(template)
+                .method(HttpMethod.GET)
+                .headers(headers)
+                .params(params)
+                .build();
+        log.info("Preparing to make GET external call to url {} using params: {}", URL, jsonUtils.convertToJson(params));
+        WebHookResponseData response = externalRequest.sendRequest(WebHookResponseData.class, objectMapper);
         log.info("Received response from RELWORX: "+response);
         return response;
     }

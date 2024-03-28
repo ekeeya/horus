@@ -33,5 +33,6 @@ public class Constants {
 
     public  static String RELWORX_ACCEPT_HEADER = "application/vnd.relworx.v2";
     public static String RELWORX_REQUEST_PAYMENT ="/mobile-money/request-payment";
+    public static String RELWORX_CHECK_REQUEST_STATUS ="/mobile-money/check-request-status";
 
 }

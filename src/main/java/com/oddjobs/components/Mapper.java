@@ -2,7 +2,7 @@ package com.oddjobs.components;
 
 import com.oddjobs.dtos.responses.*;
 import com.oddjobs.entities.users.*;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
@@ -80,7 +80,7 @@ public class Mapper {
 
     public SchoolResponseDTO toSchoolDto(School school){
         SchoolResponseDTO dto =  new SchoolResponseDTO(school);
-        SchoolWalletAccount acc =  walletService.findWalletBySchool(school);
+        SchoolCollectionAccount acc =  walletService.findWalletBySchool(school);
         dto.setAccountId(acc.getId());
         dto.setAccountBalance(acc.getBalance().doubleValue());
         if (dto.getClasses().size() == 0){

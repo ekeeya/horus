@@ -20,7 +20,11 @@ public class Utils {
     }
 
     public  static enum WALLET_ACCOUNT_TYPES{
-        SYSTEM(Values.SYSTEM), SCHOOL(Values.SCHOOL), SCHOOL_WITHDRAW(Values.SCHOOL_WITHDRAW), STUDENT(Values.STUDENT);
+        SYSTEM(Values.SYSTEM),
+        SCHOOL_COLLECTION(Values.SCHOOL_COLLECTION),
+        SCHOOL_WITHDRAW(Values.SCHOOL_WITHDRAW),
+        SCHOOL_PAYMENT(Values.SCHOOL_PAYMENT),
+        STUDENT(Values.STUDENT);
         private WALLET_ACCOUNT_TYPES (String val) {
             // force equality between name of enum instance, and value of constant
             if (!this.name().equals(val))
@@ -29,8 +33,9 @@ public class Utils {
 
         public static class Values {
             public static final String SYSTEM= "SYSTEM";
-            public static final String SCHOOL= "SCHOOL";
+            public static final String SCHOOL_COLLECTION= "SCHOOL_COLLECTION";
             public static final String SCHOOL_WITHDRAW= "SCHOOL_WITHDRAW";
+            public static final String SCHOOL_PAYMENT= "SCHOOL_PAYMENT";
             public static final String STUDENT= "STUDENT";
         }
     }
@@ -123,7 +128,7 @@ public class Utils {
         SANDBOX, PRODUCTION
     }
     public static enum TRANSACTION_STATUS{
-        SUCCESS, FAILED, PENDING, CANCELLED
+        SUCCESS, FAILED, PENDING, CANCELLED, EXPIRED
     }
 
     public static enum TRANSACTION_NATURE{

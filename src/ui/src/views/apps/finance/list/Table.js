@@ -40,11 +40,17 @@ import {
 import '@styles/react/libs/react-select/_react-select.scss'
 import '@styles/react/libs/tables/react-dataTable-component.scss'
 import {fetchSchool, fetchSchools} from "@src/views/apps/schools/store";
-import {fetchWithdrawRequests, makeWithdrawRequest} from "@src/views/apps/finance/store";
+import {
+    fetchVirtualAccounts,
+    fetchWithdrawRequests,
+    makeWithdrawRequest,
+    setShowWithdrawModal
+} from "@src/views/apps/finance/store";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import toast from "react-hot-toast";
 import Sidebar from "@src/views/apps/finance/list/Sidebar";
+import WithdrawRequestBar from "@src/views/apps/finance/accounts/Sidebar";
 
 const MySwal = withReactContent(Swal)
 
@@ -97,7 +103,7 @@ const defaultValues = {
 const WithdrawRequestList = () => {
     // ** Store Vars
     const dispatch = useDispatch()
-    const {loading, withdrawRequests, pages, selectedRequest, edit, error} = useSelector((store) => store.finance);
+    const {loading, withdrawRequests, pages, selectedRequest,showWithDrawModal, edit, error} = useSelector((store) => store.finance);
     const {userData} = useSelector((store) => store.auth);
     const schoolStore = useSelector(state => state.schools)
 
@@ -127,6 +133,7 @@ const WithdrawRequestList = () => {
         size: rowsPerPage
     })
 
+    const togglePaymentSideBar = () => dispatch(setShowWithdrawModal(!showWithDrawModal));
     const toggleSidebar = () => setOpen(!open)
 
 
@@ -139,47 +146,6 @@ const WithdrawRequestList = () => {
         const numberValue = parseFloat(x);
         if (!isNaN(numberValue)) {
             return numberValue.toLocaleString();
-        }
-    }
-
-    const initiateWithdrawRequest = () => {
-        const balance = schoolStore.selectedSchool  ? schoolStore.selectedSchool.accountBalance : 0;
-        const rate = schoolStore.selectedSchool ? schoolStore.selectedSchool.commissionRate : 0;
-        if (amount === null || amount < 1) {
-            const msg = "Please specify withdraw request amount";
-            toast.error(msg, {
-                position: "bottom-right"
-            })
-            setNativeError(msg);
-        } else if (amount > balance) {
-            const msg = `Specified amount ${amount.toLocaleString()} can not exceed available account balance ${selectedSchool.accountBalance.toLocaleString()}`;
-            toast.error(msg, {
-                position: "bottom-right"
-            });
-            setNativeError(msg);
-        } else {
-            const amountReceived = parseFloat(amount) * (1-rate);
-            return MySwal.fire({
-                title: 'Initiate Withdraw Request',
-                text: `Are you sure you want to continue initiating a withdraw of ${amount.toLocaleString()} which will be ${amountReceived.toLocaleString()} after applying commission rate?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: `Yes, Continue`,
-                customClass: {
-                    confirmButton: 'btn btn-primary',
-                    cancelButton: 'btn btn-outline-danger ms-1'
-                },
-                buttonsStyling: false
-            }).then(function (result) {
-                if (result.value) {
-                    const data = {
-                        schoolId: selectedSchool.value,
-                        amount: amount
-                    }
-                    dispatch(makeWithdrawRequest(data));
-                    !error && setShow(false);
-                }
-            })
         }
     }
     const openModal = () => setShow(true);
@@ -207,6 +173,14 @@ const WithdrawRequestList = () => {
             });
         }
     }, [userData])
+
+    useEffect(() => {
+        let params = {}
+        if (selectedSchool && selectedSchool.value){
+            params = {schoolId:selectedSchool.value}
+        }
+        dispatch(fetchVirtualAccounts(params))
+    }, [dispatch, selectedSchool])
 
     useEffect(() => {
         if (selectedSchool) {
@@ -388,7 +362,7 @@ const WithdrawRequestList = () => {
                                 <CustomHeader
                                     userData={userData}
                                     rowsPerPage={rowsPerPage}
-                                    setShowModal={openModal}
+                                    setShowModal={togglePaymentSideBar}
                                     handlePerPage={handlePerPage}
                                 />
                             }
@@ -396,95 +370,9 @@ const WithdrawRequestList = () => {
                     </div>
                 </Card>
 
-                <Modal
-                    isOpen={show}
-                    toggle={() => setShow(!show)}
-                    className='modal-dialog-centered'
-                    onClosed={() => setAmount(0)}
-                >
-                    <ModalHeader
-                        className='bg-transparent'
-                        toggle={() => setShow(!show)}>
-                        Initiate Withdraw Request
-                    </ModalHeader>
-                    <ModalBody className='px-sm-5 mx-50 pb-5'>
-                        {selectedSchool.value && (<Alert color='info'>
-                            <div className='alert-body font-small-2'>
-                                <p>
-                                    <small className='me-50'>
-                                        <span
-                                            className='fw-bold'>Balance(UGX):</span> {balance.toLocaleString()}
-                                    </small>
-                                </p>
-                                <p>
-                                    <small className='me-50'>
-                                        Please make sure the withdraw request amount does not exceed the current
-                                        available balance above.
-                                    </small>
-                                </p>
-                                <p>
-                                    <small className='me-50'>
-                                         <span
-                                             className='fw-bold'>Commission</span> ({rate}%): UGX {(parseFloat(amount)*(rate)).toLocaleString()}
-                                    </small>
-                                </p>
-                                <p>
-                                    <small className='me-50'>
-                                         <span
-                                             className='fw-bold'>Amount to Receive</span>: UGX {(parseFloat(amount)*(1-rate)).toLocaleString()}
-                                    </small>
-                                </p>
-                            </div>
-                        </Alert>)}
-                        <Row tag='form' className='gy-1 gx-2 mt-75'>
-                            <Col xs={12}>
-                                <div className='mb-1'>
-                                    <Label className='form-label' for='Amount'>
-                                        Amount <span className='text-danger'>*</span>
-                                    </Label>
-                                    <NumericInput mobile
-                                                  parse={parseInput}
-                                                  value={amount}
-                                                  format={format}
-                                                  inputMode="string"
-                                                  className="form-control"
-
-                                    />
-                                </div>
-                            </Col>
-                        </Row>
-                        {
-                            nativeError && (
-                                <Alert color='danger'>
-                                    <div className='alert-body font-small-2'>
-                                        <div>
-                                            <small className='me-50'>
-                                                <span className='fw-bold'>Error:</span> {nativeError}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </Alert>
-                            )
-                        }
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button type='submit' onClick={() => initiateWithdrawRequest()} className='me-1'
-                                color='primary'>
-                            Initiate
-                        </Button>
-                        <Button
-                            color='secondary'
-                            outline
-                            onClick={() => {
-                                setShow(!show)
-                                setAmount(0);
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                    </ModalFooter>
-                </Modal>
                 <Sidebar open={open} toggleSidebar={toggleSidebar}/>
+                <WithdrawRequestBar open={showWithDrawModal}
+                         toggleSidebar={togglePaymentSideBar}/>
             </UILoader>
         </Fragment>
     )

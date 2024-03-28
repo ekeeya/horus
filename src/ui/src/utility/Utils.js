@@ -129,9 +129,29 @@ export const todayDates = ()=>{
   return [mid.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]
 }
 
+export const periodDates = (type="day")=>{
+  let currentDate = moment(); // Current date
+  let startDate;
+  let endDate;
+  if(type === "day"){
+    startDate = currentDate.clone().startOf('day');
+    endDate = currentDate.clone().endOf('day');
+  }
+  else if(type === "week"){
+    startDate = currentDate.clone().startOf('week');
+    endDate = currentDate.clone().endOf('week');
+  }else{ // this will return the first and end dates of current month
+    startDate = currentDate.clone().startOf('month');
+    endDate = currentDate.clone().endOf('month');
+  }
+  return [startDate.toDate(), endDate.toDate()]
+}
 
-export const convertDate = (date)=>{
-  const d =  moment(date);
+export const convertDate = (date, end=false)=>{
+  let d =  moment(date);
+  if (end){
+    d =  moment(d).endOf("day")
+  }
   return d.format('YYYY-MM-DD HH:mm:ss')
 }
 

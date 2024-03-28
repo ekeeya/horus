@@ -87,17 +87,7 @@ public class MobileMoneyConfigController {
         BaseResponse response;
         try{
             log.info("Received RELWORX transaction: {}", jsonUtils.convertToJson(request));
-            CallBackDataDTO callback = new CallBackDataDTO(
-                    request.getCustomer_reference(),
-                    null,
-                    request.getMessage(),
-                    Utils.PROVIDER.RELWORX,
-                    request.getAmount(),
-                    request.getCharge(),
-                    request.getStatus(),
-                    request
-            );
-            transactionService.updateTransactionOnCallback(callback);
+            transactionService.updateTransactionOnCallback(request);
             return ResponseEntity.ok("OK");
         }catch (Exception e){
             response =  new BaseResponse(e);

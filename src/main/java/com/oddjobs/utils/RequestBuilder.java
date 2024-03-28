@@ -24,7 +24,7 @@ public class RequestBuilder {
     private String url;
     private Object payload;
     private String pathVariable;
-    private Object params;
+    private Map<String, String> params;
     private ResponseEntity<Object> response;
     private RestTemplate client;
 
@@ -47,9 +47,16 @@ public class RequestBuilder {
         StringBuilder URL = new StringBuilder(this.pathVariable == null ? this.url : this.url.replace("{variable}", this.pathVariable));
         if (params != null){
             URL.append("?");
-            Field[] fields = params.getClass().getDeclaredFields();
-            for (Field f: fields){
-                URL.append(String.format("%s=%s", f.getName(), f.get(params)));
+            String postfix = "&";
+            int count = 0;
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                count++;
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (count == params.size()){
+                    postfix = "";
+                }
+                URL.append(String.format("%s=%s%s", key, value, postfix));
             }
         }
         log.info(String.valueOf(URL));

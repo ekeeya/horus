@@ -13,6 +13,7 @@ import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.wallets.AccountEntity;
+import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.exceptions.ExceedDailyExpenditureException;
 import com.oddjobs.exceptions.InsufficientBalanceException;
 import com.oddjobs.exceptions.WalletAccountNotFoundException;
@@ -25,6 +26,8 @@ import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
+import com.oddjobs.repositories.transactions.TransactionRepository;
+import com.oddjobs.repositories.wallet.SchoolPaymentAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.schools.SchoolService;
 import com.oddjobs.services.students.StudentService;
@@ -34,20 +37,27 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.oddjobs.utils.Utils.TRANSACTION_STATUS.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/wallet")
 public class WalletController {
+    private final TransactionRepository transactionRepository;
+    private final SchoolPaymentAccountRepository schoolPaymentAccountRepository;
 
     private final WalletService walletService;
     private final WalletAccountRepository walletAccountRepository;
@@ -230,13 +240,46 @@ public class WalletController {
             if (school != null){
                 accounts = (List<AccountEntity>) walletService.findVirtualAccountBySchool(school);
             }else{
-                List<Utils.WALLET_ACCOUNT_TYPES> types = List.of(Utils.WALLET_ACCOUNT_TYPES.SYSTEM, Utils.WALLET_ACCOUNT_TYPES.SCHOOL, Utils.WALLET_ACCOUNT_TYPES.SCHOOL_WITHDRAW);
+                List<Utils.WALLET_ACCOUNT_TYPES> types = List.of(Utils.WALLET_ACCOUNT_TYPES.SYSTEM);
                 accounts = walletAccountRepository.findAccountEntitiesByAccountTypeIn(types);
             }
             List<AccountResponseDTO> cleanAccounts = accounts.stream().map(AccountResponseDTO::new).toList();
             response.setData(cleanAccounts);
             response.setSuccess(true);
             response.setStatusCode(200);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/allowed-withdraw-amount")
+    @Secured({"ROLE_SCHOOL"})
+    public ResponseEntity<?> findAllowedWithdrawPaymentsAmount (
+            @RequestParam(name="lowerDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date lowerDate,
+            @RequestParam(name="upperDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date upperDate
+    ){
+        try{
+            User u =  contextProvider.getPrincipal();
+            SchoolUser  user =  (SchoolUser) u; // user will always be school user by the time we reach this point.
+            BaseResponse response = new BaseResponse();
+            School school  =  user.getSchool();
+            double allowedBalance;
+            SchoolPaymentAccount paymentAccount =  schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
+            if (lowerDate == null){
+                allowedBalance = paymentAccount.getBalance().doubleValue();
+            }else{
+                allowedBalance = transactionRepository.sumByTransactionTypeAndSchoolAndCreatedAtBetweenStatus(
+                        Utils.TRANSACTION_TYPE.PAYMENT,school,lowerDate, upperDate, SUCCESS);
+                if (allowedBalance > paymentAccount.getBalance().doubleValue()){
+                    // if it is greater than return the account balance figure
+                    allowedBalance =  paymentAccount.getBalance().doubleValue();
+                }
+            }
+            response.setStatusCode(200);
+            response.setSuccess(true);
+            response.setData(allowedBalance);
             return ResponseEntity.ok(response);
         }catch (Exception e){
             log.error(e.getMessage(), e);

@@ -11,10 +11,12 @@ import com.oddjobs.dtos.mtn.responses.EmptyResponseDTO;
 import com.oddjobs.dtos.mtn.responses.RequestToPayStatusResponseDTO;
 import com.oddjobs.dtos.relworx.requests.RelworxPaymentRequestDTO;
 import com.oddjobs.dtos.relworx.response.RelworxPaymentResponseDTO;
+import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.entities.mm.airtel.AirtelApiUser;
 import com.oddjobs.entities.mm.mtn.MTNApiUser;
 import com.oddjobs.dtos.responses.AccessTokenResponseDTO;
 import com.oddjobs.entities.mm.relworx.RelworxUser;
+import com.oddjobs.entities.transactions.mm.relworx.RelworxTransaction;
 
 public interface ExternalRequests {
 
@@ -29,4 +31,6 @@ public interface ExternalRequests {
     PaymentResponseDTO airtelInitiatePayment(AirtelApiUser user, AirtelPaymentRequestDTO request) throws InstantiationException, IllegalAccessException;
     PaymentResponseDTO airtelTransactionInquiry(AirtelApiUser user, String transactionId) throws InstantiationException, IllegalAccessException;
     RelworxPaymentResponseDTO relworxInitiatePayment(RelworxUser user, RelworxPaymentRequestDTO request) throws InstantiationException, IllegalAccessException;
+
+    WebHookResponseData relworxCheckTransactionStatus(RelworxUser user, RelworxTransaction transaction) throws IllegalAccessException;
 }

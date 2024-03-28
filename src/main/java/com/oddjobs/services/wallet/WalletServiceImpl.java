@@ -28,7 +28,7 @@ import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.CollectionAccount;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.services.mm.MobileMoneyService;
 import com.oddjobs.services.schools.SchoolService;
@@ -59,7 +59,7 @@ public class WalletServiceImpl implements WalletService {
     private final StudentWalletAccountRepository studentWalletAccountRepository;
     private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
     private final WalletAccountRepository walletAccountRepository;
-    private final SchoolWalletAccountRepository schoolWalletAccountRepository;
+    private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
     private final MMTransactionRepository mmTransactionRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
@@ -298,8 +298,8 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public SchoolWalletAccount findWalletBySchool(School school) {
-        return schoolWalletAccountRepository.findSchoolWalletAccountBySchool(school);
+    public SchoolCollectionAccount findWalletBySchool(School school) {
+        return schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(school);
     }
 
     @Override

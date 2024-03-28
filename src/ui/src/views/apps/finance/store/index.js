@@ -6,10 +6,6 @@ import {generateError} from '@utils';
 import toast from "react-hot-toast";
 
 
-
-
-
-
 export const makeWithdrawRequest = createAsyncThunk('appWithdrawRequests/makeWithdrawRequest', async (data, thunkAPI) => {
     try {
         const response = await client.post('/api/v1/finance/withdraw-requests/create', data);
@@ -18,6 +14,35 @@ export const makeWithdrawRequest = createAsyncThunk('appWithdrawRequests/makeWit
         return thunkAPI.rejectWithValue(generateError(error))
     }
 })
+
+export const fetchVirtualAccounts = createAsyncThunk('appWithdrawRequests/fetchVirtualAccounts', async (configs, thunkAPI) => {
+    try {
+        let url = `/api/v1/wallet/virtual-accounts`;
+        let {schoolId} = configs;
+        if (schoolId){
+            url =`${url}?schoolId=${schoolId}`
+        }
+        const response = await client.get(url);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(generateError(error))
+    }
+})
+export const fetchAllowedWithdrawPaymentAccountBalance = createAsyncThunk('appWithdrawRequests/fetchAllowedWithdrawPaymentAccountBalance', async (configs, thunkAPI) => {
+    try {
+        let url = `/api/v1/wallet/allowed-withdraw-amount`;
+        const {lowerDate, upperDate} = configs;
+        console.log(lowerDate)
+        if(lowerDate){
+            url = `${url}?lowerDate=${lowerDate}&upperDate=${upperDate}`
+        }
+        const response = await client.get(url);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(generateError(error))
+    }
+})
+
 export const fetchWithdrawRequests = createAsyncThunk('appWithdrawRequests/fetchWithdrawRequests', async (configs, thunkAPI) => {
     try {
         let {page} = configs;
@@ -68,14 +93,21 @@ export const appFinanceSlice = createSlice({
     initialState: {
         loading: false,
         withdrawRequests: [],
-        selectedRequest:null,
+        virtualAccounts:[],
+        showWithDrawModal:false,
+        virtualPaymentAccount:{},
+        allowedWithdrawAmount:0,
+        selectedRequest: null,
         pages: 0,
-        edit:false,
+        edit: false,
         error: null
     },
     reducers: {
         setEdit: (state, {payload}) => {
             state.edit = payload
+        },
+        setShowWithdrawModal: (state, {payload}) => {
+            state.showWithDrawModal = payload
         },
         setSelectedRequest: (state, {payload}) => {
             state.selectedRequest = payload
@@ -107,15 +139,38 @@ export const appFinanceSlice = createSlice({
             ).addCase(
             fetchWithdrawRequests.fulfilled, (state, action) => {
                 state.loading = false
-                state.withdrawRequests =  action.payload.entries
-                state.pages =  action.payload.totalPages;
+                state.withdrawRequests = action.payload.entries
+                state.pages = action.payload.totalPages;
             }
-        ).addCase(
+            ).addCase(
             fetchWithdrawRequests.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload
             },
+        )
+            .addCase(
+                fetchVirtualAccounts.pending, (state) => {
+                    state.loading = true
+                }
+            ).addCase(
+            fetchVirtualAccounts.fulfilled, (state, action) => {
+                state.loading = false
+                state.virtualAccounts = action.payload.data
+                action.payload.data.forEach((account)=>{
+                    if (account.accountType === "SCHOOL_PAYMENT"){
+                        state.virtualPaymentAccount = account;
+                        state.allowedWithdrawAmount = account.balance;
+                    }
+                })
+            }
         ).addCase(
+            fetchVirtualAccounts.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload
+            },
+        )
+
+            .addCase(
             getRequest.pending, (state) => {
                 state.loading = true
             }
@@ -160,8 +215,21 @@ export const appFinanceSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload
             })
+
+            .addCase(fetchAllowedWithdrawPaymentAccountBalance.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchAllowedWithdrawPaymentAccountBalance.fulfilled, (state, {payload}) => {
+                state.loading = false;
+                state.allowedWithdrawAmount = payload.data;
+                console.log(payload.data)
+            })
+            .addCase(fetchAllowedWithdrawPaymentAccountBalance.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload
+            })
     }
 });
 
-export const {setSelectedRequest, setEdit} = appFinanceSlice.actions
+export const {setSelectedRequest, setEdit,setShowWithdrawModal} = appFinanceSlice.actions
 export default appFinanceSlice.reducer

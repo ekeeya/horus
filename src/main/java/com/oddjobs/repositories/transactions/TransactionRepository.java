@@ -72,4 +72,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("school")School school,
             @Param("status")Utils.TRANSACTION_STATUS status
     );
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM Transaction WHERE school=:school AND transactionType =:type AND status = :status AND (createdAt >=:lowerDate AND createdAt <=:upperDate)")
+    Double sumByTransactionTypeAndSchoolAndCreatedAtBetweenStatus(
+            @Param("type") Utils.TRANSACTION_TYPE type,
+            @Param("school")School school,
+            @Param("lowerDate")Date lowerDate,
+            @Param("upperDate")Date upperDate,
+            @Param("status")Utils.TRANSACTION_STATUS status
+    );
 }

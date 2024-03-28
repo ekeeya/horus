@@ -14,11 +14,11 @@
 package com.oddjobs.repositories.wallet;
 
 import com.oddjobs.entities.School;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SchoolWalletAccountRepository extends JpaRepository<SchoolWalletAccount, Long> {
-    SchoolWalletAccount findSchoolWalletAccountBySchool(School school);
+public interface SchoolCollectionAccountRepository extends JpaRepository<SchoolCollectionAccount, Long> {
+    SchoolCollectionAccount findSchoolWalletAccountBySchool(School school);
 }

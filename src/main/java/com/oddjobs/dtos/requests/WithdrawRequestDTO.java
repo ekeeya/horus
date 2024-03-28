@@ -6,11 +6,12 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+
 @Data
 public class WithdrawRequestDTO implements Serializable {
 
     private Long id; // for update
-    private WithdrawRequest.Status status;
+    private WithdrawRequest.Status status=WithdrawRequest.Status.PENDING;
     private WithdrawRequest.TYPE type = WithdrawRequest.TYPE.PAYMENTS; // can be cashouts
     private Long schoolId;
     private Double amount;

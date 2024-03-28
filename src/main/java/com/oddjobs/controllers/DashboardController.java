@@ -19,9 +19,11 @@ import com.oddjobs.entities.approvals.ApprovalRequest;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.AccountEntity;
+import com.oddjobs.entities.wallets.SchoolWithdrawAccount;
 import com.oddjobs.repositories.school.SchoolApprovalRequestRepository;
 import com.oddjobs.repositories.transactions.PaymentTransactionRepository;
 import com.oddjobs.repositories.wallet.CardProvisionRequestRepository;
+import com.oddjobs.repositories.wallet.SchoolWithdrawAccountRepository;
 import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
 import com.oddjobs.services.transactions.TransactionService;
 import com.oddjobs.entities.PosCenterEntity;
@@ -45,6 +47,7 @@ import java.util.*;
 @Slf4j
 @RequestMapping("/api/v1/dashboard")
 public class DashboardController {
+    private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
 
     private final ContextProvider contextProvider;
     private final WalletService walletService;
@@ -72,7 +75,8 @@ public class DashboardController {
              balance =  account.getBalance().doubleValue();
              totalPayments = transactionService.totalTransactionsByTypeAndSchoolAndStatus(Utils.TRANSACTION_TYPE.PAYMENT,school, Utils.TRANSACTION_STATUS.SUCCESS);
              totalCollections =  transactionService.totalTransactionsByTypeAndSchoolAndStatus(Utils.TRANSACTION_TYPE.COLLECTION, school, Utils.TRANSACTION_STATUS.SUCCESS);
-             totalWithDraws =  transactionService.totalTransactionsByTypeAndSchoolAndStatus(Utils.TRANSACTION_TYPE.DISBURSEMENT, school, Utils.TRANSACTION_STATUS.SUCCESS);
+             SchoolWithdrawAccount withdrawAccount =  schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
+             totalWithDraws =  withdrawAccount.getBalance().doubleValue();
              wallets.put("total", studentWalletAccountRepository.countAllByStudent_School(school));
              wallets.put("pending", studentWalletAccountRepository.countAllByStudent_SchoolAndStatus(school, Utils.WALLET_STATUS.PENDING));
              wallets.put("suspended", studentWalletAccountRepository.countAllByStudent_SchoolAndStatus(school, Utils.WALLET_STATUS.SUSPENDED));

@@ -4,10 +4,10 @@ import com.oddjobs.components.ContextProvider;
 import com.oddjobs.dtos.requests.CashOutRequestDTO;
 import com.oddjobs.dtos.requests.WithdrawRequestDTO;
 import com.oddjobs.entities.transactions.CashoutTransaction;
+import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.exceptions.InsufficientBalanceException;
 import com.oddjobs.exceptions.ResourceFobidenException;
-import com.oddjobs.exceptions.StudentNotFoundException;
 import com.oddjobs.exceptions.WalletAccountNotFoundException;
 import com.oddjobs.repositories.BaseEntityRepository;
 import com.oddjobs.repositories.WithdrawRequestRepository;
@@ -15,8 +15,10 @@ import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.entities.transactions.WithDrawTransaction;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
-import com.oddjobs.repositories.wallet.SchoolWalletAccountRepository;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
+import com.oddjobs.repositories.wallet.SchoolCollectionAccountRepository;
+import com.oddjobs.repositories.wallet.SchoolPaymentAccountRepository;
+import com.oddjobs.repositories.wallet.SchoolWithdrawAccountRepository;
 import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
 import com.oddjobs.services.transactions.TransactionService;
 import com.oddjobs.entities.Image;
@@ -46,7 +48,9 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
 
     private final WithdrawRequestRepository withdrawRequestRepository;
     private final SchoolService schoolService;
-    private final SchoolWalletAccountRepository schoolWalletAccountRepository;
+    private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
+    private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
+    private final SchoolPaymentAccountRepository schoolPaymentAccountRepository;
     private final NotificationService notificationService;
     private final WalletService walletService;
     private final ContextProvider contextProvider;
@@ -61,27 +65,39 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
     public WithdrawRequest createWithdrawRequest(WithdrawRequestDTO request) throws Exception {
         User user = contextProvider.getPrincipal();
         if(user instanceof SchoolUser){
-            WithdrawRequest r = new WithdrawRequest();
+            WithdrawRequest withdrawRequest = new WithdrawRequest();
             School school =  schoolService.findById(request.getSchoolId());
+
+            AccountEntity debitAccount =null;
+            AccountEntity creditAccount =null;
+            if (request.getType() == WithdrawRequest.TYPE.PAYMENTS){
+                creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
+                debitAccount = schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
+            }else{
+                creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
+                debitAccount = schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(school);
+            }
+            withdrawRequest.setDebitAccount(debitAccount);
+            withdrawRequest.setCreditAccount(creditAccount);
             // check if one Already pending
             if(withdrawRequestRepository.countBySchoolAndStatus(school, WithdrawRequest.Status.PENDING) > 0){
                 throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
             }
-            SchoolWalletAccount account =  walletService.findWalletBySchool(school);
+            SchoolCollectionAccount account =  walletService.findWalletBySchool(school);
             if (request.getAmount() > account.getBalance().doubleValue()){
                 throw new InsufficientBalanceException(request.getAmount(), account.getName());
             }
-            r.setSchool(school);
-            r.setStatus(request.getStatus());
-            r.setType(request.getType());
-            r.setAmount(BigDecimal.valueOf(request.getAmount()));
-            r =  withdrawRequestRepository.save(r);
+            withdrawRequest.setSchool(school);
+            withdrawRequest.setStatus(request.getStatus());
+            withdrawRequest.setType(request.getType());
+            withdrawRequest.setAmount(BigDecimal.valueOf(request.getAmount()));
+            withdrawRequest =  withdrawRequestRepository.save(withdrawRequest);
             String msg = String.format("A withdraw request has been created by %s on behalf of %s", user.fullName(),((SchoolUser) user).getSchool().getName());
-            notificationService.createNotification(Notification.Type.WITHDRAW_REQUEST, r.getId(), Notification.Action.Create, msg);
+            notificationService.createNotification(Notification.Type.WITHDRAW_REQUEST, withdrawRequest.getId(), Notification.Action.Create, msg);
             // create Transaction
-            WithDrawTransaction transaction = transactionService.recordDisbursementTransaction(account,r);
+            WithDrawTransaction transaction = transactionService.recordDisbursementTransaction(withdrawRequest);
             log.info(String.format("Disbursement transaction has been created %s", transaction));
-            return r;
+            return withdrawRequest;
         }
         throw new ResourceFobidenException(String.format("Only users with role %s are allowed to carry out this action", Utils.ROLES.ROLE_SCHOOL));
     }
@@ -130,6 +146,7 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         WithDrawTransaction transaction =  transactionService.findByWithDrawRequest(r);
         transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId()); // will prompt the balance update db trigger
         String msg = String.format("Withdraw request with reference No. %s has been processed successfully.",r.getReferenceNo());
+        log.info(msg);
         notificationService.createNotification(Notification.Type.WITHDRAW_REQUEST,request.getId(),Notification.Action.Processed,msg);
         return r;
     }
@@ -173,7 +190,7 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         d.setType(WithdrawRequest.TYPE.CASH_OUTS);
         d.setAmount(request.getAmount());
         d.setSchoolId(school.getId());
-        createWithdrawRequest(d);
+        WithdrawRequest withdrawRequest = createWithdrawRequest(d);
         // reduce the student account balance;
         BigDecimal balance = studentWalletAccount.getBalance().subtract(BigDecimal.valueOf(request.getAmount()));
         studentWalletAccount.setBalance(balance);

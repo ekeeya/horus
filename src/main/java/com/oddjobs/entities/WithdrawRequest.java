@@ -1,6 +1,7 @@
 package com.oddjobs.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
@@ -25,18 +26,24 @@ public class WithdrawRequest extends BaseEntity{
     }
 
     public static enum TYPE {
-        CASH_OUTS, PAYMENTS
+        CASH_OUTS, PAYMENTS, COLLECTIONS
     }
 
     private String referenceNo= Utils.generateRandomRefNo();
 
 
+    @ManyToOne
+    private AccountEntity creditAccount;
+
+    @ManyToOne
+    private AccountEntity debitAccount;
 
     @Enumerated(EnumType.STRING)
     private Status status= Status.PENDING;
 
     @Enumerated(EnumType.STRING)
     private TYPE type;
+
 
     @ManyToOne
     @JoinColumn(name="school_id", nullable=false, referencedColumnName = "id")

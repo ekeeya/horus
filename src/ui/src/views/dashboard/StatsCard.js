@@ -11,7 +11,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 import {fetchStatistics} from "@src/views/dashboard/store";
 import {FaUniversity} from "react-icons/fa";
-import {FcBriefcase, FcMoneyTransfer, FcPaid} from "react-icons/fc";
+import {FcBriefcase, FcCollect, FcMoneyTransfer, FcPaid} from "react-icons/fc";
 import {FaChildren} from "react-icons/fa6";
 
 const StatsCard = ({ cols }) => {
@@ -29,14 +29,15 @@ const StatsCard = ({ cols }) => {
     useEffect(()=>{
         const info =  [];
         if(statistics){
-            info.push({title:statistics.students.total.toLocaleString(),subtitle:"Students",color:"light-info",icon:<FaChildren size={24}/>})
-            info.push({title:statistics.totalCollections.toLocaleString(),subtitle:"In Collections",color:"light-success",icon:<FcMoneyTransfer size={24}/>})
+            /*info.push({title:statistics.students.total.toLocaleString(),subtitle:"Students",color:"light-info",icon:<FaChildren size={24}/>})*/
+            info.push({title:statistics.totalCollections.toLocaleString(),subtitle:"In Collections",color:"light-success",icon:<FcCollect size={24}/>})
             info.push({title:statistics.totalPayments.toLocaleString(),subtitle:"In Payments",color:"light-warning",icon:<FcPaid size={24}/>})
             if (userData.role==="ADMIN"){
                 info.push({title:statistics.schools,subtitle:"Schools",color:"light-primary",icon:<FaUniversity size={24}/>})
             }else{
                 info.push({title:statistics.balance.toLocaleString(),subtitle:"Acc. Balance",color:"light-primary",icon:<FcBriefcase size={24}/>})
             }
+            info.push({title:statistics.totalWithDraws.toLocaleString(),subtitle:"In Withdraws",color:"light-primary",icon:<FcMoneyTransfer size={24}/>})
         }
         setData(info)
     },[statistics])

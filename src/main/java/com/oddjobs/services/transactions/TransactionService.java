@@ -13,17 +13,19 @@
 
 package com.oddjobs.services.transactions;
 
+import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.CallBackDataDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.exceptions.TransactionDoesNotExistException;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.dtos.responses.TransactionResponseDTO;
 import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.transactions.WithDrawTransaction;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import org.springframework.data.domain.Page;
 
@@ -34,7 +36,7 @@ import java.util.List;
 public interface TransactionService {
     Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount);
 
-    WithDrawTransaction recordDisbursementTransaction(SchoolWalletAccount account, WithdrawRequest request);
+    WithDrawTransaction recordDisbursementTransaction(WithdrawRequest request);
 
     WithDrawTransaction findByWithDrawRequest(WithdrawRequest request);
     <T extends MMTransaction> T findByMMTransactionRef(String ref);
@@ -43,7 +45,7 @@ public interface TransactionService {
     Transaction findById(Long id) throws TransactionDoesNotExistException;
     Transaction findTransactionById(String transactionId);
     <T extends Transaction> T findTransactionByMMTransaction(MMTransaction t);
-    void updateTransactionOnCallback(CallBackDataDTO data) throws TransactionDoesNotExistException;
+    void updateTransactionOnCallback(WebHookResponseData request) throws TransactionDoesNotExistException;
     List<PaymentTransaction> getPaymentsByAccountAndDateRange(StudentWalletAccount account, Date lowerDate, Date upperDate);
     BigDecimal calculateTotalTransactionsAmount(List<? extends  Transaction> transactions);
     Page<Transaction> findAll(int page, int size);

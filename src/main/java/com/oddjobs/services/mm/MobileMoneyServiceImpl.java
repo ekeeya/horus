@@ -13,6 +13,7 @@ import com.oddjobs.dtos.mtn.responses.EmptyResponseDTO;
 import com.oddjobs.dtos.relworx.requests.RelworxPaymentRequestDTO;
 import com.oddjobs.dtos.relworx.requests.RelworxRequestToPayDTO;
 import com.oddjobs.dtos.relworx.response.RelworxPaymentResponseDTO;
+import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.BaseRequestToPay;
 import com.oddjobs.dtos.requests.MMTransactionDTO;
 import com.oddjobs.dtos.requests.MobileMoneyProductConfigDTO;
@@ -34,11 +35,13 @@ import com.oddjobs.services.CustomRunnable;
 import com.oddjobs.services.IdentifiableRunnable;
 import com.oddjobs.services.TransactionalExecutorService;
 import com.oddjobs.services.external.ExternalRequests;
+import com.oddjobs.services.transactions.TransactionService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.dtos.responses.AccessTokenResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +60,7 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
     private final ExternalRequests externalRequests;
     private final MMTransactionRepository mmTransactionRepository;
     private final TransactionalExecutorService executorService;
+    private  final TransactionService transactionService;
 
     @Value("${mm.api.airtelPrefixes}")
     private List<String> airtelPrefixes;
@@ -68,6 +72,25 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
     private String mmProviderType;
 
 
+
+    @Scheduled(fixedRate = 60000*3)
+    void processPendingRelworxTransactions(){
+        log.info("Entered MM transaction cleaning");
+        Calendar calendar =  Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinusBack =  calendar.getTime();
+        List<MMTransaction> transactions = mmTransactionRepository.findMMTransactionsByStatusAndCreatedAtLessThanEqual(Utils.TRANSACTION_STATUS.PENDING,fiveMinusBack);
+        RelworxUser user = getDefaultApiUser(Utils.PROVIDER.RELWORX);
+        for (MMTransaction t: transactions) {
+            RelworxTransaction relworxTransaction =  (RelworxTransaction) t;
+            try{
+                WebHookResponseData response = externalRequests.relworxCheckTransactionStatus(user, relworxTransaction);
+                transactionService.updateTransactionOnCallback(response);
+            }catch (Exception e){
+                log.error("Failed to process mm transaction response.", e);
+            }
+        }
+    }
 
     @Override
     public Long configureMobileMoneyInTransaction(MobileMoneyProductConfigDTO config) {
@@ -292,9 +315,11 @@ public class MobileMoneyServiceImpl implements MobileMoneyService {
                     if (response.getSuccess()){
                         config.setInternalReference(response.getInternal_reference());
                         config.setMsisdn(r.getMsisdn());
+                    }else{
+                        // transaction failed, response from external service already logged.
+                        return null;
                     }
-                    // transaction failed, response from external service already logged.
-                    return null;
+
                 }
             }
         } catch (Exception e) {

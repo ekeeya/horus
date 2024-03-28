@@ -1,7 +1,5 @@
 // ** React Imports
 import {useState, Fragment, useEffect} from 'react'
-
-// ** Reactstrap Imports
 import {
     Row,
     Col,
@@ -19,18 +17,11 @@ import {
     Alert, UncontrolledTooltip, ModalFooter
 } from 'reactstrap'
 import user from '@src/assets/images/profile/user.png'
-
-// ** Third Party Components
 import Swal from 'sweetalert2'
 import Flatpickr from 'react-flatpickr'
 import {useForm, Controller} from 'react-hook-form'
 import withReactContent from 'sweetalert2-react-content'
-
-// Redux
-
 import {useDispatch, useSelector} from "react-redux";
-
-// ** Styles
 import '@styles/react/libs/react-select/_react-select.scss'
 import {
     clearError,
@@ -44,10 +35,9 @@ import Select from "react-select";
 import {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
 import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
-import {Link} from "react-router-dom";
-import {FaHandHoldingDollar} from "react-icons/fa6";
 import {FaPlus} from "react-icons/fa";
 import {GiReceiveMoney} from "react-icons/gi";
+import NumericInput from "react-numeric-input";
 
 const roleColors = {
     PARENT: 'light-info',
@@ -360,7 +350,9 @@ const UserInfoCard = ({selectedStudent}) => {
                 isOpen={showSuspend}
                 className='modal-dialog-centered'
                 modalClassName="danger">
-                <ModalHeader>Suspend card {selectedStudent.wallet.cardNo}</ModalHeader>
+                <ModalHeader className='bg-transparent' toggle={() => setShowSuspend(!showSuspend)}>
+                    Suspend card {selectedStudent.wallet.cardNo}
+                </ModalHeader>
                 <ModalBody>
                     <div className='mb-2'>
                         <Row className='gy-1 pt-75'>

@@ -8,7 +8,19 @@ CREATE OR REPLACE FUNCTION update_account_balances_at_deposit()
         IF NEW.transaction_type = ''COLLECTION'' AND NEW.status=''SUCCESS'' THEN
             UPDATE account SET balance=balance+NEW.amount  WHERE account_type=''SYSTEM'';
             UPDATE account SET balance=balance+NEW.amount  WHERE NEW.receiver_id=account.student;
-            UPDATE account SET balance=balance+NEW.amount  WHERE NEW.school_id=account.school_id;
+            UPDATE account SET balance=balance+NEW.amount  WHERE NEW.school_id=account.school_id AND account_type = ''SCHOOL_COLLECTION'';
+        END IF;
+        RETURN NEW;
+    END;
+' LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION update_account_balances_at_payment()
+    returns trigger as '
+    BEGIN
+        IF NEW.transaction_type = ''PAYMENT'' AND NEW.status=''SUCCESS'' THEN
+            UPDATE account SET balance=balance - NEW.amount WHERE NEW.school_id = account.school_id AND account_type = ''SCHOOL_COLLECTION'';
+            UPDATE account SET balance=balance+NEW.amount WHERE NEW.school_id = account.school_id AND account_type = ''SCHOOL_PAYMENT'';
         END IF;
         RETURN NEW;
     END;
@@ -20,7 +32,7 @@ CREATE OR REPLACE FUNCTION update_account_balances_at_withdraw()
     BEGIN
         IF NEW.transaction_type IN (''DISBURSEMENT'', ''CASH_OUT'') AND NEW.status=''SUCCESS'' THEN
             UPDATE account SET balance=balance-NEW.amount  WHERE account_type=''SYSTEM'';
-            UPDATE account SET balance=balance-NEW.amount  WHERE account_type=''SCHOOL'' AND  NEW.school_id=account.school_id;
+            UPDATE account SET balance=balance-NEW.amount  WHERE id=NEW.debit_account_id;
             UPDATE account SET balance=balance+NEW.amount  WHERE account_type=''SCHOOL_WITHDRAW'' AND  NEW.school_id=account.school_id;
         END IF;
         RETURN NEW;
@@ -39,3 +51,9 @@ CREATE OR REPLACE TRIGGER update_balances_on_withdraw
     ON transaction
     FOR EACH ROW
 execute FUNCTION update_account_balances_at_withdraw();
+
+CREATE OR REPLACE TRIGGER update_balances_on_payment
+    AFTER UPDATE
+    ON transaction
+    FOR EACH ROW
+execute FUNCTION update_account_balances_at_payment();

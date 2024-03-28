@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.wallets.AccountEntity;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +19,7 @@ import lombok.Setter;
 public class WithDrawTransaction extends  Transaction{
 
     @ManyToOne
-    private SchoolWalletAccount creditAccount;
+    private AccountEntity creditAccount;
 
     @ManyToOne
     private AccountEntity debitAccount;

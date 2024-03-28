@@ -6,6 +6,7 @@ import com.oddjobs.dtos.requests.SubscriptionRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
+import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.entities.wallets.SchoolWithdrawAccount;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
@@ -18,7 +19,7 @@ import com.oddjobs.services.TransactionalExecutorService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
-import com.oddjobs.entities.wallets.SchoolWalletAccount;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.services.users.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,7 @@ public class SchoolServiceImpl implements SchoolService{
 
                 if(request.getId() == null){
                     // create school wallet account;
-                    SchoolWalletAccount account =  new SchoolWalletAccount();
+                    SchoolCollectionAccount account =  new SchoolCollectionAccount();
                     account.setName(school.getName());
                     account.setSchool(school);
                     walletAccountRepository.save(account);
@@ -77,6 +78,11 @@ public class SchoolServiceImpl implements SchoolService{
                     withdrawAccount.setSchool(school);
                     withdrawAccount.setName(school.getName()+" Withdraw");
                     walletAccountRepository.save(withdrawAccount);
+                    // Payment school account
+                    SchoolPaymentAccount paymentAccount =  new SchoolPaymentAccount();
+                    paymentAccount.setSchool(school);
+                    paymentAccount.setName(school.getName()+" Payment");
+                    walletAccountRepository.save(paymentAccount);
                 }
                 // check if Classes were provided and add them
                 List<ClassRoom> requestRooms = new ArrayList<>();
