@@ -36,7 +36,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/finance")
-public class WithdrawRequestController {
+public class FinanceController {
 
     private final WithdrawRequestRepository withdrawRequestRepository;
     private final WithdrawRequestService withdrawRequestService;

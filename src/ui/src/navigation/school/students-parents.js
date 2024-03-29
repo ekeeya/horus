@@ -12,7 +12,7 @@ export default [
 
     {
         id: 'students',
-        title: 'Register Students',
+        title: 'Students',
         icon: <PiUsersFourLight size={20} />,
         navLink: '/students/list',
         action:"manage",
@@ -20,7 +20,7 @@ export default [
     },
     {
         id: 'parents',
-        title: 'Register Parents',
+        title: 'Parents',
         icon:<MdOutlineFamilyRestroom size={20} />,
         navLink: '/parents/list',
         action:"manage",

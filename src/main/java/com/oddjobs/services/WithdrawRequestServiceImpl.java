@@ -2,8 +2,11 @@ package com.oddjobs.services;
 
 import com.oddjobs.components.ContextProvider;
 import com.oddjobs.dtos.requests.CashOutRequestDTO;
+import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.dtos.requests.WithdrawRequestDTO;
 import com.oddjobs.entities.transactions.CashoutTransaction;
+import com.oddjobs.entities.transactions.PaymentTransaction;
+import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.exceptions.InsufficientBalanceException;
@@ -67,9 +70,10 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         if(user instanceof SchoolUser){
             WithdrawRequest withdrawRequest = new WithdrawRequest();
             School school =  schoolService.findById(request.getSchoolId());
-
-            AccountEntity debitAccount =null;
-            AccountEntity creditAccount =null;
+            List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
+            Double amountInPendingWithdraw = withdrawRequestRepository.sumWithdrawRequestsByStatusInAndSchool(statuses, school);
+            AccountEntity debitAccount;
+            AccountEntity creditAccount;
             if (request.getType() == WithdrawRequest.TYPE.PAYMENTS){
                 creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
                 debitAccount = schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
@@ -84,7 +88,7 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
                 throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
             }
             SchoolCollectionAccount account =  walletService.findWalletBySchool(school);
-            if (request.getAmount() > account.getBalance().doubleValue()){
+            if (request.getAmount() > (account.getBalance().doubleValue() + amountInPendingWithdraw)){
                 throw new InsufficientBalanceException(request.getAmount(), account.getName());
             }
             withdrawRequest.setSchool(school);
@@ -172,29 +176,22 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         }
         log.info("Entering cash-out transaction for: {}",studentWalletAccount);
         // create the cash-out transaction
-        // For cash-out transactions, we shall debit the student account right away, but do not touch the system
-        // collections and school collections until money is actually withdrawn by MM.
         CashoutTransaction transaction =  new CashoutTransaction();
         transaction.setDebitAccount(studentWalletAccount);
         transaction.setAmount(BigDecimal.valueOf(request.getAmount()));
         transaction.setCurrency(DEFAULT_CURRENCY);
         School school = studentWalletAccount.getStudent().getSchool();
         transaction.setSchool(school);
+        transaction.setStatus(Utils.TRANSACTION_STATUS.SUCCESS);
         transaction.setDescription("Cash-out transaction, yeah they want their money.");
         transaction.setTransactionId(Utils.generateTransactionId());
         transaction.setNature(Utils.TRANSACTION_NATURE.DEBIT);
         transactionRepository.save(transaction);
-        // now create the withdraw request and approve it
-        WithdrawRequestDTO d =  new WithdrawRequestDTO();
-        d.setStatus(WithdrawRequest.Status.APPROVED);
-        d.setType(WithdrawRequest.TYPE.CASH_OUTS);
-        d.setAmount(request.getAmount());
-        d.setSchoolId(school.getId());
-        WithdrawRequest withdrawRequest = createWithdrawRequest(d);
-        // reduce the student account balance;
-        BigDecimal balance = studentWalletAccount.getBalance().subtract(BigDecimal.valueOf(request.getAmount()));
-        studentWalletAccount.setBalance(balance);
-        studentWalletAccount =studentWalletAccountRepository.save(studentWalletAccount);
+        // Create a payment transaction
+        PaymentRequestDTO paymentRequest =  new PaymentRequestDTO();
+        paymentRequest.setAmount(request.getAmount());
+        paymentRequest.setCardNo(studentWalletAccount.getCardNo());
+        walletService.processPayment(paymentRequest);
         log.info("Successfully cashed-out on account: {}",studentWalletAccount);
         return studentWalletAccount;
     }

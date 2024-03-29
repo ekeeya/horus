@@ -266,7 +266,7 @@ const PaymentTransactions = (props) => {
             </CardHeader>
             <Row className='justify-content-end mx-0'>
               <Col xs={12} lg={2} className='d-flex align-items-center'>
-                <div className='d-flex align-items-center justify-content-center justify-content-lg-start'>
+                <div className='d-flex mt-lg-1 mb-lg-1 align-items-center justify-content-center justify-content-lg-start'>
                   <label htmlFor='rows-per-page'>Show</label>
                   <Input
                       className='mx-50'
@@ -286,7 +286,7 @@ const PaymentTransactions = (props) => {
               {student && (<Col xs={12} lg={10} ></Col>)}
               {!student && (<Col xs={12} lg={10}>
                 <div
-                    className='d-flex align-items-center justify-content-lg-end justify-content-start flex-md-nowrap flex-wrap mt-lg-0 mt-1'>
+                    className='d-flex align-items-center justify-content-lg-end justify-content-start mt-lg-1 mb-lg-1 flex-md-nowrap flex-wrap mt-1'>
 
                   <div className='d-flex align-items-center me-1 width-300'>
                     <Flatpickr

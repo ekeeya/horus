@@ -130,7 +130,25 @@ const UserInfoCard = ({selectedStudent}) => {
         }
         fetchParents().catch((error=>{console.log(error)}))
 
-    }, [])
+    }, []);
+
+
+    const parseTopupAmount = x => {
+        setTopUpAmount(parseFloat(x.replaceAll(",", "")))
+        return parseFloat(x.replaceAll(",", ""));
+    }
+
+    const parseCashOutAmount = x => {
+        setCashOutAmount(parseFloat(x.replaceAll(",", "")))
+        return parseFloat(x.replaceAll(",", ""));
+    }
+
+    const format = x => {
+        const numberValue = parseFloat(x);
+        if (!isNaN(numberValue)) {
+            return numberValue.toLocaleString();
+        }
+    }
 
     useEffect(()=>{
         const ps =   users.map(parent => {
@@ -454,14 +472,23 @@ const UserInfoCard = ({selectedStudent}) => {
                     Top-Up balance for card {selectedStudent.wallet.cardNo}
                 </ModalHeader>
                 <ModalBody>
-                    <div className='mb-2'>
-                        <Row className='gy-1 pt-75'>
+                    <div className='mb-12'>
+                        <Row className='gy-1 pt-75 text-center'>
                             <Col xs={12}>
                                 <Label className='form-label' for='suspendDays'>
                                     Top-up wallet by: <small className='text-muted'>(UGX)</small>
                                 </Label>
-                                <InputNumber step={1000} className="w-50" id='basic-number-input2' defaultValue={topUpAmount} upHandler={<Plus/>}
-                                             downHandler={<Minus/>} onChange={(val) => setTopUpAmount(val)}/>
+                                <NumericInput
+                                    mobile
+                                    disabled={useDate}
+                                    parse={parseTopupAmount}
+                                    value={topUpAmount}
+                                    format={format}
+                                    inputMode="string"
+                                    className="form-control"
+                                    min={100}
+
+                                />
                                 <small className='text-muted'>
                                     Specify how much you want to top-up this wallet account with.
                                 </small>
@@ -517,53 +544,37 @@ const UserInfoCard = ({selectedStudent}) => {
                 <ModalBody>
                     <div className='mb-2'>
                         <Row className='gy-1 pt-75'>
-                            <Col xs={12}>
+                            <Col xs={12} className="text-center">
                                 <Label className='form-label' for='suspendDays'>
                                     Withdraw Cash: <small className='text-muted'>(UGX)</small>
                                 </Label>
-                                <InputNumber max={selectedStudent.wallet.balance} step={1000} className="w-50" id='basic-number-input3' defaultValue={cashOutAmount} upHandler={<Plus/>}
-                                             downHandler={<Minus/>} onChange={(val) => setCashOutAmount(val)}/>
+                                <NumericInput
+                                    mobile
+                                    disabled={useDate}
+                                    parse={parseCashOutAmount}
+                                    value={cashOutAmount}
+                                    format={format}
+                                    inputMode="string"
+                                    className="form-control"
+                                    min={100}
+
+                                />
+                                <br/>
                                 <small className='text-muted'>
                                     Specify how much the student wants to withdraw as cash from their account.
                                 </small>
                             </Col>
                         </Row>
-                        <Alert color='info' className="mt-1">
-                            <div className='alert-body font-small-2'>
-                                <p>
-                                    <small className='me-lg-1'>
-                                        <span className='fw-bold'>Note:</span>
-                                    </small>
-                                </p>
-                                <p>
-                                    <small className='me-50'>
-                                        Upon cash-out, the student's wallet will be reduced by the withdraw amount. However.
-                                        A cash-out withdraw request will be automatically created and approved under <b>FINANCE</b> ==- <b>Withdraw Requests</b>.
-                                        You will be required to withdraw this money outside the system then upload the withdraw proof receipt.. to have this money removed permanently from the collections account.
-                                    </small>
-                                </p>
-                            </div>
-                            <X
-                                onClick={() => dispatch(clearError())}
-                                id='clear-error-tip'
-                                className='position-absolute'
-                                size={18}
-                                style={{top: '10px', right: '10px'}}
-                            />
-                            <UncontrolledTooltip target='clear-error-tip' placement='top'>
-                                Collapse
-                            </UncontrolledTooltip>
-                        </Alert>
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="success" onClick={async () => {
+                    <Button color="info" onClick={async () => {
                         const payload = {
                             amount:cashOutAmount,
                             cardNo:selectedStudent.wallet.cardNo
                         }
                         await dispatch(cashOut(payload))
-                        setShowBalanceUpdate(false);
+                        setShowCashOut(false);
                     }}>
                         Cash-Out
                     </Button>

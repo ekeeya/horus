@@ -14,6 +14,7 @@
 package com.oddjobs.entities.transactions;
 
 import com.oddjobs.entities.users.POSAttendant;
+import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
@@ -33,4 +34,7 @@ public class PaymentTransaction extends  Transaction{
     @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private StudentWalletAccount debitAccount;
+
+    @OneToOne
+    private CashoutTransaction cashoutTransaction;
 }

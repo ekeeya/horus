@@ -50,20 +50,25 @@ const columns = [
         minWidth: '180px',
         sortField: 'type',
         selector: row => row.accountType,
-        cell: row => row.accountType
+        cell: row => {
+            let name = row.accountType.split("_");
+            let value = "";
+            if(name.length > 1){
+                value = name[1];
+            }else{
+                value = name[0];
+            }
+            return (<span>{value}</span>)
+    }
     },
     {
         name: 'Balance(UGX)',
-        minWidth: '180px',
         sortable: true,
-        sortField: 'amount',
-        selector: row => row.amount,
+        minWidth: '140px',
+        sortField: 'balance',
+        selector: row => row.balance,
         cell: row => (
-            <div className='d-flex justify-content-right align-items-right'>
-                <div className='d-flex flex-column'>
-                    <span className='fw-bolder'>{row.balance.toLocaleString()}/=</span>
-                </div>
-            </div>
+            <small className='fw-bolder mb-0'>{row.balance.toLocaleString()}</small>
         )
     },
     {

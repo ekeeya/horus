@@ -17,6 +17,7 @@ import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.CallBackDataDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
+import com.oddjobs.entities.transactions.CashoutTransaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.exceptions.TransactionDoesNotExistException;
@@ -34,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface TransactionService {
-    Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount);
+    Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount, CashoutTransaction transaction);
 
     WithDrawTransaction recordDisbursementTransaction(WithdrawRequest request);
 

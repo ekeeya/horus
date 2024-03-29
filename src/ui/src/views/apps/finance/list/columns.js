@@ -148,7 +148,7 @@ const columns = [
                             )
                         }
                         {
-                            (row.status === "APPROVED") && (
+                            (row.status === "APPROVED" && userData.accountType === "ADMIN") && (
                                 <>
                                     <Button size="sm" color='success' outline
                                             onClick={() => setForUpdate(row, "settle")}

@@ -5,7 +5,10 @@ import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.CallBackDataDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
+import com.oddjobs.entities.transactions.*;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.users.SchoolUser;
+import com.oddjobs.entities.users.User;
 import com.oddjobs.exceptions.TransactionDoesNotExistException;
 import com.oddjobs.repositories.mm.MMTransactionRepository;
 import com.oddjobs.repositories.transactions.PaymentTransactionRepository;
@@ -13,19 +16,16 @@ import com.oddjobs.repositories.transactions.TransactionRepository;
 import com.oddjobs.repositories.transactions.WithDrawTransactionRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.utils.Utils;
-import com.oddjobs.entities.transactions.CollectionTransaction;
-import com.oddjobs.entities.transactions.PaymentTransaction;
-import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.dtos.responses.TransactionResponseDTO;
-import com.oddjobs.entities.transactions.WithDrawTransaction;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +51,8 @@ public class TransactionServiceImpl implements TransactionService{
     private final WithDrawTransactionRepository withDrawTransactionRepository;
     private final ContextProvider contextProvider;
 
-
+    @Value("${application.default.currency}")
+    private String DEFAULT_CURRENCY;
     protected void generatePaymentRows(List<TransactionResponseDTO> transactions, Sheet sheet){
         List<String> columnNames = List.of("ID", "Attendant","Attendant Contact","POS Center", "Student","Class","CardNo", "School","Type","Status", "Amount", "Date");
         Row headerRow = sheet.createRow(0);
@@ -113,14 +114,18 @@ public class TransactionServiceImpl implements TransactionService{
         }
     }
     @Override
-    public Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount) {
-        POSAttendant user = (POSAttendant) contextProvider.getPrincipal();
+    public Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount, CashoutTransaction t) {
+        User user =  contextProvider.getPrincipal();
         PaymentTransaction transaction = new PaymentTransaction();
         transaction.setTransactionId(Utils.generateTransactionId());
-        transaction.setAttendant(user);
+        if (user instanceof POSAttendant){
+            transaction.setAttendant((POSAttendant) user);
+        }
         transaction.setAmount(amount);
+        transaction.setCashoutTransaction(t);
         transaction.setSchool(account.getStudent().getSchool());
         transaction.setNature(Utils.TRANSACTION_NATURE.DEBIT);
+        transaction.setCurrency(DEFAULT_CURRENCY);
         transaction.setDebitAccount(account);
         String description =  String.format("A payment of %s has been made from card %s", amount,account.getCardNo());
         transaction.setDescription(description);

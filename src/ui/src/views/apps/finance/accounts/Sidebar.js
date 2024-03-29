@@ -9,7 +9,7 @@ import {
     Card,
     CardBody,
     Row,
-    Col, Label, CardFooter, Button, Input
+    Col, Label, CardFooter, Button, Input, UncontrolledTooltip, Alert
 } from 'reactstrap'
 
 // ** Store & Actions
@@ -25,6 +25,8 @@ import Flatpickr from "react-flatpickr";
 import {convertDate, periodDates, todayDates} from "@utils";
 import Select from "react-select";
 import MySwal from "sweetalert2";
+import {X} from "react-feather";
+import {clearError} from "@src/views/apps/user/store";
 
 
 
@@ -84,7 +86,6 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                 buttonsStyling: false
             }).then(function (result) {
                 if (result.value) {
-                    console.log(userData)
                     const data = {
                         schoolId: userData.schoolId,
                         amount: amount
@@ -97,7 +98,16 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
     }
 
     useEffect(()=>{
-        setAmount(allowedWithdrawAmount)
+        async function  fetchAllowedWithdrawAmount(){
+             if(userData.accountType === "SCHOOL_ADMIN"){
+                 dispatch(fetchAllowedWithdrawPaymentAccountBalance({}));
+             }
+         }
+
+        fetchAllowedWithdrawAmount().then(r=>{
+            setAmount(allowedWithdrawAmount);
+        });
+
     },[allowedWithdrawAmount])
 
 
@@ -156,6 +166,29 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                 <CardBody className="root">
 
                     <div>
+                        <Row tag='form' className='gy-1 gx-2 mt-75'>
+                            <Col xs={12}>
+                                <Alert color='warning' className="mt-1">
+                                    <div className='alert-body font-small-2'>
+                                        <p>
+                                            <small className='me-50'>
+                                                Allowed maximum withdraw amount <br/> this account is <b>UGX: {allowedWithdrawAmount.toLocaleString()}</b>
+                                            </small>
+                                        </p>
+                                    </div>
+                                    <X
+                                        onClick={() => dispatch(clearError())}
+                                        id='clear-error-tip'
+                                        className='position-absolute'
+                                        size={18}
+                                        style={{top: '10px', right: '10px'}}
+                                    />
+                                    <UncontrolledTooltip target='clear-error-tip' placement='top'>
+                                        Collapse
+                                    </UncontrolledTooltip>
+                                </Alert>
+                            </Col>
+                        </Row>
                         <Row tag='form' className='gy-1 gx-2 mt-75'>
                             <Col xs={12}>
                                 <div className='form-check form-switch'>
@@ -226,7 +259,7 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                     </div>
                 </CardBody>
                 <CardFooter>
-                    <Button color="info" onClick={() => initiateWithdrawRequest()}>
+                    <Button disabled={allowedWithdrawAmount === 0} color="info" onClick={() => initiateWithdrawRequest()}>
                         Initiate Withdraw
                     </Button>
                 </CardFooter>

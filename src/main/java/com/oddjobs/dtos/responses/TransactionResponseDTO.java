@@ -4,6 +4,7 @@ import com.oddjobs.entities.transactions.CollectionTransaction;
 import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.utils.Utils;
 import lombok.Data;
 
@@ -52,7 +53,10 @@ public class TransactionResponseDTO implements Serializable {
             }
         }else if(t instanceof PaymentTransaction) {
             setDebitAccount(new AccountResponseDTO(((PaymentTransaction) t).getDebitAccount()));
-            setPosAttendant(new POSAttendantResponseDTO(((PaymentTransaction) t).getAttendant()));
+            if (((PaymentTransaction) t).getAttendant() != null){
+                setPosAttendant(new POSAttendantResponseDTO(((PaymentTransaction) t).getAttendant()));
+            }
+
         }
 
     }

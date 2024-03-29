@@ -10,6 +10,7 @@ import com.oddjobs.dtos.requests.CardProvisioningMarkRequest;
 import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.dtos.requests.WalletDepositDTO;
 import com.oddjobs.entities.*;
+import com.oddjobs.entities.transactions.CashoutTransaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.exceptions.*;
 import com.oddjobs.repositories.mm.MMTransactionRepository;
@@ -311,6 +312,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public Transaction processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException {
         StudentWalletAccount account = studentWalletAccountRepository.findWalletAccountEntityByCardNo(request.getCardNo());
+        CashoutTransaction cashoutTransaction=null;
         if (account == null){
             throw new WalletAccountNotFoundException(request.getCardNo());
         }
@@ -328,7 +330,10 @@ public class WalletServiceImpl implements WalletService {
         // check if card has no daily expenditure restrictions.
         account = (StudentWalletAccount) updateWalletBalance(account, -request.getAmount()); // debit parse negative
         // Record Payment transaction and return it.
-        return transactionService.recordPaymentTransaction(account, paymentAmount);
+        if (request.getCashOutTransactionId() != null){
+            cashoutTransaction = (CashoutTransaction) transactionRepository.findById(request.getCashOutTransactionId()).get();
+        }
+        return transactionService.recordPaymentTransaction(account, paymentAmount, cashoutTransaction);
 
     }
 

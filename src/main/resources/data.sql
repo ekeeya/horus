@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION update_account_balances_at_payment()
 CREATE OR REPLACE FUNCTION update_account_balances_at_withdraw()
     returns trigger as '
     BEGIN
-        IF NEW.transaction_type IN (''DISBURSEMENT'', ''CASH_OUT'') AND NEW.status=''SUCCESS'' THEN
+        IF NEW.transaction_type = ''DISBURSEMENT'' AND NEW.status=''SUCCESS'' THEN
             UPDATE account SET balance=balance-NEW.amount  WHERE account_type=''SYSTEM'';
             UPDATE account SET balance=balance-NEW.amount  WHERE id=NEW.debit_account_id;
             UPDATE account SET balance=balance+NEW.amount  WHERE account_type=''SCHOOL_WITHDRAW'' AND  NEW.school_id=account.school_id;

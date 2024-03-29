@@ -11,4 +11,6 @@ public class PaymentRequestDTO implements Serializable {
     private Double amount;
     @NotNull
     private String cardNo;
+
+    private Long cashOutTransactionId;
 }

@@ -1,27 +1,18 @@
 // ** React Imports
 import {Fragment, useEffect, useState} from 'react'
 import NumericInput from 'react-numeric-input';
-// ** Sidebar
-// ** Table Columns
 import columns from './columns'
 
 import {useDispatch, useSelector} from 'react-redux'
 import {debounce} from "lodash";
-
-// ** Third Party Components
-import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import Select from 'react-select'
-import {ChevronDown, Minus, Plus, PlusCircle, X} from 'react-feather'
+import {ChevronDown,} from 'react-feather'
 
-// Custom Components
 import UILoader from '@components/ui-loader'
 import Loader from '../../../../@core/components/spinner/Loader'
 
-// ** Reactstrap Imports
 import {
-    Alert,
-    Button,
     Card,
     CardBody,
     CardHeader,

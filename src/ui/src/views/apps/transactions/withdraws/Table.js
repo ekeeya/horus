@@ -1,14 +1,8 @@
 // ** React Imports
 import {Fragment, useState, forwardRef, useEffect} from 'react';
-
-// ** Table Data & Columns
-
-// ** Third Party Components
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
-import {ChevronDown, Share, File, Grid, PlusCircle} from 'react-feather'
-
-// ** Reactstrap Imports
+import {ChevronDown, Share, File, Grid} from 'react-feather'
 import {
   Row,
   Col,
@@ -29,7 +23,6 @@ import {fetchTransactions} from "@src/views/apps/transactions/store";
 import Select from "react-select";
 import {debounce} from "lodash";
 import {fetchPosCenters, fetchSchools} from "@src/views/apps/schools/store";
-import {fetchUsers} from "@src/views/apps/user/store";
 import Flatpickr from "react-flatpickr";
 import {convertDate, todayDates} from "@utils";
 import Sidebar from "@src/views/apps/students/list/Sidebar";
@@ -182,7 +175,7 @@ const WithdrawTransactions = () => {
           <Card>
             <CardHeader className='flex-md-row flex-column align-md-items-center align-items-start border-bottom'>
               <CardTitle tag='h4'>Cash Withdraw Transactions</CardTitle>
-              <div className='d-flex mt-md-0 mt-1'>
+              <div className='d-flex mt-md-0 mt-lg-2'>
                 <UncontrolledButtonDropdown>
                   <DropdownToggle color='secondary' caret outline>
                     <Share size={15} />
@@ -204,7 +197,7 @@ const WithdrawTransactions = () => {
             </CardHeader>
             <Row className='justify-content-end mx-0'>
               <Col xs={12} lg={2} className='d-flex align-items-center'>
-                <div className='d-flex align-items-center justify-content-center justify-content-lg-start'>
+                <div className='d-flex mt-lg-1 mb-lg-1 align-items-center justify-content-center justify-content-lg-start'>
                   <label htmlFor='rows-per-page'>Show</label>
                   <Input
                       className='mx-50'
@@ -222,8 +215,7 @@ const WithdrawTransactions = () => {
                 </div>
               </Col>
               <Col xs={12} lg={10}>
-                <div className='d-flex align-items-center justify-content-lg-end justify-content-start flex-md-nowrap flex-wrap mt-lg-0 mt-1'>
-
+                <div className='d-flex mt-lg-1 mb-lg-1 align-items-center justify-content-lg-end justify-content-start flex-md-nowrap flex-wrap mt-lg-0 mt-1'>
                   <div className='d-flex align-items-center me-1 width-300'>
                     <Flatpickr
                         value={dateRange}

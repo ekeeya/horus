@@ -12,6 +12,7 @@ import com.oddjobs.dtos.responses.AccountResponseDTO;
 import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.exceptions.ExceedDailyExpenditureException;
@@ -26,6 +27,7 @@ import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
+import com.oddjobs.repositories.WithdrawRequestRepository;
 import com.oddjobs.repositories.transactions.TransactionRepository;
 import com.oddjobs.repositories.wallet.SchoolPaymentAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
@@ -56,6 +58,7 @@ import static com.oddjobs.utils.Utils.TRANSACTION_STATUS.SUCCESS;
 @Slf4j
 @RequestMapping("/api/v1/wallet")
 public class WalletController {
+    private final WithdrawRequestRepository withdrawRequestRepository;
     private final TransactionRepository transactionRepository;
     private final SchoolPaymentAccountRepository schoolPaymentAccountRepository;
 
@@ -63,7 +66,6 @@ public class WalletController {
     private final WalletAccountRepository walletAccountRepository;
     private final SchoolService schoolService;
     private final ContextProvider contextProvider;
-    private final StudentService studentService;
     private final Mapper mapper;
 
 
@@ -267,6 +269,8 @@ public class WalletController {
             School school  =  user.getSchool();
             double allowedBalance;
             SchoolPaymentAccount paymentAccount =  schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
+            List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
+            Double amountInPendingWithdraw = withdrawRequestRepository.sumWithdrawRequestsByStatusInAndSchool(statuses, school);
             if (lowerDate == null){
                 allowedBalance = paymentAccount.getBalance().doubleValue();
             }else{
@@ -277,6 +281,7 @@ public class WalletController {
                     allowedBalance =  paymentAccount.getBalance().doubleValue();
                 }
             }
+            allowedBalance =  allowedBalance-amountInPendingWithdraw; // remove anything in with requests that is not processed.
             response.setStatusCode(200);
             response.setSuccess(true);
             response.setData(allowedBalance);
