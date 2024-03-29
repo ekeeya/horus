@@ -39,12 +39,12 @@ const Login = () => {
     return (
       <TouchableOpacity onPress={() => setSecureText(!secureText)}>
         {secureText ? (
-          <Entypo name="eye" size={20} color="#fe7918" style={styles.icon} />
+          <Entypo name="eye" size={20} color="#167D7F" style={styles.icon} />
         ) : (
           <Entypo
             name="eye-with-line"
             size={20}
-            color="#fe7918"
+            color="#167D7F"
             style={styles.icon}
           />
         )}
@@ -108,7 +108,7 @@ const Login = () => {
                 <Ionicons
                   name="keypad"
                   size={20}
-                  color="#fe7918"
+                  color="#167D7F"
                   style={styles.icon}
                 />
               }
@@ -117,7 +117,7 @@ const Login = () => {
                   <MaterialCommunityIcons
                     name="check-decagram"
                     size={20}
-                    color="#fe7918"
+                    color="#167D7F"
                     style={styles.icon}
                   />
                 )
@@ -134,7 +134,7 @@ const Login = () => {
                 <Fontisto
                   name="locked"
                   size={20}
-                  color="#fe7918"
+                  color="#167D7F"
                   style={styles.icon}
                 />
               }
@@ -147,7 +147,7 @@ const Login = () => {
                 <ActivityIndicator
                   style={styles.spinner}
                   size="small"
-                  color="#fff"
+                  color="#167D7F"
                 />
               )}
               <Text style={styles.loginButtonText}>Sign in</Text>
@@ -168,7 +168,7 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fe7918',
+    backgroundColor: '#167D7F',
     position: 'relative',
   },
   innerContainer: {
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
   },
   headerDash: {
     borderWidth: 1.2,
-    backgroundColor: '#fe7918',
-    borderColor: '#fe7918',
+    backgroundColor: '#167D7F',
+    borderColor: '#167D7F',
     width: horizontalScale(width / 15),
     alignSelf: 'center',
     marginVertical: verticalScale(10),
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(8),
   },
   focusedBorder: {
-    borderColor: '#fe7918', // Borders turn blue on focus
+    borderColor: '#167D7F', // Borders turn blue on focus
   },
   icon: {
     marginHorizontal: horizontalScale(8),
@@ -250,7 +250,9 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginVertical: verticalScale(30),
-    backgroundColor: '#fe7918',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#167D7F',
     justifyContent: 'center',
     alignItems: 'center',
     height: verticalScale(width / 8),
@@ -259,7 +261,7 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#167D7F',
   },
   noticeContainer: {
     alignItems: 'center',
