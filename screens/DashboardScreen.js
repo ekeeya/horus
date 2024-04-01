@@ -67,6 +67,7 @@ export default function DashboardScreen() {
   return (
     <LinearGradient
       colors={['#008080','#00AEAE', '#00DCDC']}
+      //colors={['rgba(58, 131, 244,0.4)', 'rgba(9, 181, 211, 0.4)']}
       className="w-full flex-1"
     >
       <SafeAreaView>
