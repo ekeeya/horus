@@ -21,8 +21,8 @@ export default function SchoolsList({ schools }) {
                                 <TouchableOpacity
                                     onPress={() => setActiveSchool(school)}
                                     key={school}
-                                    className="bg-teal p-3 px-4 rounded-full mr-2">
-                                    <Text style={{color: storeColors.white}} className="font-semibold">
+                                    className="bg-cloud p-3 px-4 rounded-full mr-2">
+                                    <Text style={{color: storeColors.text}} className="font-semibold">
                                         {school}
                                     </Text>
                                 </TouchableOpacity>

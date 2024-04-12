@@ -64,9 +64,10 @@ const transactions = [
 
 export default function DashboardScreen() {
   
+
   return (
     <LinearGradient
-      colors={['#008080','#00AEAE', '#00DCDC']}
+      colors={['#ffff', '#f2f2f2']}
       //colors={['rgba(58, 131, 244,0.4)', 'rgba(9, 181, 211, 0.4)']}
       className="w-full flex-1"
     >
@@ -89,7 +90,7 @@ export default function DashboardScreen() {
           <View className="mt-1">
             <View className="flex-row justify-between items-center mb-2">
               <Text
-                  style={{color: storeColors.text}}
+                  style={{color: storeColors.blue}}
                   className="ml-4 mt-2 underline text-lg font-bold">
                     Recent  Transactions
               </Text>

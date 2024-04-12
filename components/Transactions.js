@@ -27,14 +27,14 @@ export default function Transactions({ transactions, hclass }) {
                     }
                     return (
                         <TouchableOpacity
-                            style={{ backgroundColor: bg }}
-                            className="mx-4 p-2 mb-2 flex-row rounded-3xl"
+                            className="mx-4 p-2 mb-2 flex-row rounded-3xl bg-cloud"
                             key={index}>
                             <Image source={image} style={{ width: 50, height: 50 }}
                                 className="rounded-2xl" />
                             <View className="flex-1 flex justify-center pl-3 space-y-3">
                                 <View className="flex-row space-x-3">
                                     <Text
+                                     style={{ color: storeColors.text }}
                                         className="font-bold">
                                         TOP-UP
                                     </Text>

@@ -4,10 +4,12 @@ import WalletCard from './WalletCard';
 import {storeColors} from '../theme';
 
 export default function Beneficiaries({beneficiaries}) {
+
+
     return (
         <View className="mt-3 space-y-5">
             <Text
-                style={{ color: storeColors.text }}
+                style={{ color: storeColors.blue }}
                 className="ml-4 underline text-lg font-bold">
                 Your Beneficiaries
             </Text>

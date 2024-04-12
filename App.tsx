@@ -9,8 +9,8 @@ export default function App() {
     <SafeAreaProvider>
     <StatusBar
           animated={true}
-          backgroundColor="#008080"
-          barStyle="light-content"
+          backgroundColor="#ffff"
+          barStyle="dark-content"
         />
     <AppNavigation />
     </SafeAreaProvider>
