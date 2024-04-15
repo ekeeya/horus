@@ -1,13 +1,15 @@
-import { View, Text, Button } from 'react-native'
+import { View, Text, Button, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, ArrowPathRoundedSquare, BellAlert } from '@nandorojo/heroicons/24/outline';
 import { storeColors } from '../theme'
 import {formatCreditCardNumber} from "../utils"
 import Transactions from '../components/Transactions';
+import BottomTopUpSheet from '../components/BottomTopUpSheet';
 export default function WalletScreen() {
 
   const route = useRoute();
+  const navigation =  useNavigation()
   const {wallet} =  route.params;
   const transactions = [
     {
@@ -48,25 +50,27 @@ export default function WalletScreen() {
   return (
     <View className="flex h-screen p-2 bg-white">
       <View className="flex flex-row  justify-between">
-        <View className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
+        <TouchableOpacity 
+          onPress={()=>navigation.goBack()}
+          className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
           <ArrowLeft color="black" />
-        </View>
+        </TouchableOpacity>
         <View className="content-center justify-center items-center">
           <Text style={{color: storeColors.blue}} className="font-bold text-4xl">Hi!</Text>
           <Text style={{color: storeColors.blue}} className="text-grayText text-xl font-semibold">Erisa Bridget</Text>
         </View>
         <View className="flex flex-row">
-          <View className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
+          <TouchableOpacity className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
             <BellAlert color="black" />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
       <View className="bg-blue  h-56 w-full p-3 self-center  mt-5 rounded-xl">
         <View className="flex flex-row justify-between">
           <Text style={{color: storeColors.white}} className="mt-2 font-bold text-lg">{wallet.studentName.toUpperCase()}</Text>
-          <View className="h-10 w-10 flex justify-center bg-cloud rounded-full items-center">
+          <TouchableOpacity className="h-10 w-10 flex justify-center bg-cloud rounded-full items-center">
           <ArrowPathRoundedSquare color="black"/>
-          </View>
+          </TouchableOpacity>
         </View>
         <View className="mb-2">
           <Text style={{color: storeColors.white}} className="text-lg">{wallet.school.name}</Text>
@@ -97,6 +101,7 @@ export default function WalletScreen() {
         </View>
         <Transactions transactions={transactions}/>
       </View>
+      <BottomTopUpSheet show={true}/>
     </View>
   )
 }

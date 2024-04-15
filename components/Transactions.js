@@ -27,6 +27,7 @@ export default function Transactions({ transactions, hclass }) {
                     }
                     return (
                         <TouchableOpacity
+                            style={{elevation:2}}
                             className="mx-4 p-2 mb-2 flex-row rounded-3xl bg-cloud"
                             key={index}>
                             <Image source={image} style={{ width: 50, height: 50 }}
