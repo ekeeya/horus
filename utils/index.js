@@ -32,12 +32,16 @@ export const removeItem = async key => {
   console.log('Done.');
 };
 export const formatCreditCardNumber = number => {
-    if (typeof number !== 'string') {
-      number = number.toString();
+    try{
+      if (typeof number !== 'string') {
+        number = number.toString();
+      }
+      number = number.replace(/\D/g, '');
+      const formatPattern = /(\d{4})(?=\d)/g;
+      return number.replace(formatPattern, '$1 ');
+    }catch(error){
+      return number;
     }
-    number = number.replace(/\D/g, '');
-    const formatPattern = /(\d{4})(?=\d)/g;
-    return number.replace(formatPattern, '$1 ');
   };
 
 
@@ -45,6 +49,18 @@ export const formatCreditCardNumber = number => {
     const m = moment(date);
     return m.format('hh:mmA | DD.MM.YYYY');
   };
+
+  export const computeUrlParams=(url, params)=>{
+    const parts = url.split("/")
+    const pattern =  parts[(parts.length-1)]
+    Object.keys(params).forEach((key) => {
+        const prefix = url.endsWith(pattern) ? "?" : "&";
+        if (params[key] != null || params[key] !== "") {
+            url += `${prefix}${key}=${encodeURIComponent(params[key])}`;
+        }
+    });
+    return url;
+}
 
   export const generateError = error => {
     let errorMsg = 'Failed';

@@ -13,23 +13,32 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import AnimatedLoader from 'react-native-animated-loader';
 import { XMark } from '@nandorojo/heroicons/24/outline';
-import { TextInput } from 'react-native-paper';
-import { storeColors } from '../theme'
-
+import { useDispatch, useSelector } from 'react-redux'
+import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
+import { depositWallet, setData } from '../store/wallet';
+import { store } from '../store/store';
 
 const {width, height} = Dimensions.get('window');
-const BottomTopUpSheet = ({amount, show,  onClose}) => {
+
+const BottomTopUpSheet = ({show, wallet, onClose}) => {
   const [index, setIndex] = useState(1);
   const [title, setTitle] = useState('Top Up Card');
-  const [loaderTitle, setLoaderTitle] = useState('Validating card...');
+  const [inputAmount, setInputAmount]  = useState(0);
+  const [tel, setTel] = useState("");
   const bottomSheetRef = useRef(null);
-  const fieldRef =useRef();
 
-  const snapPoints = useMemo(() => ['25%', '30%'], []);
+  const snapPoints = useMemo(() => ['25%', '40%'], []);
+
+  const {submitting, message, amount, msisdn } = useSelector(
+    store => store.wallet,
+  ); 
+
+  const dispatch = useDispatch();
+
   const handleSheetChanges = useCallback(index => {
     setIndex(index);
     if (index === -1) {
-      //onClose();
+        onClose();
     }
   }, []);
 
@@ -37,12 +46,37 @@ const BottomTopUpSheet = ({amount, show,  onClose}) => {
     bottomSheetRef.current?.close();
   }, []);
 
+  useEffect(()=>{
+    dispatch(setData({amount:inputAmount, msisdn:tel}))
+  }, [inputAmount, tel])
 
-  const handlePayment = (card, amount) => {
-    const data = {
-      amount: amount,
-      cardNo: card,
-    };
+  const handlePayment = () => {
+    const {amount, msisdn} = store.getState().wallet;
+    if (amount < 500){
+      Toast.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Wrong Amount',
+        textBody: `Deposit amount ${amount} should be above 500`,
+      });
+    
+    }else if(msisdn.length < 10){
+      Toast.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Wrong Telephone',
+        textBody: `Telephone number "${msisdn}" is wrong`,
+      });
+    }else{
+      const data = {
+        amount: amount,
+        msisdn:msisdn,
+        cardNo: wallet.cardNo,
+        env:"PRODUCTION"
+      };
+      dispatch(depositWallet(data));
+      setInputAmount(0)
+      setTel("");
+      setIndex(-1); // close the action sheet
+    }
   };
 
   useEffect(() => {
@@ -64,20 +98,21 @@ const BottomTopUpSheet = ({amount, show,  onClose}) => {
     [],
   );
   const renderFooter = useCallback(props => {
-    const disable = false;
+  
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
         <View className="flex mb-5 flex-row justify-end mx-10 space-x-4">
+        
           <TouchableOpacity
             onPress={handleClosePress}
-            className="flex-1 h-14 border rounded-lg border-green items-center justify-center">
-            <Text>Cancel</Text>
+            className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
+            <Text className="text-white font-bold text-xl">Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            //onPress={() => handlePayment(card, paymentAmount)}
-            className="flex-1 h-14 border rounded-lg border-green items-center justify-center"
+            onPress={() => handlePayment()}
+            className="flex-1 h-10 border rounded-lg bg-text items-center justify-center"
             >
-            <Text style={{color:""}} className="text-xl text-green ">Top-Up</Text>
+            <Text  className="text-xl font-bold text-white ">Top-Up</Text>
           </TouchableOpacity>
         </View>
       </BottomSheetFooter>
@@ -88,9 +123,9 @@ const BottomTopUpSheet = ({amount, show,  onClose}) => {
     <BottomSheet
       ref={bottomSheetRef}
       index={index}
-      enablePanDownToClose={true}
+      enablePanDownToClose={false}
       bottomInset={0}
-      backgroundStyle={{backgroundColor: '#2b68f5', color: '#fff'}}
+      //backgroundStyle={{backgroundColor: '#2b68f5', color: '#fff'}}
       style={styles.sheetContainer}
       backdropComponent={renderBackdrop}
       footerComponent={renderFooter}
@@ -103,16 +138,36 @@ const BottomTopUpSheet = ({amount, show,  onClose}) => {
             <XMark color="black"/>
           </TouchableOpacity>
         </View>
-        <View style={styles.scanInstructionsContainer}>
-        <BottomSheetTextInput keyboardType='numeric' style={styles.input} />
+        <View className="flex-1 mt-5  h-10 mx-10">
+        <View className="mt-0 mb-3">
+                <Text className="text-center font-bold">Please input  your PIN once the prompt appears to complete the  transaction, once you hit "Top-Up"</Text>
+              </View>
+            <BottomSheetTextInput 
+              placeholder='Telephone'
+              value={tel}
+              keyboardType='numeric' 
+              onChangeText={(value)=>{
+                setTel(value)
+              }}
+              style={styles.input} />
+
+            <BottomSheetTextInput 
+              keyboardType='numeric' 
+              value={inputAmount}
+              placeholder='Amount'
+              onChangeText={(value)=>{
+                setInputAmount(value)
+              }}
+              style={styles.input} />
+              
           </View>
         <AnimatedLoader
-          visible={false}
+          visible={submitting}
           overlayColor="rgba(255,255,255,0.75)"
           animationStyle={styles.lottie}
           animationType="slide"
           speed={1}>
-          <Text style={{fontWeight: '500'}}>{loaderTitle}</Text>
+          <Text className="font-extrabold text-white">Processing...</Text>
         </AnimatedLoader>
       </View>
     </BottomSheet>
@@ -297,10 +352,11 @@ const styles = StyleSheet.create({
   input: {
     marginTop: 8,
     marginBottom: 10,
-    borderRadius: 10,
+    borderRadius: 5,
+    borderWidth:1,
+    borderColor:'black',
     fontSize: 16,
-    lineHeight: 20,
-    padding: 8,
+    padding: 10,
     backgroundColor: 'rgba(151, 151, 151, 0.25)',
   },
 });

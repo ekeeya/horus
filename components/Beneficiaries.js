@@ -5,11 +5,11 @@ import {storeColors} from '../theme';
 
 export default function Beneficiaries({beneficiaries}) {
 
-
+    console.log(beneficiaries)
     return (
         <View className="mt-3 space-y-5">
             <Text
-                style={{ color: storeColors.blue }}
+                style={{ color: storeColors.text }}
                 className="ml-4 underline text-lg font-bold">
                 Your Beneficiaries
             </Text>
@@ -17,8 +17,14 @@ export default function Beneficiaries({beneficiaries}) {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {
                         beneficiaries.map((item, index) => {
+                            console.log(item)
                             return (
-                                <WalletCard key={index} wallet={item} idx={index} />
+                                <WalletCard 
+                                    count={beneficiaries.length}
+                                    key={index} 
+                                    item={item} 
+                                    idx={index} 
+                                />
                             )
                         })
                     }

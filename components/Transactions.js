@@ -51,6 +51,12 @@ export default function Transactions({ transactions, hclass }) {
                                         </Text>
                                     </View>
                                 </View>
+                                <View className="flex-row justify-between space-x-10">
+
+                                        <Text style={{ color: storeColors.text }} className="text-xs font-extrabold">
+                                            {transaction.receiver.fullName} ({transaction.receiver.className})
+                                        </Text>
+                                    </View>
                                 <View className="flex-row space-x-3">
                                     <View className="flex-row justify-between space-x-10">
 
