@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 // ** Redux Imports
 import { store } from './redux/store'
-import { Provider } from 'react-redux'
+  import { Provider } from 'react-redux'
 
 // ** Intl, CASL & ThemeColors Context
 import ability from './configs/acl/ability'

@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   Text,
   View,
   Image,
   ActivityIndicator,
-  ScrollView,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
@@ -70,7 +68,6 @@ const Login = () => {
   useEffect(() => {
     (async () => {
       try {
-        // Your async function call goes here
         const result = await initialUser();
       } catch (error) {
         // Handle errors

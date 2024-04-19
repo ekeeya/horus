@@ -8,6 +8,7 @@ import com.oddjobs.entities.transactions.CashoutTransaction;
 import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.wallets.AccountEntity;
+import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.exceptions.InsufficientBalanceException;
 import com.oddjobs.exceptions.ResourceFobidenException;
@@ -87,7 +88,7 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
             if(withdrawRequestRepository.countBySchoolAndStatus(school, WithdrawRequest.Status.PENDING) > 0){
                 throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
             }
-            SchoolCollectionAccount account =  walletService.findWalletBySchool(school);
+            SchoolPaymentAccount account =  schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
             if (request.getAmount() > (account.getBalance().doubleValue() + amountInPendingWithdraw)){
                 throw new InsufficientBalanceException(request.getAmount(), account.getName());
             }

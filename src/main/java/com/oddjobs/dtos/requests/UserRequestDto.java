@@ -1,5 +1,6 @@
 package com.oddjobs.dtos.requests;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.oddjobs.utils.Utils;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserRequestDto implements Serializable {
 
     private Long id;

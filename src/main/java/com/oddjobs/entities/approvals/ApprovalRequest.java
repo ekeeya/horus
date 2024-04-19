@@ -34,18 +34,18 @@ public abstract class ApprovalRequest extends BaseEntity {
 
     private Boolean isApproved = false;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="student_id")
     private StudentEntity student;
 
     @Enumerated(EnumType.STRING)
     private Status status=Status.PENDING;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="primary_parent")
     private ParentUser primaryParent;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="made_by")
     private ParentUser madeBy;
 }

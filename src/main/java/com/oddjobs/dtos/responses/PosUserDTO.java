@@ -13,7 +13,7 @@ public class PosUserDTO extends UserResponseDto{
     private PosCenterResponseDTO posCenter;
 
     public PosUserDTO(User user) {
-        super(user);
+        super(user, true);
         PosCenterEntity pos =  ((POSAttendant) user).getPosCenter();
         if(pos != null){
             setPosCenter(new PosCenterResponseDTO(pos, false));

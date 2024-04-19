@@ -26,8 +26,8 @@ public class Mapper {
     private final WalletService walletService;
     private  final StudentService studentService;
 
-    public UserResponseDto toUserDTO(User user) {
-        UserResponseDto userDto = new UserResponseDto(user);
+    public UserResponseDto toUserDTO(User user, boolean showPerms) {
+        UserResponseDto userDto = new UserResponseDto(user, showPerms);
         switch (user.getAccountType()) {
             case POS -> {
                 POSAttendant u = (POSAttendant) user;
@@ -66,7 +66,7 @@ public class Mapper {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);
         if(student.getParents() !=null && student.getParents().size() > 0){
             List<ParentUser> contributors = student.getParents();
-            List<UserResponseDto> parents = contributors.stream().map(UserResponseDto::new).toList();
+            List<UserResponseDto> parents = contributors.stream().map(r->new UserResponseDto(r, false)).toList();
             for (UserResponseDto parent:parents) {
                 if (parent.getId().equals(student.getPrimaryParent().getId())){
                     parent.setPrimary(true);

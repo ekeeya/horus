@@ -45,6 +45,7 @@ export const getMe = createAsyncThunk('appUsers/getMe', async (id, thunkAPI) => 
 export const addUser = createAsyncThunk('appUsers/addUser', async (data, thunkAPI) => {
     try {
         const response = await client.post('/api/v1/users/register', data);
+        console.log(data)
         const msg = data.id ? `User info updated successfully` : `New user registered`;
         toast.success(msg, {duration: 8000, position: "top-center"})
         return response.data.data;

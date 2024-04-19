@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class AdminUserDTO extends UserResponseDto {
     public AdminUserDTO(User user) {
-        super(user);
+        super(user, true);
     }
 }

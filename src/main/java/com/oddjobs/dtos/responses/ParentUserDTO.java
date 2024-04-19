@@ -14,6 +14,6 @@ public class ParentUserDTO extends  UserResponseDto{
     private List<StudentResponseDTO> students;
 
     public ParentUserDTO(User user) {
-        super(user);
+        super(user, true);
     }
 }

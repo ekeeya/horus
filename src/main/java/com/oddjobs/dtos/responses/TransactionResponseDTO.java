@@ -21,7 +21,7 @@ public class TransactionResponseDTO implements Serializable {
     private String currency;
     private Utils.TRANSACTION_NATURE nature;
     private Utils.TRANSACTION_TYPE transactionType;
-    private SchoolResponseDTO school;
+    private SchoolShortResponseDTO school;
     private String description;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
@@ -39,12 +39,12 @@ public class TransactionResponseDTO implements Serializable {
         setCurrency(t.getCurrency());
         setNature(t.getNature());
         setTransactionType(t.getTransactionType());
-        setSchool(new SchoolResponseDTO(t.getSchool()));
+        setSchool(new SchoolShortResponseDTO(t.getSchool()));
         setDescription(t.getDescription());
         setCreatedAt(t.getCreatedAt());
         setAmount(t.getAmount());
         if(t instanceof CollectionTransaction){
-            setSender(new UserResponseDto(((CollectionTransaction) t).getSender()));
+            setSender(new UserResponseDto(((CollectionTransaction) t).getSender(), false));
             setReceiver(new StudentResponseDTO(((CollectionTransaction) t).getReceiver(),true));
             setCreditAccount(new AccountResponseDTO(((CollectionTransaction) t).getCreditAccount()));
             if (((CollectionTransaction) t).getMmTransaction() != null ){

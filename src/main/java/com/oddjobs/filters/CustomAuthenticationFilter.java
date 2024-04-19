@@ -66,7 +66,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         if(!u.isUsing2FA()){
             Map<String,Object>  refreshToken = tokenProviderService().createToken(principal, true, true);
             tokens.put("refresh_token", refreshToken);
-            UserResponseDto uDTO = mapper().toUserDTO(u);
+            UserResponseDto uDTO = mapper().toUserDTO(u, true);
             tokens.put("user", uDTO);
             // store in database
             RefreshToken rToken = new RefreshToken();

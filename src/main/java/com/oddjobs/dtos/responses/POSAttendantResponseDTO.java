@@ -14,7 +14,7 @@ public class POSAttendantResponseDTO extends UserResponseDto implements Serializ
 
 
     public POSAttendantResponseDTO(POSAttendant u){
-        super(u);
+        super(u, true);
         setPosCenterId(u.getPosCenter().getId());
         setPosCenterName(u.getPosCenter().getName());
     }

@@ -32,7 +32,7 @@ public class UserResponseDto {
     private  boolean isSuperUser;
     private List<Map<String, Object>> permissions = new ArrayList<>();
 
-    public UserResponseDto(User user){
+    public UserResponseDto(User user, boolean showPerms){
         if(user != null){
             String[] perms = {"dashboard", "users", "students","parents"};
             setId(user.getId());
@@ -53,21 +53,24 @@ public class UserResponseDto {
             setStatus(user.getEnabled() ? "ACTIVE":"IN ACTIVE");
             setFullName(user.fullName());
             //TODO specify permissions for now let's keep it simple
-            if(isSuperUser){
-                Map<String, Object> permission = new HashMap<>();
-                permission.put("action", "manage");
-                permission.put("subject", "all");
-                permissions.add(permission);
-            }else{
-                for (String p:perms ) {
-                    Map<String, Object> perm = new HashMap<>();
-                    perm.put("action", "manage");
-                    perm.put("subject", p);
-                    permissions.add(perm);
+            if (showPerms)
+            {
+                if(isSuperUser){
+                    Map<String, Object> permission = new HashMap<>();
+                    permission.put("action", "manage");
+                    permission.put("subject", "all");
+                    permissions.add(permission);
+                }else{
+                    for (String p:perms ) {
+                        Map<String, Object> perm = new HashMap<>();
+                        perm.put("action", "manage");
+                        perm.put("subject", p);
+                        permissions.add(perm);
+                    }
                 }
-            }
 
-            setPermissions(permissions);
+                setPermissions(permissions);
+            }
 
         }
     }

@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -93,6 +94,9 @@ public class TransactionsController {
             if (user instanceof SchoolUser){
                 schoolId =  ((SchoolUser) user).getSchool().getId(); // set this by default if school user making the request
             }
+            if (user instanceof  ParentUser){
+                parentId = user.getId();
+            }
             if(format != null){
                 size = Integer.MAX_VALUE;
             }
@@ -115,6 +119,9 @@ public class TransactionsController {
                 transactions = transactionRepository.findTransactionsByReceiver(student,type, pageable);
             }else if(parentId != null){
                 ParentUser parent = (ParentUser) userService.findById(parentId);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(2023, Calendar.JANUARY, 1);
+                lowerDate =calendar.getTime();
                 transactions = transactionRepository.findTransactionsBySenderAndDateBetween(parent,lowerDate,upperDate,pageable);
             }else if(status != null && type != null){
                 transactions = transactionRepository.findTransactionsByStatusAndTransactionTypeAndCreatedAtBetween(status,type,lowerDate, upperDate, pageable);

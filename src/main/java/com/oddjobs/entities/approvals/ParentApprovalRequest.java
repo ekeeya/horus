@@ -12,6 +12,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class ParentApprovalRequest extends ApprovalRequest{
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private ParentUser secondaryParent;
 }

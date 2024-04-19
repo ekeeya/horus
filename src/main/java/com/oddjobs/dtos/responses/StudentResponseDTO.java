@@ -36,7 +36,7 @@ public class StudentResponseDTO implements Serializable {
             setWallet(w);
         }
        if(student.getPrimaryParent() != null){
-           UserResponseDto u = new UserResponseDto(student.getPrimaryParent());
+           UserResponseDto u = new UserResponseDto(student.getPrimaryParent(), false);
            u.setPrimary(true);
            this.setPrimaryParent(u);
        }

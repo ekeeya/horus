@@ -21,7 +21,7 @@ public class SchoolUserDTO extends UserResponseDto{
     }
 
     public SchoolUserDTO(User user) {
-        super(user);
+        super(user, true);
         setSchool(new SchoolResponseDTO(((SchoolUser) user).getSchool()));
         setDepartment(((SchoolUser) user).getDepartment());
     }

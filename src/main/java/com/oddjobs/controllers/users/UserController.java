@@ -18,6 +18,7 @@ import com.oddjobs.components.Mapper;
 import com.oddjobs.dtos.base.BaseResponse;
 import com.oddjobs.dtos.base.ListResponseDTO;
 import com.oddjobs.dtos.requests.ProspectRequestDto;
+import com.oddjobs.dtos.requests.UpdateUserPasswordRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.dtos.responses.ProspectResponseDto;
 import com.oddjobs.exceptions.UserNameAlreadyExists;
@@ -41,6 +42,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +63,7 @@ public class UserController {
     private final TokenProviderService tokenProviderService;
     private final RefreshTokenServiceImpl refreshTokenService;
     private final ContextProvider contextProvider;
+    private final PasswordEncoder passwordEncoder;
 
     protected ResponseEntity<?> generateTokens(User user) {
         Map<String,Object> accessToken = tokenProviderService.createToken(user, true, false);
@@ -113,7 +116,7 @@ public class UserController {
             } else {
                 users = userService.findAllUsers(page, size);
             }
-            response = new ListResponseDTO<>(users.getContent().stream().map(mapper::toUserDTO).toList(), users.getTotalPages());
+            response = new ListResponseDTO<>(users.getContent().stream().map(r-> mapper.toUserDTO(r, true)).toList(), users.getTotalPages());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -129,7 +132,7 @@ public class UserController {
         try{
             BaseResponse response =  new BaseResponse();
             User user =  userService.findById(userId);
-            UserResponseDto userResponse =  mapper.toUserDTO(user);
+            UserResponseDto userResponse =  mapper.toUserDTO(user, true);
             response.setData(userResponse);
             return ResponseEntity.ok(response);
         }catch (Exception e){
@@ -142,7 +145,7 @@ public class UserController {
     public ResponseEntity<?> getMe(){
         try{
             User user =  contextProvider.getPrincipal();
-            UserResponseDto userResponse =  mapper.toUserDTO(user);
+            UserResponseDto userResponse =  mapper.toUserDTO(user, true);
             return ResponseEntity.ok(userResponse);
         }catch (Exception e){
             log.error(e.getMessage(),e);
@@ -200,7 +203,7 @@ public class UserController {
             response = new BaseResponse(result);
             if (response.isSuccess()) {
                 User user = userService.registerOrUpdateUser(request);
-                UserResponseDto u = mapper.toUserDTO(user);
+                UserResponseDto u = mapper.toUserDTO(user, true);
                 response.setData(u);
                 return ResponseEntity.ok(response);
             }
@@ -216,6 +219,21 @@ public class UserController {
             return ResponseEntity.internalServerError().body(response);
         }
     }
+
+
+    @PostMapping("change-password")
+    public ResponseEntity<?>updatePassword(@Valid @RequestBody UpdateUserPasswordRequestDTO request){
+
+        User user =  userService.findById(request.getId());
+        if(user != null){
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+            return ResponseEntity.ok("Password Changed successfully.");
+        }
+        return ResponseEntity.badRequest().body("User not found");
+
+    }
+
 
     @PostMapping("prospect/register")
     public ResponseEntity<?> registerProspectUser(
@@ -247,7 +265,7 @@ public class UserController {
         try {
             User u = userService.accountManagement(action, accountId);
             log.info(String.format("User %s has been %s", u, action + "d"));
-            UserResponseDto user =  mapper.toUserDTO(u);
+            UserResponseDto user =  mapper.toUserDTO(u, true);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

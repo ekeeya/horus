@@ -89,8 +89,14 @@ public class StudentController {
             List<StudentEntity> students = new ArrayList<>();
             Page<StudentEntity> studentsPage = null;
             User user =  contextProvider.getPrincipal();
+            if (name != null){
+                name =  name.toLowerCase();
+            }
             if(user instanceof  SchoolUser){
                 schoolId =  ((SchoolUser) user).getSchool().getId(); // if it's a school user querying set the schoolId right away
+            }
+            if (user instanceof  ParentUser){
+                parentId = user.getId();
             }
             if(schoolId != null && classId != null && name != null){
                 students =  studentRepository.searchStudentsBySchoolAndClassAndName(schoolId, classId, name);
@@ -107,7 +113,7 @@ public class StudentController {
             }
             else if (parentId !=null) {
                 ParentUser parentUser = (ParentUser) userService.findById(parentId);
-                students =  studentRepository.findStudentEntitiesByParentsContaining(parentUser);
+                students =  parentUser.getStudents();
             }
             else{
                 studentsPage = studentService.findAll(page, size);

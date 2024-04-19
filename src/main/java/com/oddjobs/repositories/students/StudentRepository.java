@@ -22,7 +22,7 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
     @Query(value = "SELECT * FROM student WHERE (LOWER(first_name) LIKE %:keyword% OR LOWER(last_name) LIKE %:keyword% OR LOWER(middle_name) LIKE %:keyword%) LIMIT 10", nativeQuery = true)
     List<StudentEntity> searchStudentsByName(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT * FROM student WHERE school_id=:schoolId AND (LOWER(first_name) LIKE %:keyword% OR LOWER(last_name) LIKE %:keyword% OR LOWER(middle_name) LIKE %:keyword%) LIMIT 10", nativeQuery = true)
+    @Query(value = "SELECT * FROM student WHERE school_id=:schoolId AND ((LOWER(first_name) LIKE %:keyword% OR LOWER(last_name) LIKE %:keyword% OR LOWER(middle_name) LIKE %:keyword%)) LIMIT 10", nativeQuery = true)
     List<StudentEntity> searchStudentsBySchoolAndName(@Param("schoolId") Long schoolId, @Param("keyword") String keyword);
     Page<StudentEntity> findStudentEntitiesBySchoolAndClassRoom(School school, ClassRoom classRoom, Pageable pageable);
     List<StudentEntity> findStudentEntitiesByParentsContaining(ParentUser parent);
