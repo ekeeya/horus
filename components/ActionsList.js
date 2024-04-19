@@ -5,27 +5,39 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { storeColors } from '../theme';
 
-export default function ActionsList({action, onPress}) {
+export default function ActionsList({ action, isContributor, onPress }) {
     const [activeAction, setActiveAction] = useState();
-    const [actions, setActions] = useState([
+    const [actions, setActions] = useState([]);
+    const [contributorActions, setContributorActions] = useState([
         {
             name: "topup",
             icon: "add-card",
             label: "Top Up"
         },
-       /*  {
-            name: "edit",
-            icon: "edit",
-            label: "Set Limit"
-        } */
-]);
-    const handleSelectedAction = (value)=>{
+        /*  {
+             name: "edit",
+             icon: "edit",
+             label: "Set Limit"
+         } */
+    ]);
+    const [nonContributorActions, setNonContributorActions] = useState([
+        {
+            name: "link",
+            icon: "link",
+            label: "Contribute"
+        }
+    ]);
+    const handleSelectedAction = (value) => {
         setActiveAction(value);
         onPress(value)
     }
-    useEffect (()=>{
-            console.log(action)
-    },[action])
+    useEffect(() => {
+        if (isContributor) {
+            setActions(contributorActions);
+        } else {
+            setActions(nonContributorActions)
+        }
+    }, [isContributor])
     return (
         <View className="pl-2">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -34,17 +46,17 @@ export default function ActionsList({action, onPress}) {
                         return (
                             <View key={idx} className="h-20 mx-8 items-center">
                                 <TouchableOpacity
-                                    style={{elevation:10}}
+                                    style={{ elevation: 10 }}
                                     onPress={() => handleSelectedAction(action.name)}
                                     key={idx}
-                                    className={`${action.name === activeAction ? 'bg-blue text-white' :'bg-blue'} h-20 w-20  items-center justify-center rounded-full`}>
-                                    <MaterialIcons name={action.icon} size={35} color={action.name===activeAction ? storeColors.white : storeColors.white} />
+                                    className={`${action.name === activeAction ? 'bg-blue text-white' : 'bg-blue'} h-20 w-20  items-center justify-center rounded-full`}>
+                                    <MaterialIcons name={action.icon} size={35} color={action.name === activeAction ? storeColors.white : storeColors.white} />
                                 </TouchableOpacity>
-                                <Text className="mt-1 text-center font-semibold" style={{color:action.name===activeAction ? storeColors.blue : storeColors.text}}>{action.label}</Text>
+                                <Text className="mt-1 text-center font-semibold" style={{ color: action.name === activeAction ? storeColors.blue : storeColors.text }}>{action.label}</Text>
                             </View>
 
                         )
-                        
+
                     })
                 }
             </ScrollView>

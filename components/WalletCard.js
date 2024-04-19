@@ -4,12 +4,13 @@ import { LinearGradient } from 'react-native-linear-gradient'
 import { formatCreditCardNumber } from "../utils"
 import { storeColors } from '../theme'
 import { useNavigation } from '@react-navigation/native';
+import Icon from "react-native-vector-icons/Ionicons";
 
 export default function WalletCard(props) {
 
   const navigation = useNavigation();
 
-  const { item, idx, count } = props
+  const { item, idx, count, createClicked } = props
   const [isFavourite, setFavourite] = useState(false);
   let image = require("../assets/images/credit-card-1.jpg");
   if (idx % 2 > 0) {
@@ -21,9 +22,22 @@ export default function WalletCard(props) {
   };
 
   return (
-    <TouchableOpacity
+    item.isEmpty ?
+    (
+      <TouchableOpacity
+       onPress={() => createClicked()}
+       style={{borderWidth:1, borderStyle:"dashed", borderRadius:25, borderColor:storeColors.grayText}}
+       className={`relative ${count === 1 ? 'mx-10' :'mx-2'}`}>
+      <View  className="w-96 h-56 rounded-3xl bg-white justify-center items-center" >
+          <Icon color={storeColors.grayText} size={60} name="add-circle-outline"/>
+          <Text className="font-bold mt-2">Tap To Search Your Student</Text>
+      </View>
+    </TouchableOpacity>
+    )
+    :
+    (<TouchableOpacity
       onPress={() => goToWalletScreen()}
-      className={`relative ${count === 1 && 'mx-10'}`}>
+      className={`relative ${count === 1 ? 'mx-10' :'mx-2'}`}>
       <Image resizeMode='cover' source={image} className="w-96 h-56 rounded-3xl" />
       <LinearGradient colors={['transparent', 'rgba(0, 0, 0, 0.6)']}
         className="absolute p-4 h-full w-full flex justify-between rounded-3xl">
@@ -59,5 +73,6 @@ export default function WalletCard(props) {
         </ScrollView>
       </LinearGradient>
     </TouchableOpacity>
+    )
   )
 }

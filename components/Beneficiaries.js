@@ -3,9 +3,12 @@ import { View, Text, ScrollView } from 'react-native'
 import WalletCard from './WalletCard';
 import {storeColors} from '../theme';
 
-export default function Beneficiaries({beneficiaries}) {
+export default function Beneficiaries({beneficiaries, onCreateClicked}) {
 
     console.log(beneficiaries)
+    const listenToCreateClicked = ()=>{
+        onCreateClicked()
+    }
     return (
         <View className="mt-3 space-y-5">
             <Text
@@ -20,6 +23,7 @@ export default function Beneficiaries({beneficiaries}) {
                             console.log(item)
                             return (
                                 <WalletCard 
+                                    createClicked={listenToCreateClicked}
                                     count={beneficiaries.length}
                                     key={index} 
                                     item={item} 

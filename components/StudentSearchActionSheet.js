@@ -4,41 +4,43 @@ import {
   Text,
   View,
   Dimensions,
+  Image,
+  ActivityIndicator,
   TouchableOpacity
 } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetFooter,
-  BottomSheetTextInput
+  BottomSheetTextInput,
+  BottomSheetScrollView
 } from '@gorhom/bottom-sheet';
 import AnimatedLoader from 'react-native-animated-loader';
 import { XMark } from '@nandorojo/heroicons/24/outline';
 import { useDispatch, useSelector } from 'react-redux'
-import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import { depositWallet, setData } from '../store/wallet';
-import { store } from '../store/store';
+import StudentSearchResult from './StudentSearchResult';
+import { searchStudent } from '../store/students';
 
 const {width, height} = Dimensions.get('window');
 
-const BottomTopUpSheet = ({show, wallet, onClose}) => {
+
+const StudentSearchActionSheet = ({show, onClose}) => {
   const [index, setIndex] = useState(1);
-  const [title, setTitle] = useState('Top Up Card');
-  const [inputAmount, setInputAmount]  = useState(0);
-  const [tel, setTel] = useState("");
+  const [title, setTitle] = useState('Student  Look up');
+  const [studentName, setStudentName] = useState("");
+
+  const {loading, studentResults, selectedSchool } = useSelector(
+    store => store.students,
+  ); 
+
   const bottomSheetRef = useRef(null);
 
-  const snapPoints = useMemo(() => ['25%', '40%'], []);
-
-  const {submitting, message, amount, msisdn } = useSelector(
-    store => store.wallet,
-  ); 
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
 
   const dispatch = useDispatch();
 
   const handleSheetChanges = useCallback(index => {
     setIndex(index);
     if (index === -1) {
-        onClose();
+      onClose && onClose();
     }
   }, []);
 
@@ -46,38 +48,7 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
     bottomSheetRef.current?.close();
   }, []);
 
-  useEffect(()=>{
-    //dispatch(setData({amount:inputAmount, msisdn:tel}))
-  }, [inputAmount, tel])
 
-  const handlePayment = () => {
-    console.log(tel, inputAmount)
-    if (!inputAmount || inputAmount < 500 ){
-      Toast.show({
-        type: ALERT_TYPE.DANGER,
-        title: 'Wrong Amount',
-        textBody: `Deposit amount ${aminputAmountount} should be above 500`,
-      });
-    
-    }else if(tel.length < 10){
-      Toast.show({
-        type: ALERT_TYPE.DANGER,
-        title: 'Wrong Telephone',
-        textBody: `Telephone number "${tel}" is wrong`,
-      });
-    }else{
-      const data = {
-        amount: inputAmount,
-        msisdn:tel,
-        cardNo: wallet.cardNo,
-        env:"PRODUCTION"
-      };
-      dispatch(depositWallet(data));
-      setInputAmount(0)
-      setTel("");
-      setIndex(-1); // close the action sheet
-    }
-  };
 
   useEffect(() => {
     if (show) {
@@ -97,36 +68,42 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
     ),
     [],
   );
-  const renderFooter = useCallback(props => {
-  
-    return (
-      <BottomSheetFooter {...props} bottomInset={10}>
-        <View className="flex mb-5 flex-row justify-end mx-10 space-x-4">
-        
-          <TouchableOpacity
-            onPress={handleClosePress}
-            className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
-            <Text className="text-white font-bold text-xl">Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handlePayment()}
-            className="flex-1 h-10 border rounded-lg bg-text items-center justify-center"
-            >
-            <Text  className="text-xl font-bold text-white ">Top-Up</Text>
-          </TouchableOpacity>
-        </View>
-      </BottomSheetFooter>
-    );
-  }, []);
+
+  useEffect (()=>{
+    let params = {
+      name:studentName,
+      size:5,
+      page:0
+    }
+    if(selectedSchool){
+      if(selectedSchool.id > 0){
+        params["schoolId"] = selectedSchool.id
+      }else{
+        delete params["schoolId"]
+      }
+    }else{
+      delete params["schoolId"]
+    }
+    if(studentName.length > 0){
+      dispatch(searchStudent(params))
+    }
+      
+  }, [studentName])
+
+  const renderItem = useCallback(
+    (item) => (
+      <StudentSearchResult key={item.id} student={item}/>
+    ),
+    []
+  );
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
       index={index}
-      enablePanDownToClose={false}
       bottomInset={0}
+      animateOnMount={true}
       //backgroundStyle={{backgroundColor: '#2b68f5', color: '#fff'}}
-      style={styles.sheetContainer}
       backdropComponent={renderBackdrop}
       //footerComponent={renderFooter}
       snapPoints={snapPoints}
@@ -139,49 +116,32 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
           </TouchableOpacity>
         </View>
         <View className="flex-1 mt-5  h-10 mx-10">
-        <View className="mt-0 mb-3">
-                <Text className="text-center font-bold">Please input  your PIN once the prompt appears to complete the  transaction, once you hit "Top-Up"</Text>
+              <View className="mt-0 mb-3">
+                <Text className="text-center font-bold">Select the school to narrow the student search</Text>
               </View>
             <BottomSheetTextInput 
-              placeholder='Telephone'
-              value={tel}
-              keyboardType='numeric' 
+              placeholder='Search by Student name'
+              value={studentName}
               onChangeText={(value)=>{
-                setTel(value)
+                setStudentName(value)
               }}
               style={styles.input} />
-
-            <BottomSheetTextInput 
-              keyboardType='numeric' 
-              value={inputAmount}
-              placeholder='Amount'
-              onChangeText={(value)=>{
-                setInputAmount(value)
-              }}
-              style={styles.input} />
-
-      <View className="flex mb-2 mt-5 flex-row justify-end mx-10 space-x-4">
-        
-        <TouchableOpacity
-          onPress={handleClosePress}
-          className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
-          <Text className="text-white font-bold text-xl">Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handlePayment()}
-          className="flex-1 h-10 border rounded-lg bg-text items-center justify-center"
-          >
-          <Text  className="text-xl font-bold text-white ">Top-Up</Text>
-        </TouchableOpacity>
-      </View>
+              {
+                loading && (
+                  <ActivityIndicator className="mb-5" size="small" />
+                )
+              }
+            <BottomSheetScrollView >
+                {studentResults.map(renderItem)}
+            </BottomSheetScrollView>
           </View>
         <AnimatedLoader
-          visible={submitting}
+          visible={false}
           overlayColor="rgba(255,255,255,0.75)"
           animationStyle={styles.lottie}
           animationType="slide"
           speed={1}>
-          <Text className="font-extrabold text-white">Processing...</Text>
+          <Text className="font-extrabold text-white">Searching....</Text>
         </AnimatedLoader>
       </View>
     </BottomSheet>
@@ -211,11 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
   },
-  sheetContainer: {
-    // add horizontal space
-    marginHorizontal: 0,
-    elevation: 10,
-  },
+ 
   actionSheetContentContainer: {
     flex: 1,
     backgroundColor: '#fafafc',
@@ -367,11 +323,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 10,
     borderRadius: 5,
-    borderWidth:1,
-    borderColor:'black',
     fontSize: 16,
     padding: 10,
     backgroundColor: 'rgba(151, 151, 151, 0.25)',
   },
 });
-export default BottomTopUpSheet;
+export default StudentSearchActionSheet;

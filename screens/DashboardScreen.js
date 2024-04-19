@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image} from 'react-native'
+import { View, Text, TouchableOpacity} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'react-native-linear-gradient'
@@ -8,16 +8,18 @@ import SchoolsList from '../components/SchoolsList'
 import Beneficiaries from '../components/Beneficiaries'
 import Transactions from '../components/Transactions'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchStudents } from '../store/students'
+import { fetchStudents, fetchSchools } from '../store/students'
 import { fetchTransactions } from '../store/transactions'
+import StudentSearchActionSheet from '../components/StudentSearchActionSheet'
 
-const schools = ['All', 'Trinity Senior','Trinity Preschool', 'Trinity Primary'];
 
 export default function DashboardScreen() {
 
+  const [showSearch, setShowSearch] =  useState(false);
+
   const dispatch = useDispatch();
 
-  const {loading, students } = useSelector(
+  const {loading, students, schools } = useSelector(
     store => store.students,
   ); 
   const {fetching, transactions } = useSelector(
@@ -25,9 +27,17 @@ export default function DashboardScreen() {
   ); 
 
   useEffect(()=>{
-    dispatch(fetchStudents())
+    dispatch(fetchSchools())
+    dispatch(fetchStudents());
     dispatch(fetchTransactions({}))
-  }, [])
+  }, []);
+
+  const handleCreateClicked  = ()=>{
+    setShowSearch(true)
+  }
+  const handleOnclose = ()=>{
+    setShowSearch(false)
+  }
 
   return (
     <LinearGradient
@@ -39,20 +49,22 @@ export default function DashboardScreen() {
         <View className="container">
           <View className="flex-row mt-5 justify-between items-center px-4">
           <TouchableOpacity className="bg-grayText h-10 w-10 justify-center items-center rounded-full">
-              <Bars3CenterLeft color={storeColors.text} />
+              <Bars3CenterLeft color={storeColors.white} />
             </TouchableOpacity>
             <TouchableOpacity className="bg-grayText h-10 w-10 justify-center items-center rounded-full">
-             <Bell color={storeColors.text}  />
+             <Bell color={storeColors.white}  />
             </TouchableOpacity>
           </View>
            
           {/* schools */}
-         <View className="space-y-4 mt-10">
+         <View className="space-y-4 mt-4">
             <SchoolsList schools={schools}/>
           </View>
 
           {/* cards row  */}
-          <Beneficiaries beneficiaries={students}/>
+          <Beneficiaries 
+            onCreateClicked={handleCreateClicked}
+            beneficiaries={students}/>
 
           {/* top action transactions list */}
           <View className="mt-1">
@@ -71,6 +83,9 @@ export default function DashboardScreen() {
             <Transactions transactions={transactions}/>
           </View>
         </View>
+        <StudentSearchActionSheet 
+          onClose={handleOnclose}
+          show={showSearch} />
       </SafeAreaView>   
 
     </LinearGradient>

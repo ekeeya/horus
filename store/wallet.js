@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import client from '../axios';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import { updateTransactions } from './transactions';
+import { fetchTransactions } from './transactions';
 
 
 export const depositWallet = createAsyncThunk(
@@ -10,8 +10,7 @@ export const depositWallet = createAsyncThunk(
     try {
       let url = "/api/v1/wallet/deposit"
       const response = await client.post(url, params);
-      console.log(response.data.data)
-      //thunkAPI.dispatch(updateTransactions(response.data.data))
+      // thunkAPI.dispatch(fetchTransactions({}))
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);

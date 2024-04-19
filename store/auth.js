@@ -14,7 +14,6 @@ export const login = createAsyncThunk(
       form.append("password", password);
       const response = await client.post('/login', form, {headers});
       const user = response.data;
-      console.log(user.user);
       if (user.user.role !== 'PARENT') {
         return thunkAPI.rejectWithValue('Authentication Failed');
       }

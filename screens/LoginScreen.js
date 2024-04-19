@@ -13,15 +13,15 @@ import { User } from "@nandorojo/heroicons/24/outline";
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import {initialUser, login} from '../store/auth';
+import { login} from '../store/auth';
 
 const LoginScreen =()=>{
 
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('756315407');
+  const [username, setUsername] = useState('756315405');
   const [secureText, setSecureText] = useState(true);
-  const [password, setPassword] = useState('756315407');
+  const [password, setPassword] = useState('756315405');
 
   // dispatch
   const dispatch = useDispatch();
