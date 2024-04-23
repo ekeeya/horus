@@ -19,8 +19,15 @@ export default function DashboardScreen() {
 
   const dispatch = useDispatch();
 
+
+
+
   const {loading, students, schools } = useSelector(
     store => store.students,
+  ); 
+
+  const {userData } = useSelector(
+    store => store.auth,
   ); 
   const {fetching, transactions } = useSelector(
     store => store.transactions,
@@ -36,7 +43,7 @@ export default function DashboardScreen() {
     setShowSearch(true)
   }
   const handleOnclose = ()=>{
-    setShowSearch(false)
+    setShowSearch(false);
   }
 
   return (
@@ -47,14 +54,18 @@ export default function DashboardScreen() {
     >
       <SafeAreaView>
         <View className="container">
-          <View className="flex-row mt-5 justify-between items-center px-4">
-          <TouchableOpacity className="bg-grayText h-10 w-10 justify-center items-center rounded-full">
+        <View className="content-center justify-center mt-8 items-center">
+          <Text style={{color: storeColors.blue}} className="font-bold text-4xl">Hi!</Text>
+          <Text style={{color: storeColors.blue}} className="text-grayText text-xl font-semibold">{userData.user.fullName}</Text>
+        </View>
+          {/* <View className="flex-row mt-5 justify-between items-center px-4">
+            <TouchableOpacity className="bg-grayText h-10 w-10 justify-center items-center rounded-full">
               <Bars3CenterLeft color={storeColors.white} />
             </TouchableOpacity>
             <TouchableOpacity className="bg-grayText h-10 w-10 justify-center items-center rounded-full">
              <Bell color={storeColors.white}  />
             </TouchableOpacity>
-          </View>
+          </View> */}
            
           {/* schools */}
          <View className="space-y-4 mt-4">

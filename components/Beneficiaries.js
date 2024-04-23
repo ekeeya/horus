@@ -5,7 +5,6 @@ import {storeColors} from '../theme';
 
 export default function Beneficiaries({beneficiaries, onCreateClicked}) {
 
-    console.log(beneficiaries)
     const listenToCreateClicked = ()=>{
         onCreateClicked()
     }

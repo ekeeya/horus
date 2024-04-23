@@ -3,5 +3,6 @@ export const storeColors = {
     redHeart: '#F73434',
     yellow:"#FAD02C",
     blue:"#2a69f5",
-    white:"#ffff"
+    white:"#ffff",
+    grayText:"#959595"
 }   

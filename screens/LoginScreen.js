@@ -19,9 +19,9 @@ const LoginScreen =()=>{
 
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('756315405');
+  const [username, setUsername] = useState('756315407');
   const [secureText, setSecureText] = useState(true);
-  const [password, setPassword] = useState('756315405');
+  const [password, setPassword] = useState('756315407');
 
   // dispatch
   const dispatch = useDispatch();

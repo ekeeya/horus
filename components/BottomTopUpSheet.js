@@ -47,28 +47,28 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
   }, []);
 
   useEffect(()=>{
-    //dispatch(setData({amount:inputAmount, msisdn:tel}))
+    dispatch(setData({amount:inputAmount, msisdn:tel}))
   }, [inputAmount, tel])
 
   const handlePayment = () => {
-    console.log(tel, inputAmount)
-    if (!inputAmount || inputAmount < 500 ){
+    const {amount, msisdn} = store.getState().wallet;
+    if (amount < 500){
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Wrong Amount',
-        textBody: `Deposit amount ${aminputAmountount} should be above 500`,
+        textBody: `Deposit amount ${amount} should be above 500`,
       });
     
-    }else if(tel.length < 10){
+    }else if(msisdn.length < 10){
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Wrong Telephone',
-        textBody: `Telephone number "${tel}" is wrong`,
+        textBody: `Telephone number "${msisdn}" is wrong`,
       });
     }else{
       const data = {
-        amount: inputAmount,
-        msisdn:tel,
+        amount: amount,
+        msisdn:msisdn,
         cardNo: wallet.cardNo,
         env:"PRODUCTION"
       };
@@ -128,7 +128,7 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
       //backgroundStyle={{backgroundColor: '#2b68f5', color: '#fff'}}
       style={styles.sheetContainer}
       backdropComponent={renderBackdrop}
-      //footerComponent={renderFooter}
+      footerComponent={renderFooter}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}>
       <View style={styles.actionSheetContentContainer}>
@@ -159,21 +159,7 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
                 setInputAmount(value)
               }}
               style={styles.input} />
-
-      <View className="flex mb-2 mt-5 flex-row justify-end mx-10 space-x-4">
-        
-        <TouchableOpacity
-          onPress={handleClosePress}
-          className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
-          <Text className="text-white font-bold text-xl">Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handlePayment()}
-          className="flex-1 h-10 border rounded-lg bg-text items-center justify-center"
-          >
-          <Text  className="text-xl font-bold text-white ">Top-Up</Text>
-        </TouchableOpacity>
-      </View>
+              
           </View>
         <AnimatedLoader
           visible={submitting}
