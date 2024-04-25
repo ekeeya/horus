@@ -10,6 +10,7 @@ public class CardEntity extends  BaseEntity{
     @Column(name="card_no", nullable = false, unique = true)
     private String cardNo;
 
+    private String serialNo;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="student_id", nullable=false)
     private StudentEntity student;

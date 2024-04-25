@@ -13,7 +13,6 @@ public class WalletResponseDTO implements Serializable {
     private Double balance = 0.0;
 
     private Double maximumDailyLimit= 0.0;
-
     private Boolean enableDailyLimit = false;
     private  Utils.WALLET_STATUS status;
 
