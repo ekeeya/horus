@@ -3,6 +3,7 @@ package com.oddjobs.services.inventory;
 import com.oddjobs.entities.inventory.InventoryItem;
 import com.oddjobs.exceptions.PosCenterNotFoundException;
 import com.oddjobs.repositories.inventory.InventoryItemsRepository;
+import com.oddjobs.services.inventory.types.BulkInventoryItemRequestDTO;
 import com.oddjobs.services.inventory.types.InventoryItemRequestDTO;
 import com.oddjobs.services.pos.POSService;
 import jakarta.transaction.Transactional;
@@ -41,6 +42,10 @@ public class InventoryItemService {
         inventoryItem.setPos(posService.findById(request.getPosId()));
         inventoryItem.setQuantity(request.getQuantity());
         return inventoryItemsRepository.save(inventoryItem);
+    }
+
+    public void bulkSaveInventory(BulkInventoryItemRequestDTO request){
+
     }
 
     public void delete(Long id){

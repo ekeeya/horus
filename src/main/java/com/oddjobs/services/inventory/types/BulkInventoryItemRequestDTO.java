@@ -8,12 +8,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class BulkInventoryItemRequestDTO {
     private String name;
-
     @CsvBindByName(column = "category", required = true)
     private String category;
     private Double price;
-
-    @CsvBindByName(column = "pos_id", required = true)
+    @CsvBindByName(column = "pos_id", required = false)
     private Long posId;
     private Integer quantity;
     public BulkInventoryItemRequestDTO(){}
