@@ -46,10 +46,11 @@ public class CategoryService {
             category = new Category();
         }
         category.setIcon(request.getIcon());
-        category.setName(category.getName());
-        category.setProvider(category.getProvider());
-        category.setImage(category.getImage());
+        category.setName(request.getName());
+        category.setProvider(request.getProvider());
+        category.setImage(request.getImage());
         categoryRepository.save(category);
+        log.info("Category: {} added", category);
     }
 
     public void delete(Long id) throws Exception {

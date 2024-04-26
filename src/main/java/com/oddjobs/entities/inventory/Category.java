@@ -17,8 +17,10 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String icon;
 
+    private Integer frequency=0;
+
     public static enum ICON_PROVIDER{
-        AntDesign, Entypo, EvilIcons, Feather, FontAwesome, FontAwesome6,SimpleLineIcons,Octicons,
+        AntDesign, Entypo, EvilIcons, Feather, FontAwesome,FontAwesome5, FontAwesome6,SimpleLineIcons,Octicons,
         FontAwesome5Brands, Fontisto, Ionicons, MaterialCommunityIcons, MaterialIcons, Zocial
     }
 
@@ -35,7 +37,7 @@ public class Category extends BaseEntity {
                 "name='" + name + '\'' +
                 ", icon='" + icon + '\'' +
                 ", provider=" + provider +
-                ", image='" + image + '\'' +
+                ", image='" + image.substring(0,30) + '\'' +
                 '}';
     }
 }

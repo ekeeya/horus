@@ -1,5 +1,4 @@
 package com.oddjobs.services.inventory.types;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.oddjobs.entities.inventory.Category;
 import lombok.Data;
 
@@ -13,6 +12,7 @@ public class CategoryResponseDTO  implements Serializable {
     String icon;
     Category.ICON_PROVIDER provider;
     String image;
+    private Integer frequency;
 
     public CategoryResponseDTO(Category category){
         id=category.getId();
@@ -20,6 +20,6 @@ public class CategoryResponseDTO  implements Serializable {
         icon =  category.getIcon();
         provider=category.getProvider();
         image =  category.getImage();
-
+        frequency=category.getFrequency();
     }
 }

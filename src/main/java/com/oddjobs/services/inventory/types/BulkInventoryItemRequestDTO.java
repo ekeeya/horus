@@ -11,9 +11,10 @@ public class BulkInventoryItemRequestDTO {
     @CsvBindByName(column = "category", required = true)
     private String category;
     private Double price;
-    @CsvBindByName(column = "pos_id", required = false)
+    @CsvBindByName(column = "pos_id")
     private Long posId;
     private Integer quantity;
     public BulkInventoryItemRequestDTO(){}
+
 
 }

@@ -34,7 +34,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/inventory")
 public class InventoryController {
     private final InventoryItemsRepository inventoryItemsRepository;
     private  final CategoryRepository categoryRepository;
@@ -53,8 +53,6 @@ public class InventoryController {
     private String convertToCSV(List<String> fields, List<?> objects) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-
-        // Writing header
         for (int i = 0; i < fields.size(); i++) {
             writer.append(fields.get(i));
             if (i < fields.size() - 1) {
@@ -62,8 +60,6 @@ public class InventoryController {
             }
         }
         writer.append("\n");
-
-        // Writing data
         for (Object object : objects) {
             for (int i = 0; i < fields.size(); i++) {
                 try {
@@ -73,7 +69,6 @@ public class InventoryController {
                     writer.append(String.valueOf(value));
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     e.printStackTrace();
-                    // Handle field not found or access exception
                 }
                 if (i < fields.size() - 1) {
                     writer.append(",");
@@ -81,13 +76,12 @@ public class InventoryController {
             }
             writer.append("\n");
         }
-
         writer.flush();
         writer.close();
         return outputStream.toString();
     }
 
-    @GetMapping("categories")
+    @GetMapping("/categories")
     public ResponseEntity<?> getCategories(
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestParam(name="size", defaultValue = "10") int size,
@@ -102,7 +96,7 @@ public class InventoryController {
 
 
     @Secured({"ROLE_ADMIN", "ROLE_POS"})
-    @PostMapping("categories")
+    @PostMapping("/categories")
     public ResponseEntity<?> createCategories(
             @RequestBody List<CategoryRequestDTO> request
             ){
@@ -115,7 +109,7 @@ public class InventoryController {
     }
 
 
-    @PostMapping("import-categories")
+    @PostMapping("/import-categories")
     public ResponseEntity<?> registerInventoryItems(
             @RequestParam(value = "file", required = false) MultipartFile file
     ){
@@ -150,7 +144,7 @@ public class InventoryController {
                 return  ResponseEntity.ok(response);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                List<String> fields = List.of("name","category","price","pos_id", "quantity");
+                List<String> fields = List.of("name","icon","provider", "image");
                 String message = String.format("Required field(s) is missing in the CSV data. Make sure csv is %s", fields);
                 return ResponseEntity.badRequest().body(message);
             }
@@ -160,7 +154,7 @@ public class InventoryController {
         }
     }
 
-    @PostMapping("import-inventory-items/{posId}")
+    @PostMapping("/import-inventory-items/{posId}")
     public ResponseEntity<?> bulkLoadInventoryItems(
             @PathVariable(value="posId") Long posId,
             @RequestParam(value = "file", required = false) MultipartFile file
@@ -207,7 +201,7 @@ public class InventoryController {
         }
     }
 
-    @PostMapping("inventory-items")
+    @PostMapping("/inventory-items")
     public ResponseEntity<?> registerInventoryItems(
             @RequestBody List<InventoryItemRequestDTO> request
     ){
@@ -221,9 +215,9 @@ public class InventoryController {
         }
     }
 
-    @GetMapping("export/csv")
+    @GetMapping("/export/csv")
     public ResponseEntity<?> exportCSV(
-            @RequestParam(value = "posId") Long posId,
+            @RequestParam(value = "posId", required = false) Long posId,
             @RequestParam(value = "type") FileType type
     ) {
         List<FileType> fileTypes = List.of(new FileType[]{FileType.inventory_items, FileType.categories});
@@ -231,18 +225,20 @@ public class InventoryController {
             return ResponseEntity.badRequest().body("Wrong file type specified, please use inventory_items or categories");
         }
         try {
-            PosCenterEntity posCenter =  posService.findById(posId);
             byte[] csvBytes;
             List<String> fields;
             List<?> items;
             String filename;
             if(type==FileType.inventory_items){
+                PosCenterEntity posCenter =  posService.findById(posId);
                 items = inventoryItemsRepository.findInventoryItemsByPos(posCenter);
+                items = items.stream().map(r-> new InventoryItemExportDTO((InventoryItem) r)).toList();
                 filename = "inventory_items.csv";
-                fields = List.of("id", "name", "category", "price", "pos", "quantity", "frequency");
+                fields = List.of("id", "name", "categoryId", "price", "pos", "quantity", "frequency");
             }else{
                 items = categoryRepository.findAll();
-                fields = List.of("id", "name", "icon", "provider", "image");
+                items =  items.stream().map(r->new CategoryResponseDTO((Category) r)).toList();
+                fields = List.of("id", "name", "icon", "provider", "frequency", "image");
                 filename = "categories.csv";
             }
             csvBytes = convertToCSV(fields, items).getBytes();
