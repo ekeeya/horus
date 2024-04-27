@@ -31,6 +31,7 @@ export type Category = {
     | 'Zocial'
     | 'Octicons';
   image: string;
+  frequency: number;
 };
 
 export type InventoryItem = {

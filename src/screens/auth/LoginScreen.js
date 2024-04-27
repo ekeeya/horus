@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,18 +11,44 @@ import {TextInput} from 'react-native-paper';
 import colors from 'tailwindcss/colors';
 import DynamicIcon from '../../components/DynamicIcon';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {login} from '../../store/auth';
+import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('756315407');
-  const [password, setPassword] = useState('756315407');
+  const [username, setUsername] = useState('parvin');
+  const [password, setPassword] = useState('12345678');
+
+  const dispatch = useDispatch();
+  // store
+  const {authenticating, loginError, isLoggedIn} = useSelector(
+    store => store.auth,
+  );
+
   const handleLogin = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'Dashboard'}],
-    });
+    if (username.length < 1 || password.length < 1) {
+      Toast.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Missing Fields',
+        textBody: 'Ensure username and password are provided',
+      });
+    } else {
+      // send login request
+      const credentials = {username, password};
+      dispatch(login(credentials));
+    }
   };
+
+  useEffect(() => {
+    isLoggedIn &&
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Dashboard'}],
+      });
+  }, [isLoggedIn, navigation]);
+
   return (
     <>
       <KeyboardAwareScrollView className="h-full bg-white">
@@ -75,13 +101,16 @@ const LoginScreen = () => {
               onPress={() => handleLogin()}
               className="flex flex-row justify-center space-x-5 items-center border border-purple-800 h-16 py-3 px-6 mt-10">
               <Text className="text-purple-800 font-bold text-2xl">Login</Text>
-              <DynamicIcon
-                name="arrow-right-alt"
-                size={22}
-                provider="MaterialIcons"
-                color={colors.purple['800']}
-              />
-              {/*<ActivityIndicator size="small" color={colors.purple['600']} />*/}
+              {authenticating ? (
+                <ActivityIndicator size="small" color={colors.purple['600']} />
+              ) : (
+                <DynamicIcon
+                  name="arrow-right-alt"
+                  size={22}
+                  provider="MaterialIcons"
+                  color={colors.purple['800']}
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>

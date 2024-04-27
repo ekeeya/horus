@@ -12,15 +12,9 @@ const InventoryItem = ({item}) => {
       setQuantity(1);
     }
   }, [quantity]);
-  const images = useMemo(
-    () => ({
-      pens: require('../../assets/categories/pens.jpg'),
-      drinks: require('../../assets/categories/drinks.jpg'),
-      foods: require('../../assets/categories/foods.png'),
-      perfumes: require('../../assets/categories/perfumes.png'),
-      books: require('../../assets/categories/books.png'),
-    }),
-    [],
+  const imageUri = useMemo(
+    () => `data:image/png;base64,${category.image}`,
+    [category],
   );
 
   return (
@@ -29,14 +23,14 @@ const InventoryItem = ({item}) => {
         <View className="mx-2">
           <Image
             resizeMode="center"
-            source={images[category]}
+            source={{uri: imageUri}}
             className="h-full w-10"
           />
         </View>
         <View>
           <Text className="font-semibold">{name}</Text>
           <Text className="font-bold text-black">
-            {price.toLocaleString()} /=
+            {parseFloat(price).toLocaleString()} /=
           </Text>
         </View>
       </View>

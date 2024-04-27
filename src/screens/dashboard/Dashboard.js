@@ -5,97 +5,63 @@ import {
   View,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Octicons from 'react-native-vector-icons/Octicons';
-import {TypingAnimation} from 'react-native-typing-animation';
 import colors from 'tailwindcss/colors';
 import DynamicIcon from '../../components/DynamicIcon';
 import InventoryItems from '../../components/inventory/InventoryItems';
 import {useNavigation} from '@react-navigation/native';
 import InventoryService from '../../services/InventoryService';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchServerInventoryData} from '../../store/serverInventory';
 
-const items = [
-  {
-    id: 1,
-    name: 'Bic Pens',
-    categoryId: 4,
-    price: 1000.0,
-  },
-  {
-    id: 2,
-    name: 'Coca Cola',
-    categoryId: 2,
-    price: 1500.0,
-  },
-  {
-    id: 3,
-    name: 'Samosas',
-    categoryId: 3,
-    price: 500.0,
-  },
-  {
-    id: 4,
-    name: 'Counter Books 96 Pages',
-    categoryId: 4,
-    price: 5000.0,
-  },
-];
 const Dashboard = props => {
   const [active, setActive] = useState(0);
+  const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [importing, setImporting] = useState(null);
+  const [total, setTotal] = useState(0.0);
+  const [selectedItems, setSelectedItems] =  useState([]);
 
   useEffect(() => {}, []);
+  const {userData} = useSelector(store => store.auth);
+  const {importCategories, importItems, loading} = useSelector(
+    store => store.serverInventory,
+  );
 
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: 'Favourite',
-      icon: 'favorite',
-      provider: 'Fontisto',
-      image: 'favorite',
-    },
-    {
-      id: 2,
-      name: 'Drinks',
-      icon: 'coffeescript',
-      provider: 'Fontisto',
-      image: 'drinks',
-    },
-    {
-      id: 3,
-      name: 'Food',
-      icon: 'fast-food',
-      provider: 'Ionicons',
-      image: 'foods',
-    },
-    {
-      id: 4,
-      name: 'Learning',
-      icon: 'graduation-cap',
-      provider: 'Entypo',
-      image: 'learning',
-    },
-  ]);
-  const [inventoryData, setInventoryData] = useState([]);
+  const dispatch = useDispatch();
 
-  const loadDataCallback = useCallback(async () => {
-    try {
-      // await InventoryService.save('category', categories);
-      const data = await InventoryService.fetch('inventory_item');
-      if (data.length) {
-        setInventoryData(data);
-      } else {
-        await InventoryService.save('inventory_item', items);
-        setInventoryData(items);
-      }
-    } catch (error) {
-      console.error(error);
+  const loadRemoteInventoryData = useCallback(async () => {
+    const count = await InventoryService.count('category');
+    console.log(count);
+    if (count === 0) {
+      setImporting('categories');
+      await dispatch(fetchServerInventoryData({type: 'categories'}));
+      setImporting('items');
+      // now fetch items
+      await dispatch(
+        fetchServerInventoryData({
+          type: 'inventory_items',
+          posId: userData.user.posCenter.id,
+        }),
+      );
+      setImporting(null);
     }
   }, []);
+  useEffect(() => {
+    loadRemoteInventoryData();
+    //dispatch(fetchServerInventoryData('categories'));
+  }, [loadRemoteInventoryData]);
 
   useEffect(() => {
-    loadDataCallback();
-  }, [loadDataCallback]);
+    setItems(importItems.slice(0, 10));
+  }, [importItems]);
+
+  useEffect(() => {
+    setCategories(importCategories);
+  }, [importCategories]);
 
   const navigation = useNavigation();
   return (
@@ -105,7 +71,9 @@ const Dashboard = props => {
           <TouchableOpacity>
             <Ionicons name="menu-outline" color={colors.black} size={30} />
           </TouchableOpacity>
-          <Text className="text-black font-bold text-lg">Namatovu Parvin</Text>
+          <Text className="text-black font-bold text-lg">
+            {userData.user.fullName}
+          </Text>
           <View className="flex items-center bg-church-200 text-purple-400 p-0.5 rounded-lg">
             <Text className="text-xs mx-2 text-church-800">Attendant</Text>
           </View>
@@ -129,44 +97,48 @@ const Dashboard = props => {
       </View>
       <View className="flex-1 mt-10 bg-white w-auto p-2 mx h-full">
         <View className="h-32 mt-2 w-full">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="h-32 space-x-1">
-            {categories.map((category, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  setActive(index);
-                }}
-                className={`relative border w-28 items-center justify-center h-28 rounded-3xl mx-2 ${
-                  index === active
-                    ? 'bg-church-150 border-church-450'
-                    : 'border-church-200'
-                }`}>
-                <View className="flex items-center mt-5">
-                  <View className="flex items-center justify-center rounded-full h-10 w-10 bg-church-155">
-                    <DynamicIcon
-                      name={category.icon}
-                      color={
-                        index === active
-                          ? colors.purple['500']
-                          : colors.purple['600']
-                      }
-                      provider={category.provider}
-                      size={20}
-                    />
+          {loading && importing === 'categories' ? (
+            <ActivityIndicator size="small" color={colors.purple['600']} />
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="h-32 space-x-1">
+              {categories.map((category, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    setActive(index);
+                  }}
+                  className={`relative border w-28 items-center justify-center h-28 rounded-3xl mx-2 ${
+                    index === active
+                      ? 'bg-church-150 border-church-450'
+                      : 'border-church-200'
+                  }`}>
+                  <View className="flex items-center mt-5">
+                    <View className="flex items-center justify-center rounded-full h-10 w-10 bg-church-155">
+                      <DynamicIcon
+                        name={category.icon}
+                        color={
+                          index === active
+                            ? colors.purple['500']
+                            : colors.purple['600']
+                        }
+                        provider={category.provider}
+                        size={20}
+                      />
+                    </View>
+                    <Text className="font-bold text-church-700 mt-0">
+                      {category.name}
+                    </Text>
                   </View>
-                  <Text className="font-bold text-church-700 mt-0">
-                    {category.name}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
         </View>
         <View className="mt-5">
-          <View className="justify-center items-center">
+          {/*<View className="justify-center items-center">
             <TypingAnimation
               dotColor={colors.purple['600']}
               dotMargin={10}
@@ -176,8 +148,8 @@ const Dashboard = props => {
               dotX={12}
               dotY={6}
             />
-          </View>
-          <InventoryItems items={inventoryData} />
+          </View>*/}
+          <InventoryItems items={items} />
         </View>
       </View>
       <View className="absolute bottom-0 left-0 w-full p-2">
@@ -186,8 +158,10 @@ const Dashboard = props => {
           className="flex flex-row justify-between items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
           <Text className="text-white font-light">Proceed New Order</Text>
           <View className="flex flex-row space-x-2">
-            <Text className="text-white  font-normal">3 items</Text>
-            <Text className="text-white  font-bold">1,000,000</Text>
+            <Text className="text-white  font-normal">
+              {selectedItems.length} items
+            </Text>
+            <Text className="text-white  font-bold">{total}</Text>
             <DynamicIcon
               name="arrow-right-alt"
               size={22}
