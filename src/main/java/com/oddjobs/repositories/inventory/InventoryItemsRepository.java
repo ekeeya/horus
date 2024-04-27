@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface InventoryItemsRepository extends JpaRepository<InventoryItem, Long> {
 
-    List<InventoryItem> findInventoryItemsByPos(PosCenterEntity pos);
+    List<InventoryItem> findInventoryItemsByPosOrderByFrequencyDesc(PosCenterEntity pos);
+
+    InventoryItem findInventoryItemByNameAndPos(String name, PosCenterEntity posCenter);
 }

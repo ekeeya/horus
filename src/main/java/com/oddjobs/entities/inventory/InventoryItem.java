@@ -39,7 +39,7 @@ public class InventoryItem extends BaseEntity {
                 "name='" + name + '\'' +
                 ", category=" + category +
                 ", price=" + price +
-                ", pos=" + pos +
+                ", pos=" + pos.getId() +
                 ", quantity=" + quantity +
                 '}';
     }

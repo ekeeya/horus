@@ -1,7 +1,10 @@
 package com.oddjobs.services.inventory;
 
+import com.oddjobs.entities.PosCenterEntity;
+import com.oddjobs.entities.inventory.Category;
 import com.oddjobs.entities.inventory.InventoryItem;
 import com.oddjobs.exceptions.PosCenterNotFoundException;
+import com.oddjobs.repositories.inventory.CategoryRepository;
 import com.oddjobs.repositories.inventory.InventoryItemsRepository;
 import com.oddjobs.services.inventory.types.BulkInventoryItemRequestDTO;
 import com.oddjobs.services.inventory.types.InventoryItemRequestDTO;
@@ -21,6 +24,7 @@ import java.util.Optional;
 public class InventoryItemService {
 
     private final InventoryItemsRepository inventoryItemsRepository;
+    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
     private final POSService posService;
 
@@ -44,8 +48,26 @@ public class InventoryItemService {
         return inventoryItemsRepository.save(inventoryItem);
     }
 
-    public void bulkSaveInventory(BulkInventoryItemRequestDTO request){
+    public void bulkSaveInventory(BulkInventoryItemRequestDTO request) throws PosCenterNotFoundException {
 
+        PosCenterEntity posCenter =  posService.findById(request.getPosId());
+        Category category =  categoryRepository.findCategoryByName(request.getCategory());
+        if (category == null){
+            throw new RuntimeException("Category"+ request.getCategory() + " not found ");
+        }
+        InventoryItem inventoryItem;
+        // first look for it using name and POS
+        inventoryItem =  inventoryItemsRepository.findInventoryItemByNameAndPos(request.getName(),posCenter);
+        if (inventoryItem == null){
+            inventoryItem =  new InventoryItem();
+        }
+        inventoryItem.setQuantity(request.getQuantity());
+        inventoryItem.setCategory(category);
+        inventoryItem.setPrice(BigDecimal.valueOf(request.getPrice()));
+        inventoryItem.setName(request.getName());
+        inventoryItem.setPos(posCenter);
+        inventoryItem = inventoryItemsRepository.save(inventoryItem);
+        log.info("Recorded inventory Item: {} for pos {}", inventoryItem, posCenter);
     }
 
     public void delete(Long id){

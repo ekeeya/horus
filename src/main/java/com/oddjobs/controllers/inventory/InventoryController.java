@@ -231,12 +231,12 @@ public class InventoryController {
             String filename;
             if(type==FileType.inventory_items){
                 PosCenterEntity posCenter =  posService.findById(posId);
-                items = inventoryItemsRepository.findInventoryItemsByPos(posCenter);
+                items = inventoryItemsRepository.findInventoryItemsByPosOrderByFrequencyDesc(posCenter);
                 items = items.stream().map(r-> new InventoryItemExportDTO((InventoryItem) r)).toList();
                 filename = "inventory_items.csv";
-                fields = List.of("id", "name", "categoryId", "price", "pos", "quantity", "frequency");
+                fields = List.of("id", "name", "categoryId", "price", "posId", "quantity", "frequency");
             }else{
-                items = categoryRepository.findAll();
+                items = categoryRepository.findAllByOrderByIdAsc();
                 items =  items.stream().map(r->new CategoryResponseDTO((Category) r)).toList();
                 fields = List.of("id", "name", "icon", "provider", "frequency", "image");
                 filename = "categories.csv";
@@ -246,7 +246,6 @@ public class InventoryController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDispositionFormData("filename", filename);
-
             return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
