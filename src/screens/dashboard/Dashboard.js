@@ -15,54 +15,125 @@ import InventoryItems from '../../components/inventory/InventoryItems';
 import {useNavigation} from '@react-navigation/native';
 import InventoryService from '../../services/InventoryService';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchServerInventoryData} from '../../store/serverInventory';
+import {fetchInventoryData} from '../../store/inventory';
+import {TypingAnimation} from 'react-native-typing-animation';
+import {setOrderItems, setPosId} from '../../store/orders';
+import {OrderItem} from '../../models/inventory.tsx';
+import OrderItems from "../../components/inventory/OrderItems";
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [importing, setImporting] = useState(null);
-  const [total, setTotal] = useState(0.0);
-  const [selectedItems, setSelectedItems] =  useState([]);
+  const [searchTerm, setSearchTerm] = useState(null);
+  const [lookups, setLookups] = useState({});
 
   useEffect(() => {}, []);
   const {userData} = useSelector(store => store.auth);
   const {importCategories, importItems, loading} = useSelector(
-    store => store.serverInventory,
+    store => store.inventory,
   );
 
+  const {orderItems, total} = useSelector(store => store.orders);
   const dispatch = useDispatch();
 
   const loadRemoteInventoryData = useCallback(async () => {
     const count = await InventoryService.count('category');
-    console.log(count);
     if (count === 0) {
       setImporting('categories');
-      await dispatch(fetchServerInventoryData({type: 'categories'}));
+      await dispatch(
+        fetchInventoryData({
+          type: 'categories',
+          importType: 'external',
+        }),
+      );
       setImporting('items');
       // now fetch items
       await dispatch(
-        fetchServerInventoryData({
+        fetchInventoryData({
           type: 'inventory_items',
+          importType: 'external',
           posId: userData.user.posCenter.id,
+        }),
+      );
+      setImporting(null);
+    } else {
+      setImporting('categories');
+      await dispatch(
+        fetchInventoryData({
+          type: 'categories',
+          importType: 'internal',
+          tableName: 'category',
+          limit: 100,
+        }),
+      );
+      setImporting('items');
+      await dispatch(
+        fetchInventoryData({
+          type: 'inventory_items',
+          importType: 'internal',
+          tableName: 'inventory_item',
         }),
       );
       setImporting(null);
     }
   }, []);
+
+  const handleCategorySearch = async (index, item) => {
+    setActive(index);
+    setImporting('items');
+    await dispatch(
+      fetchInventoryData({
+        type: 'inventory_items',
+        importType: 'internal',
+        tableName: 'inventory_item',
+        lookups: item.id > 0 ? {categoryId: item.id} : null,
+      }),
+    );
+    setLookups({categoryId: item.id});
+    setImporting(null);
+  };
   useEffect(() => {
     loadRemoteInventoryData();
-    //dispatch(fetchServerInventoryData('categories'));
-  }, [loadRemoteInventoryData]);
+    dispatch(setPosId(userData.user.posCenter.id));
+  }, [dispatch, loadRemoteInventoryData, userData.user.posCenter.id]);
 
   useEffect(() => {
-    setItems(importItems.slice(0, 10));
+    setItems(importItems.slice(0, 5));
   }, [importItems]);
 
   useEffect(() => {
     setCategories(importCategories);
   }, [importCategories]);
 
+  useEffect(() => {
+    if (searchTerm) {
+      dispatch(
+        fetchInventoryData({
+          type: 'inventory_items',
+          importType: 'internal',
+          tableName: 'inventory_item',
+          lookups: Object.keys(lookups).length > 0 ? lookups : null,
+          searchTerm,
+        }),
+      );
+    }
+  }, [dispatch, lookups, searchTerm]);
+
+  const addOrderItem = (item, quantity) => {
+    const orderItem = {
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      quantity: quantity,
+    };
+    dispatch(setOrderItems(orderItem));
+  };
+  const removeOrderItem = (item)=>{
+    console.log(item)
+  }
   const navigation = useNavigation();
   return (
     <>
@@ -87,6 +158,7 @@ const Dashboard = props => {
           <Ionicons name="search-outline" size={28} />
           <TextInput
             placeholder="Search Products"
+            onChangeText={setSearchTerm}
             placeholderTextColor={colors.gray['400']}
             className="h-auto w-80"
           />
@@ -94,6 +166,9 @@ const Dashboard = props => {
         <TouchableOpacity className="bg-white p-1 items-center justify-center rounded-2xl border border-gray-300 w-12">
           <Octicons name="sort-asc" size={25} />
         </TouchableOpacity>
+      </View>
+      <View className="mt-5 w-full">
+        <OrderItems items={orderItems} handleRemove={removeOrderItem} />
       </View>
       <View className="flex-1 mt-10 bg-white w-auto p-2 mx h-full">
         <View className="h-32 mt-2 w-full">
@@ -108,7 +183,7 @@ const Dashboard = props => {
                 <TouchableOpacity
                   key={index}
                   onPress={() => {
-                    setActive(index);
+                    handleCategorySearch(index, category);
                   }}
                   className={`relative border w-28 items-center justify-center h-28 rounded-3xl mx-2 ${
                     index === active
@@ -138,18 +213,20 @@ const Dashboard = props => {
           )}
         </View>
         <View className="mt-5">
-          {/*<View className="justify-center items-center">
-            <TypingAnimation
-              dotColor={colors.purple['600']}
-              dotMargin={10}
-              dotAmplitude={3}
-              dotSpeed={0.14}
-              dotRadius={3.5}
-              dotX={12}
-              dotY={6}
-            />
-          </View>*/}
-          <InventoryItems items={items} />
+          {loading && importing === 'items' && (
+            <View className="justify-center items-center">
+              <TypingAnimation
+                dotColor={colors.purple['600']}
+                dotMargin={10}
+                dotAmplitude={3}
+                dotSpeed={0.14}
+                dotRadius={3.5}
+                dotX={12}
+                dotY={6}
+              />
+            </View>
+          )}
+          <InventoryItems handleOnClick={addOrderItem} items={items} />
         </View>
       </View>
       <View className="absolute bottom-0 left-0 w-full p-2">
@@ -159,9 +236,9 @@ const Dashboard = props => {
           <Text className="text-white font-light">Proceed New Order</Text>
           <View className="flex flex-row space-x-2">
             <Text className="text-white  font-normal">
-              {selectedItems.length} items
+              {orderItems.length} items
             </Text>
-            <Text className="text-white  font-bold">{total}</Text>
+            <Text className="text-white  font-bold">{total.toLocaleString()}</Text>
             <DynamicIcon
               name="arrow-right-alt"
               size={22}

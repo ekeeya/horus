@@ -19,27 +19,45 @@ const initialState: ServerInventoryState = {
   importItems: [],
 };
 
-export const fetchServerInventoryData = createAsyncThunk(
-  'serverInventory/fetchServerInventory',
+export const fetchInventoryData = createAsyncThunk(
+  'inventory/fetchInventoryData',
   async (params, thunkAPI) => {
     try {
       // @ts-ignore
-      const {type} = params;
-      const url = computeUrlParams('api/v1/inventory/export/csv', params);
-      const response = await client.get(url, {
-        responseType: 'text',
-      });
-      const results = readString(response.data, {header: true});
-      console.log(type);
-      return {type: type, data: results.data, importType: 'external'};
+      const {type, importType, tableName, limit, lookups, searchTerm} = params;
+      if (importType === 'external') {
+        const url = computeUrlParams('api/v1/inventory/export/csv', params);
+        const response = await client.get(url, {
+          responseType: 'text',
+        });
+        const results = readString(response.data, {header: true});
+        return {type: type, data: results.data, importType: importType};
+      } else {
+        let data;
+        if (searchTerm) {
+          data = await InventoryService.search(
+            tableName,
+            searchTerm.toLowerCase(),
+            'frequency',
+          );
+        } else {
+          data = await InventoryService.fetch(
+            tableName,
+            lookups,
+            limit,
+            'frequency',
+          );
+        }
+        return {type: type, data: data, importType: 'internal'};
+      }
     } catch (error) {
       thunkAPI.rejectWithValue(generateError(error));
     }
   },
 );
 
-export const serverInventorySlice = createSlice({
-  name: 'serverInventory',
+export const inventorySlice = createSlice({
+  name: 'inventory',
   initialState,
   reducers: {
     setLoading: (state, action) => {
@@ -48,10 +66,10 @@ export const serverInventorySlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchServerInventoryData.pending, state => {
+      .addCase(fetchInventoryData.pending, state => {
         state.loading = true;
       })
-      .addCase(fetchServerInventoryData.fulfilled, (state, action) => {
+      .addCase(fetchInventoryData.fulfilled, (state, action) => {
         state.loading = false;
         // Update state with fetched data if needed
         // @ts-ignore
@@ -87,7 +105,8 @@ export const serverInventorySlice = createSlice({
               category: cat,
             };
           });
-          state.importItems = 'external' ? items.slice(0, -1) : items;
+          state.importItems =
+            importType === 'external' ? items.slice(0, -1) : items;
           if (importType === 'external') {
             InventoryService.save('inventory_item', data.slice(0, -1)).then(
               _ => {
@@ -97,7 +116,7 @@ export const serverInventorySlice = createSlice({
           }
         }
       })
-      .addCase(fetchServerInventoryData.rejected, (state, action) => {
+      .addCase(fetchInventoryData.rejected, (state, action) => {
         state.loading = false;
         state.importError = action.error.message ?? 'Unknown error';
       });
@@ -105,5 +124,5 @@ export const serverInventorySlice = createSlice({
 });
 
 // Export the actions and reducer
-export const {setLoading} = serverInventorySlice.actions;
-export default serverInventorySlice.reducer;
+export const {setLoading} = inventorySlice.actions;
+export default inventorySlice.reducer;

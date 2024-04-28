@@ -84,22 +84,23 @@ class InventoryService {
 
   public static async update(
     tableName: string,
-    updateData: object,
+    id: number,
+    updateData: {
+      [key: string]: number | string,
+    },
   ): Promise<any> {
     try {
       const fields: string[] = Object.keys(updateData);
       const updateStatements = fields.map(field => {
-        // @ts-ignore
         if (typeof updateData[field] === 'string') {
-          // @ts-ignore
           return `${field}='${updateData[field]}'`;
         } else {
-          // @ts-ignore
           return `${field}=${updateData[field]}`;
         }
       });
-      const query = `UPDATE ${tableName} SET ${updateStatements.join(', ')}`;
-      console.log(query);
+      const query = `UPDATE ${tableName} SET ${updateStatements.join(
+        ', ',
+      )} WHERE id=${id}`;
 
       return new Promise((resolve, reject) => {
         InventoryService.db.transaction(tx => {
@@ -109,7 +110,7 @@ class InventoryService {
             (_, result) => {
               if (result.rowsAffected > 0) {
                 tx.executeSql(
-                  `SELECT * FROM ${tableName} WHERE rowid = last_insert_rowid()`,
+                  `SELECT * FROM ${tableName} WHERE id = last_insert_rowid()`,
                   [],
                   (_, {rows}) => {
                     resolve(rows.item(0));
@@ -135,16 +136,48 @@ class InventoryService {
 
   public static async fetch(
     tableName: String,
-    fields: string | '*' = '*',
+    lookups: {
+      [key: string]: number | string;
+    } | null = null,
     limit: number | 10 = 10,
     orderBy: string | 'id' = 'id',
   ): Promise<any> {
     try {
       const items: any[] = [];
+      const query = lookups
+        ? `SELECT * FROM ${tableName} WHERE (${Object.keys(lookups)
+            .map(
+              key =>
+                `${key}=${
+                  typeof lookups[key] === 'string'
+                    ? "'" + lookups[key] + "'"
+                    : lookups[key]
+                }`,
+            )
+            .join(' AND ')}) ORDER BY ${orderBy} LIMIT ${limit}`
+        : `SELECT * FROM ${tableName} ORDER BY ${orderBy} LIMIT ${limit}`;
+      const results = await InventoryService.db.executeSql(query);
+      results.forEach(result => {
+        for (let index = 0; index < result.rows.length; index++) {
+          items.push(result.rows.item(index));
+        }
+      });
+      return items;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  public static async search(
+    tableName: string,
+    searchTerm: string,
+    orderBy: string | 'id' = 'id',
+  ): Promise<any> {
+    try {
+      const items: any[] = [];
       const results = await InventoryService.db.executeSql(
-        `SELECT rowid as id,  ${
-          fields === '*' ? tableName + '.' + fields : fields
-        } FROM ${tableName} ORDER BY ${orderBy} limit ${limit}`,
+        `SELECT *  FROM ${tableName} WHERE name LIKE  '%${searchTerm}%' ORDER BY ${orderBy} LIMIT 10`,
+        [],
       );
       results.forEach(result => {
         for (let index = 0; index < result.rows.length; index++) {
@@ -153,6 +186,7 @@ class InventoryService {
       });
       return items;
     } catch (error) {
+      console.error(error);
       return Promise.reject(error);
     }
   }

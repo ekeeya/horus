@@ -1,8 +1,10 @@
 // ** Reducers Imports
 import auth from './auth';
-import serverInventory from './serverInventory';
+import inventory from './inventory';
+import orders from './orders';
 const rootReducer = {
   auth: auth,
-  serverInventory: serverInventory,
+  inventory: inventory,
+  orders: orders,
 };
 export default rootReducer;
