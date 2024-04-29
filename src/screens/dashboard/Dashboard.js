@@ -17,7 +17,7 @@ import InventoryService from '../../services/InventoryService';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchInventoryData} from '../../store/inventory';
 import {TypingAnimation} from 'react-native-typing-animation';
-import {setOrderItems, setPosId} from '../../store/orders';
+import { removeOrderItem, setOrderItems, setPosId } from "../../store/orders";
 import {OrderItem} from '../../models/inventory.tsx';
 import OrderItems from "../../components/inventory/OrderItems";
 
@@ -29,7 +29,6 @@ const Dashboard = props => {
   const [searchTerm, setSearchTerm] = useState(null);
   const [lookups, setLookups] = useState({});
 
-  useEffect(() => {}, []);
   const {userData} = useSelector(store => store.auth);
   const {importCategories, importItems, loading} = useSelector(
     store => store.inventory,
@@ -37,6 +36,7 @@ const Dashboard = props => {
 
   const {orderItems, total} = useSelector(store => store.orders);
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const loadRemoteInventoryData = useCallback(async () => {
     const count = await InventoryService.count('category');
@@ -121,20 +121,16 @@ const Dashboard = props => {
     }
   }, [dispatch, lookups, searchTerm]);
 
-  const addOrderItem = (item, quantity) => {
-    const orderItem = {
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      price: item.price,
-      quantity: quantity,
-    };
-    dispatch(setOrderItems(orderItem));
+  const gotoCheckOut = () => {
+    dispatch(
+      fetchInventoryData({
+        type: 'inventory_items',
+        importType: 'internal',
+        tableName: 'inventory_item',
+      }),
+    );
+    navigation.navigate('CheckOutScreen');
   };
-  const removeOrderItem = (item)=>{
-    console.log(item)
-  }
-  const navigation = useNavigation();
   return (
     <>
       <View className="flex p-2 mt-2 flex-row justify-between">
@@ -167,10 +163,10 @@ const Dashboard = props => {
           <Octicons name="sort-asc" size={25} />
         </TouchableOpacity>
       </View>
-      <View className="mt-5 w-full">
+      <View className="flex h-fit align-middle content-center  w-full">
         <OrderItems items={orderItems} handleRemove={removeOrderItem} />
       </View>
-      <View className="flex-1 mt-10 bg-white w-auto p-2 mx h-full">
+      <View className="flex-1 mt-5 bg-white w-auto p-2 mx h-full">
         <View className="h-32 mt-2 w-full">
           {loading && importing === 'categories' ? (
             <ActivityIndicator size="small" color={colors.purple['600']} />
@@ -214,8 +210,9 @@ const Dashboard = props => {
         </View>
         <View className="mt-5">
           {loading && importing === 'items' && (
-            <View className="justify-center items-center">
-              <TypingAnimation
+            <View className="justify-center mb-2 items-center">
+              <ActivityIndicator size="small" color={colors.purple['600']} />
+              {/*<TypingAnimation
                 dotColor={colors.purple['600']}
                 dotMargin={10}
                 dotAmplitude={3}
@@ -223,15 +220,16 @@ const Dashboard = props => {
                 dotRadius={3.5}
                 dotX={12}
                 dotY={6}
-              />
+              />*/}
             </View>
           )}
-          <InventoryItems handleOnClick={addOrderItem} items={items} />
+          <InventoryItems items={items} />
         </View>
       </View>
       <View className="absolute bottom-0 left-0 w-full p-2">
         <TouchableOpacity
-          onPress={() => navigation.navigate('CheckOutScreen')}
+          disabled={orderItems.length === 0}
+          onPress={() => gotoCheckOut()}
           className="flex flex-row justify-between items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
           <Text className="text-white font-light">Proceed New Order</Text>
           <View className="flex flex-row space-x-2">

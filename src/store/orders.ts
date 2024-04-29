@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import InventoryService from '../services/InventoryService.ts';
 import {generateError} from '../utils';
 import {OrderItem} from '../models/inventory.tsx';
 
@@ -38,18 +37,29 @@ export const orderSlice = createSlice({
     setPosId: (state, action) => {
       state.posId = action.payload;
     },
+    clearOrderItems: (state, action) => {
+      state.orderItems = [];
+      state.total = 0;
+    },
+    removeOrderItem: (state, {payload}) => {
+      state.orderItems = state.orderItems.filter(
+        item => item.id !== payload.id,
+      );
+      // recalculate the total
+      state.total = 0;
+      state.orderItems.forEach(item => {
+        state.total += item.price * item.quantity;
+      });
+    },
     setOrderItems: (state, action) => {
       const data = action.payload;
       let existingIndex = state.orderItems.findIndex(obj => obj.id === data.id);
-      console.log(existingIndex);
       if (existingIndex !== -1) {
         state.orderItems[existingIndex] = {
           ...state.orderItems[existingIndex],
           ...data,
         };
       } else {
-        const x =  state.orderItems;
-        console.log(JSON.stringify(x))
         state.orderItems.unshift(data);
       }
       state.total = 0;
@@ -74,5 +84,5 @@ export const orderSlice = createSlice({
 });
 
 // Export the actions and reducer
-export const {setPosId, setOrderItems} = orderSlice.actions;
+export const {setPosId, setOrderItems, clearOrderItems, removeOrderItem} = orderSlice.actions;
 export default orderSlice.reducer;

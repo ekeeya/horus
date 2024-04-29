@@ -5,16 +5,11 @@ import OrderItem from './OrderItem';
 
 const OrderItems = ({items, handleRemove}) => {
   return (
-    <View className="xw-full">
-      <ScrollView
-        className="h-auto w-auto"
-        horizontal
-        showsHorizontalScrollIndicator={false}>
-        {items.map((item, index) => (
-          <OrderItem onClicked={handleRemove} key={index} item={item} />
-        ))}
-      </ScrollView>
-    </View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      {items.map((item, index) => (
+        <OrderItem onClicked={handleRemove} key={index} item={item} />
+      ))}
+    </ScrollView>
   );
 };
 export default OrderItems;

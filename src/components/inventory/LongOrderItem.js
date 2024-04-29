@@ -7,19 +7,23 @@ import {useDispatch} from 'react-redux';
 
 const InventoryItem = ({item}) => {
   const {category, name, price} = item;
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(item.quantity);
+
   const dispatch = useDispatch();
   useEffect(() => {
-    if (quantity < 0) {
+    if (quantity < 1) {
       setQuantity(0);
+      // if quantity is less than 1 remove it from list
+      dispatch(removeOrderItem(item));
     }
   }, [quantity]);
+
   const imageUri = useMemo(
     () => `data:image/png;base64,${category.image}`,
     [category],
   );
 
-  const addOrderItem = (quantity) => {
+  const addOrderItem = quantity => {
     setQuantity(quantity);
     if (quantity > 0) {
       const orderItem = {
@@ -33,6 +37,9 @@ const InventoryItem = ({item}) => {
     } else {
       dispatch(removeOrderItem(item));
     }
+  };
+  const removeItem = () => {
+    dispatch(removeOrderItem(item));
   };
 
   return (
@@ -51,10 +58,15 @@ const InventoryItem = ({item}) => {
             {parseFloat(price).toLocaleString()} /=
           </Text>
         </View>
+        <TouchableOpacity
+          onPress={() => removeItem()}
+          className="mx-10 border border-red-500 bg-red-500  p-1 my-2 rounded">
+          <Text className="text-white">Remove</Text>
+        </TouchableOpacity>
       </View>
       <View className="flex mx-3 flex-row justify-evenly items-center">
         <TouchableOpacity
-          disabled={quantity <= 0}
+          disabled={quantity <= 1}
           onPress={() => addOrderItem(quantity - 1)}
           className={`border ${
             quantity <= 1 ? 'border-gray-300' : 'border-purple-300'

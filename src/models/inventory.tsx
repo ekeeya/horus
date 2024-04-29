@@ -47,7 +47,8 @@ export type InventoryItem = {
 export type OrderItem = {
   id?: number;
   name: string;
-  category: Category;
+  category?: Category;
+  categoryId?: number;
   price: number;
   orderId?: number;
   quantity: number;
@@ -75,10 +76,10 @@ export type Student = {
 
 export type Order = {
   id?: number;
-  wallet: Wallet;
+  cardNo: string;
   amount: number;
   items: Array<OrderItem>;
-  date: string;
-  status: string | 'Pending' | 'Processed' | 'Cancelled' | 'Failed';
-  pos: POSCenter;
+  date?: string;
+  status?: string | 'Pending' | 'Processed' | 'Cancelled' | 'Failed';
+  posId: number;
 };
