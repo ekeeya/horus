@@ -16,7 +16,10 @@ import AnimatedLoader from 'react-native-animated-loader';
 import {useDispatch, useSelector} from 'react-redux';
 import {formatCreditCardNumber} from '../../utils';
 import {store} from '../../store/store';
-import {makePayment} from '../../store/payment';
+import { makePayment, setPaid } from "../../store/payment";
+import {setOrder} from '../../store/orders';
+import InventoryService from "../../services/InventoryService";
+import { updateInventory } from "../../store/inventory";
 
 const {width} = Dimensions.get('window');
 const PaymentConfirmationSheet = ({amount, show, onClose}) => {
@@ -38,7 +41,7 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
   const {processing, paying, paid, cardDetails} = useSelector(
     store => store.payment,
   );
-  const {total, orderItems} = useSelector(store => store.orders);
+  const {total, orderItems, order} = useSelector(store => store.orders);
   const {userData} = useSelector(store => store.auth);
   const handleClosePress = useCallback(() => {
     bottomSheetRef.current?.close();
@@ -53,7 +56,7 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
     };
   };
   const handlePayment = card => {
-    const order = {
+    const payload = {
       cardNo: card,
       amount: total,
       items: orderItems.map(item => {
@@ -66,7 +69,8 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
         };
       }),
     };
-    dispatch(makePayment(order));
+    dispatch(makePayment(payload));
+    dispatch(setOrder(payload));
   };
 
   const editOrder = () => {
@@ -75,7 +79,10 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
   };
 
   useEffect(() => {
-    paid && bottomSheetRef.current?.close();
+    if (paid) {
+      bottomSheetRef.current?.close();
+      dispatch(updateInventory(order));
+    }
   }, [paid]);
 
   useEffect(() => {

@@ -31,12 +31,9 @@ export const getTransactions = createAsyncThunk(
 );
 export const makePayment = createAsyncThunk(
   'payment/makePayment',
-  async (payload: Order, thunkAPI) => {
+  async (order, thunkAPI) => {
     try {
-      const response = await client.post(
-        '/api/v1/wallet/make-payment',
-        payload,
-      );
+      const response = await client.post('/api/v1/wallet/make-payment', order);
       return response.data.data;
     } catch (error) {
       const errorMsg = generateError(error);
@@ -99,6 +96,8 @@ export const paymentSlice = createSlice({
         state.paying = false;
         state.cardDetails = action.payload;
         state.paid = true;
+        // Update inventory
+
         Dialog.show({
           type: ALERT_TYPE.SUCCESS,
           title: 'Success',

@@ -1,9 +1,15 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {Category, InventoryItem} from '../models/inventory.tsx';
+import {
+  Category,
+  InventoryItem,
+  Order,
+  OrderItem,
+} from '../models/inventory.tsx';
 import client from '../axios';
 import {computeUrlParams, generateError} from '../utils';
 import {readString} from 'react-native-csv';
 import InventoryService from '../services/InventoryService.ts';
+import { setPaid } from "./payment.js";
 
 interface ServerInventoryState {
   loading: boolean;
@@ -49,6 +55,44 @@ export const fetchInventoryData = createAsyncThunk(
           );
         }
         return {type: type, data: data, importType: 'internal'};
+      }
+    } catch (error) {
+      thunkAPI.rejectWithValue(generateError(error));
+    }
+  },
+);
+
+export const updateInventory = createAsyncThunk(
+  'inventory/updateInventory',
+  async (order: Order, thunkAPI) => {
+    try {
+      const items: OrderItem[] = order.items;
+      for (const item of items) {
+        const inventoryItem = await InventoryService.getById(
+          'inventory_item',
+          item.id,
+        );
+        const category = await InventoryService.getById(
+          'category',
+          item.categoryId,
+        );
+
+        await InventoryService.update('inventory_item', item.id, {
+          frequency: inventoryItem.frequency + 1,
+          quantity: inventoryItem.quantity - 1,
+        });
+
+        await InventoryService.update('category', category.id, {
+          frequency: category.frequency + 1,
+        });
+        thunkAPI.dispatch(
+          fetchInventoryData({
+            type: 'inventory_items',
+            importType: 'internal',
+            tableName: 'inventory_item',
+          }),
+        );
+        thunkAPI.dispatch(setPaid(false));
       }
     } catch (error) {
       thunkAPI.rejectWithValue(generateError(error));

@@ -45,7 +45,7 @@ export type InventoryItem = {
 };
 
 export type OrderItem = {
-  id?: number;
+  id: number;
   name: string;
   category?: Category;
   categoryId?: number;

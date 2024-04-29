@@ -154,8 +154,8 @@ class InventoryService {
                     : lookups[key]
                 }`,
             )
-            .join(' AND ')}) ORDER BY ${orderBy} LIMIT ${limit}`
-        : `SELECT * FROM ${tableName} ORDER BY ${orderBy} LIMIT ${limit}`;
+            .join(' AND ')}) ORDER BY ${orderBy} DESC LIMIT ${limit}`
+        : `SELECT * FROM ${tableName} ORDER BY ${orderBy} DESC LIMIT ${limit}`;
       const results = await InventoryService.db.executeSql(query);
       results.forEach(result => {
         for (let index = 0; index < result.rows.length; index++) {
@@ -168,6 +168,24 @@ class InventoryService {
     }
   }
 
+  public static async getById(
+    tableName: String,
+    id: number | undefined,
+  ): Promise<any> {
+    try {
+      let item: any = null;
+      const query = `SELECT * FROM ${tableName} WHERE id= ?`;
+      const results = await InventoryService.db.executeSql(query, [id]);
+      results.forEach(result => {
+        if (result.rows.length > 0) {
+          item = result.rows.item(0);
+        }
+      });
+      return item;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
   public static async search(
     tableName: string,
     searchTerm: string,
@@ -176,7 +194,7 @@ class InventoryService {
     try {
       const items: any[] = [];
       const results = await InventoryService.db.executeSql(
-        `SELECT *  FROM ${tableName} WHERE name LIKE  '%${searchTerm}%' ORDER BY ${orderBy} LIMIT 10`,
+        `SELECT *  FROM ${tableName} WHERE name LIKE  '%${searchTerm}%' ORDER BY ${orderBy} DESC LIMIT 10`,
         [],
       );
       results.forEach(result => {

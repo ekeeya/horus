@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {generateError} from '../utils';
-import {OrderItem} from '../models/inventory.tsx';
+import { Order, OrderItem } from "../models/inventory.tsx";
 
 interface OrderState {
   adding: boolean;
@@ -9,6 +9,7 @@ interface OrderState {
   error: string | null;
   orderItems: OrderItem[];
   posId: number;
+  order: Order | null;
 }
 
 const initialState: OrderState = {
@@ -16,6 +17,7 @@ const initialState: OrderState = {
   ordering: false,
   error: null,
   total: 0,
+  order: null,
   orderItems: [],
   posId: 0,
 };
@@ -67,6 +69,9 @@ export const orderSlice = createSlice({
         state.total += item.price * item.quantity;
       });
     },
+    setOrder: (state, action) => {
+      state.order = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -84,5 +89,6 @@ export const orderSlice = createSlice({
 });
 
 // Export the actions and reducer
-export const {setPosId, setOrderItems, clearOrderItems, removeOrderItem} = orderSlice.actions;
+export const {setPosId, setOrderItems, clearOrderItems, removeOrderItem, setOrder} =
+  orderSlice.actions;
 export default orderSlice.reducer;

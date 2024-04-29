@@ -14,12 +14,11 @@ const InventoryItem = ({item}) => {
       setQuantity(0);
     }
   }, [quantity]);
-  const imageUri = useMemo(
-    () => `data:image/png;base64,${category.image}`,
-    [category],
-  );
+  const imageUri = useMemo(() => {
+    return `data:image/png;base64,${category.image}`;
+  }, [category]);
 
-  const addOrderItem = (quantity) => {
+  const addOrderItem = quantity => {
     setQuantity(quantity);
     if (quantity > 0) {
       const orderItem = {

@@ -17,9 +17,9 @@ import InventoryService from '../../services/InventoryService';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchInventoryData} from '../../store/inventory';
 import {TypingAnimation} from 'react-native-typing-animation';
-import { removeOrderItem, setOrderItems, setPosId } from "../../store/orders";
+import {removeOrderItem, setOrderItems, setPosId} from '../../store/orders';
 import {OrderItem} from '../../models/inventory.tsx';
-import OrderItems from "../../components/inventory/OrderItems";
+import OrderItems from '../../components/inventory/OrderItems';
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
@@ -41,23 +41,7 @@ const Dashboard = props => {
   const loadRemoteInventoryData = useCallback(async () => {
     const count = await InventoryService.count('category');
     if (count === 0) {
-      setImporting('categories');
-      await dispatch(
-        fetchInventoryData({
-          type: 'categories',
-          importType: 'external',
-        }),
-      );
-      setImporting('items');
-      // now fetch items
-      await dispatch(
-        fetchInventoryData({
-          type: 'inventory_items',
-          importType: 'external',
-          posId: userData.user.posCenter.id,
-        }),
-      );
-      setImporting(null);
+      await reSyncInventory();
     } else {
       setImporting('categories');
       await dispatch(
@@ -121,6 +105,25 @@ const Dashboard = props => {
     }
   }, [dispatch, lookups, searchTerm]);
 
+  const reSyncInventory = async () => {
+    setImporting('categories');
+    await dispatch(
+      fetchInventoryData({
+        type: 'categories',
+        importType: 'external',
+      }),
+    );
+    setImporting('items');
+    // now fetch items
+    await dispatch(
+      fetchInventoryData({
+        type: 'inventory_items',
+        importType: 'external',
+        posId: userData.user.posCenter.id,
+      }),
+    );
+    setImporting(null);
+  };
   const gotoCheckOut = () => {
     dispatch(
       fetchInventoryData({
@@ -159,8 +162,14 @@ const Dashboard = props => {
             className="h-auto w-80"
           />
         </View>
-        <TouchableOpacity className="bg-white p-1 items-center justify-center rounded-2xl border border-gray-300 w-12">
-          <Octicons name="sort-asc" size={25} />
+        <TouchableOpacity
+          onPress={() => reSyncInventory()}
+          className="bg-white p-1 items-center justify-center rounded-2xl border border-gray-300 w-12">
+          <Ionicons
+            name="sync-circle-outline"
+            size={30}
+            color={colors.purple['600']}
+          />
         </TouchableOpacity>
       </View>
       <View className="flex h-fit align-middle content-center  w-full">
@@ -236,7 +245,9 @@ const Dashboard = props => {
             <Text className="text-white  font-normal">
               {orderItems.length} items
             </Text>
-            <Text className="text-white  font-bold">{total.toLocaleString()}</Text>
+            <Text className="text-white  font-bold">
+              {total.toLocaleString()}
+            </Text>
             <DynamicIcon
               name="arrow-right-alt"
               size={22}
