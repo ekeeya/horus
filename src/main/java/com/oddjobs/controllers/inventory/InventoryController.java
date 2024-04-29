@@ -1,13 +1,18 @@
 package com.oddjobs.controllers.inventory;
 
+import com.oddjobs.components.ContextProvider;
 import com.oddjobs.dtos.base.BaseResponse;
 import com.oddjobs.dtos.base.ListResponseDTO;
 import com.oddjobs.entities.PosCenterEntity;
 import com.oddjobs.entities.inventory.Category;
 import com.oddjobs.entities.inventory.InventoryItem;
+import com.oddjobs.entities.inventory.Order;
+import com.oddjobs.entities.users.POSAttendant;
+import com.oddjobs.entities.users.User;
 import com.oddjobs.exceptions.PosCenterNotFoundException;
 import com.oddjobs.repositories.inventory.CategoryRepository;
 import com.oddjobs.repositories.inventory.InventoryItemsRepository;
+import com.oddjobs.repositories.inventory.OrderRepository;
 import com.oddjobs.services.BackgroundTaskExecutor;
 import com.oddjobs.services.inventory.CategoryService;
 import com.oddjobs.services.inventory.InventoryItemService;
@@ -18,6 +23,9 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +48,9 @@ public class InventoryController {
     private  final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
     private final InventoryItemService inventoryItemService;
+    private final OrderRepository orderRepository;
     private final BackgroundTaskExecutor backgroundTaskExecutor;
+    private final ContextProvider contextProvider;
 
     private final POSService posService;
 
@@ -106,6 +116,69 @@ public class InventoryController {
             categories.add(new CategoryResponseDTO(categoryService.saveOrUpdate(cat)));
         }
         return ResponseEntity.ok(categories);
+    }
+
+
+    @GetMapping("/inventory-items")
+    public ResponseEntity<?> findInventoryItems(
+            @RequestParam(value = "posId", required = false) Long posId,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) throws PosCenterNotFoundException {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        User user = contextProvider.getPrincipal();
+        Page<InventoryItem> items;
+        PosCenterEntity pos = null;
+        if(posId != null){
+            pos =  posService.findById(posId);
+        }
+        if(user instanceof POSAttendant){
+            pos = ((POSAttendant) user).getPosCenter();
+        }
+
+        if (pos != null && searchTerm !=null){
+            items = inventoryItemsRepository.findInventoryItemsByPosAndNameLike(pos, searchTerm, pageable);
+        } else if (pos != null) {
+            items =  inventoryItemsRepository.findInventoryItemsByPosOrderByFrequencyDesc(pos, pageable);
+        } else if (searchTerm !=null) {
+            items = inventoryItemsRepository.findInventoryItemsByNameLike(searchTerm, pageable);
+        }else{
+            items = inventoryItemsRepository.findInventoryItemsBy(pageable);
+        }
+
+        ListResponseDTO<InventoryItemResponseDTO> responseDTO = new ListResponseDTO<>(items.getContent().stream()
+                .map(InventoryItemResponseDTO::new).toList(), items.getTotalPages());
+        return ResponseEntity.ok(responseDTO);
+
+    }
+
+
+    @GetMapping("/orders")
+    public ResponseEntity<?> findOrders(
+            @RequestParam(value = "posId") Long posId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) throws PosCenterNotFoundException {
+        User user = contextProvider.getPrincipal();
+        PosCenterEntity pos = null;
+        Page<Order> orders = null;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        if(posId != null){
+            pos =  posService.findById(posId);
+        }
+        if(user instanceof POSAttendant){
+            pos = ((POSAttendant) user).getPosCenter();
+        }
+        if (pos !=null){
+            orders = orderRepository.findOrdersByPosOrderByIdDesc(pos, pageable);
+        }else{
+            orders = orderRepository.findAllByOrderByIdDesc(pageable);
+        }
+
+        ListResponseDTO<OrderResponseDTO> response = new ListResponseDTO<>(orders.getContent().stream()
+                .map(OrderResponseDTO::new).toList(), orders.getTotalPages());
+        return ResponseEntity.ok(response);
     }
 
 
@@ -209,7 +282,7 @@ public class InventoryController {
             for (InventoryItemRequestDTO item:request) {
                 inventoryItemService.saveOrUpdate(item);
             }
-            return ResponseEntity.ok("Loaded");
+            return ResponseEntity.ok("Items loaded");
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

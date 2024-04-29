@@ -19,4 +19,14 @@ public class OrderResponseDTO implements Serializable {
     private SimplePosCenter pos;
     private Order.STATUS status;
     private List<OrderItemResponseDTO> items = new ArrayList<>();
+
+    public OrderResponseDTO(Order order){
+        setId(order.getId());
+        setAmount(order.getAmount().doubleValue());
+        setWallet(new WalletResponseDTO(order.getWallet()));
+        setDate(order.getCreatedAt());
+        setPos(new SimplePosCenter(order.getPos()));
+        setStatus(order.getStatus());
+        setItems(order.getItems().stream().map(OrderItemResponseDTO::new).toList());
+    }
 }
