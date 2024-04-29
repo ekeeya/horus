@@ -6,6 +6,7 @@ import com.oddjobs.dtos.requests.WalletDepositDTO;
 import com.oddjobs.entities.CardProvisionRequest;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.inventory.Order;
 import com.oddjobs.exceptions.*;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.transactions.CollectionTransaction;
@@ -31,7 +32,7 @@ public interface WalletService {
     CollectionAccount findCollectionAccount();
     SchoolCollectionAccount findWalletBySchool(School school);
     Page<StudentWalletAccount> findBySchoolAndCardIssued(School School, boolean cardIssued, int page, int size);
-    Transaction processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException;
+    Utils.BiWrapper<Transaction, Order> processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException;
     Page<CardProvisionRequest> findByStatus(boolean provisioned, int page, int size);
     void createCardProvisioningRequest(StudentEntity student);
     Page<CardProvisionRequest> findProvisioningRequestsBySchoolAndStatus(Long schoolId, boolean provisioned, int page, int size) throws SchoolNotFoundException;

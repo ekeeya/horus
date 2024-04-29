@@ -5,6 +5,7 @@ import com.oddjobs.dtos.relworx.response.WebHookResponseData;
 import com.oddjobs.dtos.requests.CallBackDataDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.WithdrawRequest;
+import com.oddjobs.entities.inventory.Order;
 import com.oddjobs.entities.transactions.*;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.entities.users.SchoolUser;
@@ -114,7 +115,8 @@ public class TransactionServiceImpl implements TransactionService{
         }
     }
     @Override
-    public Transaction recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount, CashoutTransaction t) {
+    @Transactional
+    public Utils.BiWrapper<Transaction, Order> recordPaymentTransaction(StudentWalletAccount account, BigDecimal amount, CashoutTransaction t, Order order) {
         User user =  contextProvider.getPrincipal();
         PaymentTransaction transaction = new PaymentTransaction();
         transaction.setTransactionId(Utils.generateTransactionId());
@@ -130,8 +132,10 @@ public class TransactionServiceImpl implements TransactionService{
         String description =  String.format("A payment of %s has been made from card %s", amount,account.getCardNo());
         transaction.setDescription(description);
         transaction =  transactionRepository.save(transaction);
+        order.setTransaction(transaction);
+        order.setStatus(Order.STATUS.Processed);
         transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
-        return transaction;
+        return new Utils.BiWrapper<>(transaction, order);
     }
 
     @Override

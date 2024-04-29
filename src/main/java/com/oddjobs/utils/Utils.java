@@ -393,4 +393,30 @@ public class Utils {
         }
         return tel.substring(3,tel.length());
     }
+
+    public static class BiWrapper<T, U> {
+        private T k;
+        private U l;
+
+        public BiWrapper(T k, U l) {
+            this.k = k;
+            this.l = l;
+        }
+
+        public T getK() {
+            return k;
+        }
+
+        public void setK(T k) {
+            this.k = k;
+        }
+
+        public U getL() {
+            return l;
+        }
+
+        public void setL(U l) {
+            this.l = l;
+        }
+    }
 }

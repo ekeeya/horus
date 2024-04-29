@@ -2,6 +2,7 @@ package com.oddjobs.entities.inventory;
 
 import com.oddjobs.entities.BaseEntity;
 import com.oddjobs.entities.PosCenterEntity;
+import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,9 +30,24 @@ public class Order extends BaseEntity {
     private STATUS status =  STATUS.Pending;
 
     @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private PaymentTransaction transaction;
+
+    @ManyToOne
     @JoinColumn(name = "pos_id", referencedColumnName = "id")
     private PosCenterEntity pos;
 
     @OneToMany(mappedBy = "order")
     private List<OrderItem> items;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "wallet=" + wallet +
+                ", amount=" + amount +
+                ", status=" + status +
+                ", pos=" + pos +
+                ", items=" + items +
+                '}';
+    }
 }

@@ -13,6 +13,7 @@ import com.oddjobs.dtos.responses.StudentResponseDTO;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.WithdrawRequest;
+import com.oddjobs.entities.inventory.Order;
 import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.exceptions.ExceedDailyExpenditureException;
@@ -189,8 +190,8 @@ public class WalletController {
             try{
                 BaseResponse response = new BaseResponse(result);
                 if(response.isSuccess()){
-                    Transaction transaction = walletService.processPayment(request);
-                    response.setData(new TransactionResponseDTO(transaction));
+                    Utils.BiWrapper<Transaction, Order> payment = walletService.processPayment(request);
+                    response.setData(new TransactionResponseDTO(payment.getK()));
                     return ResponseEntity.ok(response);
                 }
                 return ResponseEntity.badRequest().body(response);

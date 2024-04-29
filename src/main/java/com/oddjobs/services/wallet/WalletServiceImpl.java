@@ -10,15 +10,24 @@ import com.oddjobs.dtos.requests.CardProvisioningMarkRequest;
 import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.dtos.requests.WalletDepositDTO;
 import com.oddjobs.entities.*;
+import com.oddjobs.entities.inventory.Category;
+import com.oddjobs.entities.inventory.Order;
+import com.oddjobs.entities.inventory.OrderItem;
 import com.oddjobs.entities.transactions.CashoutTransaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.exceptions.*;
+import com.oddjobs.repositories.inventory.OrderItemRepository;
+import com.oddjobs.repositories.inventory.OrderRepository;
 import com.oddjobs.repositories.mm.MMTransactionRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.transactions.TransactionRepository;
 import com.oddjobs.repositories.wallet.*;
 import com.oddjobs.services.NotificationService;
 import com.oddjobs.services.SettingService;
+import com.oddjobs.services.inventory.CategoryService;
+import com.oddjobs.services.inventory.InventoryItemService;
+import com.oddjobs.services.inventory.types.OrderItemRequestDTO;
 import com.oddjobs.services.transactions.TransactionService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.transactions.CollectionTransaction;
@@ -68,7 +77,10 @@ public class WalletServiceImpl implements WalletService {
     private final NotificationService notificationService;
     private final ContextProvider contextProvider;
     private  final SettingService settingService;
-
+    private final CategoryService categoryService;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final InventoryItemService inventoryItemService;
 
 
     @Value("${application.default.currency}")
@@ -79,6 +91,7 @@ public class WalletServiceImpl implements WalletService {
     private String ACCOUNT_NUMBER;
     @PersistenceContext
     private EntityManager entityManager;
+
 
     protected boolean exceedsDailyExpenditureLimit(StudentWalletAccount account){
         if (!account.getEnableDailyLimit()){
@@ -310,8 +323,10 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Transaction processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException {
+    @Transactional
+    public Utils.BiWrapper<Transaction, Order> processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException {
         StudentWalletAccount account = studentWalletAccountRepository.findWalletAccountEntityByCardNo(request.getCardNo());
+        User user =  contextProvider.getPrincipal();
         CashoutTransaction cashoutTransaction=null;
         if (account == null){
             throw new WalletAccountNotFoundException(request.getCardNo());
@@ -333,7 +348,32 @@ public class WalletServiceImpl implements WalletService {
         if (request.getCashOutTransactionId() != null){
             cashoutTransaction = (CashoutTransaction) transactionRepository.findById(request.getCashOutTransactionId()).get();
         }
-        return transactionService.recordPaymentTransaction(account, paymentAmount, cashoutTransaction);
+        Order order = null;
+        // If orderItems is given then record the order
+        if( user instanceof POSAttendant && request.getItems() != null){
+            order = new Order();
+            order.setWallet(account);
+            order.setAmount(paymentAmount);
+            order.setPos(((POSAttendant) user).getPosCenter());
+            List<OrderItem> orderItems = new ArrayList<>();
+            for (OrderItemRequestDTO orderItem: request.getItems()
+                 ) {
+                Category category =  categoryService.findById(orderItem.getCategoryId());
+                OrderItem item  = new OrderItem();
+                item.setName(orderItem.getName());
+                item.setCategory(category);
+                item.setPrice(BigDecimal.valueOf(orderItem.getPrice()));
+                item.setQuantity(orderItem.getQuantity());
+                item = orderItemRepository.save(item);
+                orderItems.add(item);
+            }
+            order.setItems(orderItems);
+            order = orderRepository.save(order);
+            inventoryItemService.updateInventoryItems(request);
+            log.info("Successful recorded order: {}", order);
+        }
+
+        return transactionService.recordPaymentTransaction(account, paymentAmount, cashoutTransaction, order);
 
     }
 

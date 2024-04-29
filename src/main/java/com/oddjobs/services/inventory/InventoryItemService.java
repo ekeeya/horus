@@ -1,13 +1,17 @@
 package com.oddjobs.services.inventory;
 
+import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.entities.PosCenterEntity;
 import com.oddjobs.entities.inventory.Category;
 import com.oddjobs.entities.inventory.InventoryItem;
+import com.oddjobs.entities.inventory.Order;
+import com.oddjobs.entities.inventory.OrderItem;
 import com.oddjobs.exceptions.PosCenterNotFoundException;
 import com.oddjobs.repositories.inventory.CategoryRepository;
 import com.oddjobs.repositories.inventory.InventoryItemsRepository;
 import com.oddjobs.services.inventory.types.BulkInventoryItemRequestDTO;
 import com.oddjobs.services.inventory.types.InventoryItemRequestDTO;
+import com.oddjobs.services.inventory.types.OrderItemRequestDTO;
 import com.oddjobs.services.pos.POSService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -75,17 +79,28 @@ public class InventoryItemService {
         inventoryItemsRepository.delete(inventoryItem);
     }
 
-    public InventoryItem decreaseQuantity(InventoryItem item){
+    public void decreaseQuantity(InventoryItem item){
         int quantity = item.getQuantity();
         item.setQuantity(quantity-1);
-        return inventoryItemsRepository.save(item);
+        inventoryItemsRepository.save(item);
     }
 
 
-    public InventoryItem increaseFrequency (InventoryItem item){
+    public void increaseFrequency (InventoryItem item){
         int frequency =  item.getFrequency();
         item.setFrequency(frequency+1);
-        return inventoryItemsRepository.save(item);
+        inventoryItemsRepository.save(item);
     }
 
+
+    @Transactional
+    public void updateInventoryItems(PaymentRequestDTO order){
+        for (OrderItemRequestDTO item: order.getItems()) {
+            InventoryItem inventoryItem = findById(item.getId());
+            Category category =  inventoryItem.getCategory();
+            category.setFrequency(category.getFrequency()+1);
+            decreaseQuantity(inventoryItem);
+            increaseFrequency(inventoryItem);
+        }
+    }
 }

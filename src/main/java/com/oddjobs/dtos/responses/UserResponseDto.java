@@ -1,5 +1,7 @@
 package com.oddjobs.dtos.responses;
 
+import com.oddjobs.entities.School;
+import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.utils.Utils;
 import lombok.Data;
@@ -21,6 +23,7 @@ public class UserResponseDto {
     private String firstName;
     private String lastName;
     private String middleName;
+    private Map<String, String> userSchool;
     private  String fullName;
     private String status;
     private String qrCode;
@@ -34,6 +37,14 @@ public class UserResponseDto {
 
     public UserResponseDto(User user, boolean showPerms){
         if(user != null){
+            School sc;
+            if (user instanceof POSAttendant){
+                sc = ((POSAttendant) user).getSchool();
+                Map<String, String> smap = new HashMap<>();
+                smap.put("id", sc.getId().toString());
+                smap.put("name", sc.getName());
+                setUserSchool(smap);
+            }
             String[] perms = {"dashboard", "users", "students","parents"};
             setId(user.getId());
             setAccountType(user.getAccountType());
