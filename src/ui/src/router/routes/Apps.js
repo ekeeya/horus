@@ -18,6 +18,7 @@ const PaymentsList = lazy(() => import('../../views/apps/transactions/payments')
 const WithDrawsList = lazy(() => import('../../views/apps/transactions/withdraws'))
 const WithdrawRequests = lazy(() => import('../../views/apps/finance/list'))
 const VirtualAccounts = lazy(() => import('../../views/apps/finance/accounts'))
+const Inventory  = lazy(() => import('../../views/apps/inventory/shop'))
 const AppRoutes = [
 
   {
@@ -146,6 +147,15 @@ const AppRoutes = [
     meta:{
       action:"manage",
       resource:"finance"
+    }
+  },
+  {
+    element: <Inventory />,
+    path: '/inventory/items',
+    meta:{
+      action:"manage",
+      className: 'ecommerce-application',
+      resource:"inventory"
     }
   },
 ]

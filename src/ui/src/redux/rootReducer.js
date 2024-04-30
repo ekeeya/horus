@@ -8,6 +8,7 @@ import students from '@src/views/apps/students/store'
 import transactions from "@src/views/apps/transactions/store"
 import finance from "@src/views/apps/finance/store"
 import dashboard from "@src/views/dashboard/store";
+import inventory from '@src/views/apps/inventory/store'
 
 const rootReducer = {
   auth,
@@ -16,6 +17,7 @@ const rootReducer = {
   users,
   transactions,
   finance,
+  inventory,
   dashboard,
   navbar,
   layout

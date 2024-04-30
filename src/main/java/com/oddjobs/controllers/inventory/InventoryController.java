@@ -122,27 +122,42 @@ public class InventoryController {
     @GetMapping("/inventory-items")
     public ResponseEntity<?> findInventoryItems(
             @RequestParam(value = "posId", required = false) Long posId,
-            @RequestParam(value = "searchTerm", required = false) String searchTerm,
+            @RequestParam(value = "q", required = false) String searchTerm,
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) throws PosCenterNotFoundException {
+        if (searchTerm != null){
+            page = 0;
+        }
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         User user = contextProvider.getPrincipal();
         Page<InventoryItem> items;
         PosCenterEntity pos = null;
+        Category category = null;
+        if(categoryId != null){
+            category = categoryService.findById(categoryId);
+        }
         if(posId != null){
             pos =  posService.findById(posId);
         }
         if(user instanceof POSAttendant){
             pos = ((POSAttendant) user).getPosCenter();
         }
-
-        if (pos != null && searchTerm !=null){
-            items = inventoryItemsRepository.findInventoryItemsByPosAndNameLike(pos, searchTerm, pageable);
-        } else if (pos != null) {
-            items =  inventoryItemsRepository.findInventoryItemsByPosOrderByFrequencyDesc(pos, pageable);
+        if (pos != null) {
+            if(category != null && searchTerm == null){
+                items = inventoryItemsRepository.findInventoryItemsByPosAndCategory(pos,category,pageable);
+            } else if (category ==null && searchTerm !=null) {
+                items = inventoryItemsRepository.findInventoryItemsByPosAndNameLike(pos, searchTerm, pageable);
+            }
+            else if (category != null) {
+                items = inventoryItemsRepository.findInventoryItemsByPosAndCategoryAndNameLikeIgnoreCase(pos, category, searchTerm, pageable);
+            }
+            else{
+                items = inventoryItemsRepository.findInventoryItemsByPosOrderByFrequencyDesc(pos, pageable);
+            }
         } else if (searchTerm !=null) {
-            items = inventoryItemsRepository.findInventoryItemsByNameLike(searchTerm, pageable);
+            items = inventoryItemsRepository.findInventoryItemsByNameLikeIgnoreCase(searchTerm, pageable);
         }else{
             items = inventoryItemsRepository.findInventoryItemsBy(pageable);
         }

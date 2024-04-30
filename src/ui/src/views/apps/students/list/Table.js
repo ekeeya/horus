@@ -256,7 +256,6 @@ const StudentList = () => {
 
   // ** Function in get data on page change
   const handlePagination = page => {
-    console.log(page)
     dispatch(
         fetchStudents({
           ...filterPayLoad,
@@ -454,7 +453,7 @@ const StudentList = () => {
                 toggleSidebar={toggleSidebar}
                 displayModal={displayModal}
               />
-            } 
+            }
           />
         </div>
       </Card>

@@ -245,8 +245,9 @@ $search-bar-height: 48px;
 
       // Item Image
       .item-img {
-        padding-top: 0.5rem;
-        min-height: 15.85rem;
+        padding-top: 0.2rem;
+        min-height: 5.85rem;
+        max-height: 8.85rem;
         display: flex;
         align-items: center;
       }
