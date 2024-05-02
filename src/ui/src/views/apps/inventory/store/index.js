@@ -113,7 +113,7 @@ export const appInventorySlice = createSlice({
             })
             .addCase(importCategories.fulfilled, (state, action) => {
                 state.loading = false;
-                windo.location.reload()
+                window.location.reload()
             })
             .addCase(importCategories.rejected, (state, action) => {
                 state.loading = false;
