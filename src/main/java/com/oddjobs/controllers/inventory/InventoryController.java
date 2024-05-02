@@ -94,7 +94,7 @@ public class InventoryController {
     @GetMapping("/categories")
     public ResponseEntity<?> getCategories(
             @RequestParam(name="page", defaultValue = "0") int page,
-            @RequestParam(name="size", defaultValue = "10") int size,
+            @RequestParam(name="size", defaultValue = "1000") int size,
             @RequestParam(name="name", required = false) String name
     ){
         Page<Category> categories = categoryService.fetchCategories(size, page, name);
@@ -279,9 +279,9 @@ public class InventoryController {
                 return  ResponseEntity.ok(response);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                List<String> fields = List.of("name","category","price","pos_id", "quantity");
-                String message = String.format("Required field(s) is missing in the CSV data. Make sure csv is %s", fields);
-                return ResponseEntity.badRequest().body(message);
+                // List<String> fields = List.of("name","category","price","pos_id", "quantity");
+                // String message = String.format("Required field(s) is missing in the CSV data. Make sure csv is %s", fields);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         } catch (IOException e) {
             log.error(e.getMessage(),e);
@@ -294,11 +294,15 @@ public class InventoryController {
             @RequestBody List<InventoryItemRequestDTO> request
     ){
         try{
+            List<InventoryItemResponseDTO> items = new ArrayList<>();
             for (InventoryItemRequestDTO item:request) {
-                inventoryItemService.saveOrUpdate(item);
+
+                InventoryItem inventoryItem =  inventoryItemService.saveOrUpdate(item);
+                items.add(new InventoryItemResponseDTO(inventoryItem));
             }
-            return ResponseEntity.ok("Items loaded");
+            return ResponseEntity.ok(items);
         }catch (Exception e){
+            log.error(e.getMessage(), e);
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

@@ -1,6 +1,6 @@
 // ** Third Party Components
 import classnames from 'classnames'
-import {Menu, Grid, List, Plus} from 'react-feather'
+import { Menu } from 'react-feather'
 
 // ** Reactstrap Imports
 import {
@@ -69,7 +69,7 @@ const ProductsHeader = props => {
   }
 
   useEffect(()=>{
-    let schoolId =  selectedSchool.value
+    let schoolId =  selectedSchool && selectedSchool.value
     if (selectedSchool.value && selectedSchool.value !==""){
       schoolId = selectedSchool.value;
     }
@@ -85,6 +85,7 @@ const ProductsHeader = props => {
   return (
     <div className='ecommerce-header'>
       <Row>
+
         <Col sm='12'>
           <div className='ecommerce-header-items'>
             <div className='result-toggler'>
@@ -164,6 +165,7 @@ const ProductsHeader = props => {
       </Row>
       <AddItemModal
           single={single}
+          posId={userData.accountType !== 'POS' ? selectedPos.value : userData.user.posCenter.id}
           open={showAddItems}
           closeModal={setShowAddItems}
           categories={store.categories}

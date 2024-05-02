@@ -1,28 +1,41 @@
 import {
     Alert,
     Button,
-    Col, Input,
-    Label, ListGroup, ListGroupItem,
+    Col,
+    Input,
+    Label,
+    ListGroup,
+    ListGroupItem,
     Modal,
     ModalBody,
     ModalFooter,
     ModalHeader,
-    Row, Spinner, UncontrolledTooltip
+    Row,
+    Spinner,
+    UncontrolledTooltip
 } from "reactstrap";
 import NumericInput from "react-numeric-input";
 import Select from "react-select";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import toast from "react-hot-toast";
 import {DownloadCloud, FileText, X} from "react-feather";
-import {clearError} from "@src/views/apps/students/store";
+import {useDispatch, useSelector} from "react-redux";
+import {addItems, importItems} from "@src/views/apps/inventory/store";
 
-const AddItemModal = ({open, closeModal, single, categories})=>{
+const AddItemModal = ({open, closeModal, single, categories, posId})=>{
 
     const [category, setCategory] = useState({});
     const [files, setFiles] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const [name, setName] = useState("");
+    const [price, setPrice] = useState(0);
+    const [quantity, setQuantity] = useState(0);
+
+    const dispatch = useDispatch();
+
+    const {loading} = useSelector(store=>store.inventory)
 
     const { getRootProps, getInputProps } = useDropzone({
         multiple: false,
@@ -46,10 +59,13 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
         }
     }
     const handleRemoveFile = file => {
-        const uploadedFiles = files
-        const filtered = uploadedFiles.filter(i => i.name !== file.name)
+        const filtered = files.filter(i => i.name !== file.name)
         setFiles([...filtered])
     }
+    const cleanCategories =  useMemo(()=>{
+        return categories.map(c=>( {label:c.name, value:c.id}))
+    }, [categories])
+
     const renderFileSize = size => {
         if (Math.round(size / 100) / 10 > 1000) {
             return `${(Math.round(size / 100) / 10000).toFixed(1)} mb`
@@ -57,6 +73,49 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
             return `${(Math.round(size / 100) / 10).toFixed(1)} kb`
         }
     }
+
+    const parsePrice = x => {
+        setPrice(parseFloat(x.replaceAll(",", "")))
+        return parseFloat(x.replaceAll(",", ""));
+    }
+
+    const handleBulkItemsUpload= async ()=>{
+        let file
+        if (files.length > 0){
+            file = files[0]
+            const form = new FormData();
+            form.set("file", file);
+            const payload = {posId, form};
+            await dispatch(importItems(payload));
+            if((!loading)){
+                closeModal(false);
+            }else{
+                setFiles([])
+            }
+        }else{
+            toast.error("File missing, please upload a csv file to continue")
+        }
+
+    }
+    const addSingleItem = async()=>{
+        const payload = [{
+            name,
+            price,
+            posId,
+            quantity,
+            categoryId:category.value
+        }]
+        await dispatch(addItems(payload))
+        closeModal(false)
+    }
+
+    const format = x => {
+        const numberValue = parseFloat(x);
+        if (!isNaN(numberValue)) {
+            return numberValue.toLocaleString();
+        }
+    }
+
     const fileList = files.map((file, index) => (
         <ListGroupItem key={`${file.name}-${index}`} className='d-flex align-items-center justify-content-between'>
             <div className='file-details d-flex align-items-center'>
@@ -88,9 +147,24 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
                                     <Label className='form-label' for='name'>
                                         Name
                                     </Label>
-                                    <Input id='name' placeholder='Name'  />
+                                    <Input id='name' placeholder='Name' onChange={e => setName(e.target.value)} />
                                     <small className='text-muted'>
                                         Specify Item's name e.g Coca Cola Soda.
+                                    </small>
+                                </Col>
+                            </Row>
+                            <Row className='gy-1 pt-75 text-center'>
+                                <Col xs={12}>
+                                    <Label className='form-label' for=''>
+                                        Inventory Quantity
+                                    </Label>
+                                    <Input id='quantity'
+                                           type="number"
+                                           placeholder='Inventory Quantity'
+                                           onChange={e => setQuantity(e.target.value)} />
+
+                                    <small className='text-muted'>
+                                        How many pieces of this are in inventory
                                     </small>
                                 </Col>
                             </Row>
@@ -101,30 +175,17 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
                                     </Label>
                                     <NumericInput
                                         mobile
+                                        parse={parsePrice}
+                                        value={price}
+                                        format={format}
                                         inputMode="string"
                                         className="form-control"
-                                        min={1}
+                                        min={100}
 
                                     />
                                 </Col>
                             </Row>
-                            <Row className='gy-1 pt-75 text-center'>
-                                <Col xs={12}>
-                                    <Label className='form-label' for=''>
-                                        Inventory Quantity
-                                    </Label>
-                                    <NumericInput
-                                        mobile
-                                        inputMode="string"
-                                        className="form-control"
-                                        min={1}
 
-                                    />
-                                    <small className='text-muted'>
-                                        How many pieces of this are in inventory
-                                    </small>
-                                </Col>
-                            </Row>
                             <Row className='gy-1 pt-75 text-center'>
                                 <Col xs={12}>
                                     <Label className='form-label' for=''>
@@ -135,7 +196,7 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
                                         isClearable={true}
                                         value={category}
                                         placeholder="Select School"
-                                        options={categories}
+                                        options={cleanCategories}
                                         name="school"
                                         onChange={v=>setCategory(v)}
                                     />
@@ -191,14 +252,14 @@ const AddItemModal = ({open, closeModal, single, categories})=>{
 
             </ModalBody>
             <ModalFooter>
-                <Button color="primary" onClick={() => {}}>
+                <Button color="primary"  onClick={() =>single ? addSingleItem() :  handleBulkItemsUpload()}>
                     {
                         loading && <Spinner color='light' size='sm'/>
                     }
                     {single ? "Add Item": "Import Inventory"}
                 </Button>
                 {!single && <Button color="default" onClick={() => {
-                    setShowModal(false);
+                    closeModal(false);
                     setFiles([]);
                 }}>
                     Cancel
