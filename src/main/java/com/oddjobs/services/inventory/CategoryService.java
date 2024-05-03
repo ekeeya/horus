@@ -28,14 +28,16 @@ public class CategoryService {
     }
 
     public Category saveOrUpdate(CategoryRequestDTO request){
-        Category category = new Category();
+        Category category ;
         if (request.getId() != null){
             category =  findById(request.getId());
+        }else{
+            category = new Category();
         }
         category.setIcon(request.getIcon());
-        category.setName(category.getName());
-        category.setProvider(category.getProvider());
-        category.setImage(category.getImage());
+        category.setName(request.getName());
+        category.setProvider(request.getProvider());
+        category.setImage(request.getImage());
         return categoryRepository.save(category);
     }
 

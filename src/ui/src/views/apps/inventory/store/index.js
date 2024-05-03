@@ -1,8 +1,9 @@
-// ** Redux Imports
+ // ** Redux Imports
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 
 import client, {FORM_DATA_HEADER} from "@src/axios";
-import {generateError} from "@utils";
+import {generateError, mergeArrays} from "@utils";
+ import {appUsersSlice} from "@src/views/apps/parents/store";
 
 
 export const addItems = createAsyncThunk('appInventory/addItems', async (data, thunkAPI) => {
@@ -12,18 +13,17 @@ export const addItems = createAsyncThunk('appInventory/addItems', async (data, t
             data)
         return response.data
     }catch (e){
-        thunkAPI.rejectWithValue(generateError(e))
+       return thunkAPI.rejectWithValue(generateError(e))
     }
 })
 
 export const addCategories = createAsyncThunk('appInventory/addCategories', async (data, thunkAPI) => {
    try{
-       const response = await client.post(
-           '/api/v1/inventory/categories',
-           data)
+       const response = await client.post('/api/v1/inventory/categories',data);
+       console.log(response)
        return response.data
    }catch (e) {
-       thunkAPI.rejectWithValue(generateError(e))
+       return thunkAPI.rejectWithValue(generateError(e))
    }
 })
 
@@ -48,7 +48,7 @@ export const importItems = createAsyncThunk('appInventory/importItems', async (d
             form, {headers:FORM_DATA_HEADER})
         return response.data
     }catch (e){
-        thunkAPI.rejectWithValue(generateError(e))
+        return thunkAPI.rejectWithValue(generateError(e))
     }
 })
 export const getCategories = createAsyncThunk('appInventory/getCategories', async (params) => {
@@ -61,6 +61,16 @@ export const getProducts = createAsyncThunk('appInventory/getProducts', async pa
 })
 
 
+ export const deleteItems = createAsyncThunk('appInventory/deleteItems', async (id, thunkAPI )=> {
+     try{
+          await client.delete(`/api/v1/inventory/inventory-items/${id}`)
+          return id
+     }catch (e){
+         return thunkAPI.rejectWithValue(generateError(e));
+     }
+ })
+
+
 export const appInventorySlice = createSlice({
     name: 'appInventory',
     initialState: {
@@ -70,9 +80,14 @@ export const appInventorySlice = createSlice({
         params: {},
         products: [],
         error: null,
+        selectedProduct:null,
         totalProducts: 0,
     },
-    reducers: {},
+    reducers: {
+        setSelectedProduct:(state, action)=>{
+            state.selectedProduct =  action.payload
+        }
+    },
     extraReducers: builder => {
         builder
             .addCase(getCategories.fulfilled, (state, action) => {
@@ -90,18 +105,18 @@ export const appInventorySlice = createSlice({
             })
             .addCase(addCategories.fulfilled, (state, action) => {
                 state.loading = false;
-                state.categories.unshift(...action.payload)
+                state.categories =  mergeArrays(state.categories, action.payload)
             })
             .addCase(addCategories.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload.data
+                state.error = action.payload
             })
             .addCase(addItems.pending, (state, action) => {
                 state.loading = true;
             })
             .addCase(addItems.fulfilled, (state, action) => {
                 state.loading = false;
-                state.products.unshift(...action.payload)
+                state.products =  mergeArrays(state.products, action.payload)
                 state.totalProducts = state.totalProducts + action.payload.length
             })
             .addCase(addItems.rejected, (state, action) => {
@@ -130,7 +145,15 @@ export const appInventorySlice = createSlice({
                 state.loading = false;
                 state.error = action.payload
             })
+            .addCase(deleteItems.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products =  state.products.filter(p=> p.id !== action.payload);
+            })
+            .addCase(deleteItems.rejected, (state, action) => {
+                state.error = action.payload
+            })
     }
 })
+ export const {setSelectedProduct} = appInventorySlice.actions
 
 export default appInventorySlice.reducer

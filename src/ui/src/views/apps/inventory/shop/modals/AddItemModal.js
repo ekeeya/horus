@@ -16,12 +16,12 @@ import {
 } from "reactstrap";
 import NumericInput from "react-numeric-input";
 import Select from "react-select";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import toast from "react-hot-toast";
 import {DownloadCloud, FileText, X} from "react-feather";
 import {useDispatch, useSelector} from "react-redux";
-import {addItems, importItems} from "@src/views/apps/inventory/store";
+import {addItems, importItems, setSelectedProduct} from "@src/views/apps/inventory/store";
 
 const AddItemModal = ({open, closeModal, single, categories, posId})=>{
 
@@ -35,7 +35,7 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
 
     const dispatch = useDispatch();
 
-    const {loading} = useSelector(store=>store.inventory)
+    const {loading, selectedProduct} = useSelector(store=>store.inventory)
 
     const { getRootProps, getInputProps } = useDropzone({
         multiple: false,
@@ -89,6 +89,7 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
             await dispatch(importItems(payload));
             if((!loading)){
                 closeModal(false);
+                dispatch(selectedProduct(null))
             }else{
                 setFiles([])
             }
@@ -97,16 +98,33 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
         }
 
     }
+
+    useEffect(()=>{
+        if (selectedProduct){
+            setName(selectedProduct.name);
+            setPrice(selectedProduct.price);
+            setQuantity(selectedProduct.quantity);
+            setCategory({
+                label:selectedProduct.category.name,
+                value:selectedProduct.category.id
+            })
+        }
+    },[selectedProduct])
     const addSingleItem = async()=>{
-        const payload = [{
+        const payload = {
             name,
             price,
             posId,
             quantity,
             categoryId:category.value
-        }]
-        await dispatch(addItems(payload))
+        }
+        if(selectedProduct){
+            payload["id"] = selectedProduct.id;
+            payload['posId']= selectedProduct.pos.id;
+        }
+        await dispatch(addItems([payload]))
         closeModal(false)
+        dispatch(setSelectedProduct(null))
     }
 
     const format = x => {
@@ -132,7 +150,7 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
     ))
     return(
         <Modal
-            isOpen={open}
+            isOpen={open || selectedProduct !== null}
             className='modal-dialog-centered'
             modalClassName="danger">
             <ModalHeader className='bg-transparent' toggle={() => (closeModal())}>
@@ -147,7 +165,10 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
                                     <Label className='form-label' for='name'>
                                         Name
                                     </Label>
-                                    <Input id='name' placeholder='Name' onChange={e => setName(e.target.value)} />
+                                    <Input id='name'
+                                           value={name}
+                                           placeholder='Name'
+                                           onChange={e => setName(e.target.value)} />
                                     <small className='text-muted'>
                                         Specify Item's name e.g Coca Cola Soda.
                                     </small>
@@ -160,6 +181,7 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
                                     </Label>
                                     <Input id='quantity'
                                            type="number"
+                                           value={quantity}
                                            placeholder='Inventory Quantity'
                                            onChange={e => setQuantity(e.target.value)} />
 

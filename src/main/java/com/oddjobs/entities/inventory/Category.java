@@ -37,7 +37,6 @@ public class Category extends BaseEntity {
                 "name='" + name + '\'' +
                 ", icon='" + icon + '\'' +
                 ", provider=" + provider +
-                ", image='" + image.substring(0,30) + '\'' +
                 '}';
     }
 }

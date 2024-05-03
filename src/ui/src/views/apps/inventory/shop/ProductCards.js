@@ -1,8 +1,13 @@
 // ** React Imports
 import { Link } from 'react-router-dom'
 import classnames from 'classnames'
-import { Card, CardBody, CardText, Button } from 'reactstrap'
+import {Card, CardBody, CardText, Button, ButtonGroup} from 'reactstrap'
 import {BiPencil} from "react-icons/bi";
+import {deleteItems, setSelectedProduct} from "@src/views/apps/inventory/store";
+import {HiTrash} from "react-icons/hi";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+
 
 const ProductCards = props => {
   const {
@@ -13,6 +18,20 @@ const ProductCards = props => {
     getProducts,
   } = props
 
+  const showSwal = (item)=>{
+    withReactContent(Swal).fire({
+      title: "Do you want to  Continue?",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      denyButtonText: `Cancel`
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await dispatch(deleteItems(item.id))
+        Swal.fire("Deleted!", "", "success");
+      }
+    });
+  }
+
   const renderProducts = () => {
     if (products.length) {
       return products.map(item => {
@@ -20,7 +39,7 @@ const ProductCards = props => {
         return (
           <Card className='ecommerce-card' key={item.name}>
             <div className='item-img text-center mx-auto'>
-              {/*<img className='img-fluid card-img-top' src={`data:image/png;base64,${item.category.image}`} alt={item.name} />*/}
+              {<img className='img-fluid card-img-top' src={`data:image/png;base64,${item.category.image}`} alt={item.name} />}
             </div>
             <CardBody>
               <div className='item-wrapper'>
@@ -42,17 +61,34 @@ const ProductCards = props => {
                   <h4 className='item-price'>{item.price.toLocaleString()}/=</h4>
                 </div>
               </div>
-              <Button
-                className='btn-wishlist'
-                color='light'
-                onClick={() => console.log(item)}
-              >
-                <BiPencil
-                  className={classnames('me-50')}
-                  size={14}
-                />
-                <span>Edit</span>
-              </Button>
+              <ButtonGroup>
+                <Button
+                    tag='label'
+                    className='btn-wishlist'
+                    color='light'
+                    onClick={() => dispatch(setSelectedProduct(item))}
+                >
+                  <BiPencil
+                      className={classnames('me-50')}
+                      size={14}
+                  />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                    tag='label'
+                    outline
+                    className='btn-wishlist'
+                    color='danger'
+                    onClick={()=> showSwal(item)}
+                >
+                  <HiTrash
+                      className={classnames('me-20')}
+                      size={14}
+                  />
+                  <span>Delete</span>
+                </Button>
+              </ButtonGroup>
+
             </div>
           </Card>
         )

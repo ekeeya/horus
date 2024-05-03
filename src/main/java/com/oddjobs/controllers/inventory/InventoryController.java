@@ -110,14 +110,35 @@ public class InventoryController {
     public ResponseEntity<?> createCategories(
             @RequestBody List<CategoryRequestDTO> request
             ){
-        List<CategoryResponseDTO> categories = new ArrayList<>();
-        for (CategoryRequestDTO cat: request
-             ) {
-            categories.add(new CategoryResponseDTO(categoryService.saveOrUpdate(cat)));
+        try{
+            List<CategoryResponseDTO> categories = new ArrayList<>();
+            for (CategoryRequestDTO cat: request
+            ) {
+                categories.add(new CategoryResponseDTO(categoryService.saveOrUpdate(cat)));
+            }
+            return ResponseEntity.ok(categories);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return  ResponseEntity.internalServerError().body(e.getMessage());
         }
-        return ResponseEntity.ok(categories);
     }
 
+
+    @DeleteMapping("/inventory-items/{id}")
+    @Secured({"ROLE_POS", "ROLE_ADMIN"})
+    public ResponseEntity<?> deleteItems(
+            @PathVariable(value = "id") Long id
+    ){
+        try{
+            InventoryItem item =  inventoryItemService.findById(id);
+            inventoryItemsRepository.delete(item);
+            log.info("Delete item: {}", item);
+            return ResponseEntity.ok(id);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
     @GetMapping("/inventory-items")
     public ResponseEntity<?> findInventoryItems(

@@ -19,6 +19,7 @@ import {debounce} from "lodash";
 import {fetchPosCenters, fetchSchools} from "@src/views/apps/schools/store";
 import {useEffect, useState} from "react";
 import AddItemModal from "@src/views/apps/inventory/shop/modals/AddItemModal";
+import AddCategoryModal from "@src/views/apps/inventory/shop/modals/AddCategoryModal";
 
 const ProductsHeader = props => {
 
@@ -52,6 +53,7 @@ const ProductsHeader = props => {
     debounceSearchSchools(val)
   }
   const renderSchools =()=>{
+    console.log(userData)
     return schoolStore.schools.map(school=>{
       return {
         value:school.id,
@@ -132,6 +134,7 @@ const ProductsHeader = props => {
                     )}
                     <ButtonGroup>
                       <Button
+                          disabled={!selectedPos  || selectedPos.value < 1}
                           tag='label'
                           className={classnames('btn view-btn')}
                           color='primary'
@@ -144,6 +147,7 @@ const ProductsHeader = props => {
                         Add&nbsp;item
                       </Button>
                       <Button
+                          disabled={!selectedPos  || selectedPos.value < 1}
                           tag='label'
                           className={classnames('btn view-btn')}
                           color='primary'

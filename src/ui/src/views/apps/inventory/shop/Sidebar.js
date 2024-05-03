@@ -5,19 +5,15 @@ import classnames from 'classnames'
 
 // ** Reactstrap Imports
 import { Card, CardBody, Row, Col, Input, Button, Label } from 'reactstrap'
+import AddCategoryModal from "@src/views/apps/inventory/shop/modals/AddCategoryModal";
+import {useState} from "react";
 
 
 const Sidebar = props => {
   // ** Props
   const { sidebarOpen } = props
   const {categories } = props
-
-
-  // ** Hooks
-  const [isRtl] = useRTL()
-
-  // ** Array of categories
-
+  const [showAddCategory, setShowAddCategory] = useState(false)
 
   return (
     <div className='sidebar-detached sidebar-left'>
@@ -36,7 +32,9 @@ const Sidebar = props => {
             <CardBody>
               <div id='product-categories'>
                 <div id='clear-filters' className="mb-2">
-                  <Button color='primary' block>
+                  <Button
+                      onClick ={()=>setShowAddCategory(true)}
+                      color='primary' block>
                     Add Category
                   </Button>
                 </div>
@@ -69,6 +67,10 @@ const Sidebar = props => {
           </Card>
         </div>
       </div>
+      <AddCategoryModal
+          open={showAddCategory}
+          closeModal = {setShowAddCategory}
+      />
     </div>
   )
 }

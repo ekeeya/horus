@@ -246,3 +246,18 @@ export function sleep(microseconds) {
     setTimeout(resolve, microseconds / 1000);
   });
 }
+
+
+export function mergeArrays(arrayA, arrayB) {
+  arrayB.forEach(itemB => {
+    const existingItemIndex = arrayA.findIndex(itemA => itemA.id === itemB.id);
+    if (existingItemIndex !== -1) {
+      // If item with same ID exists in arrayA, update it
+      arrayA[existingItemIndex] = itemB;
+    } else {
+      // If not, unshift it to arrayA
+      arrayA.unshift(itemB);
+    }
+  });
+  return arrayA;
+}
