@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const domain = 'http://192.168.122.5:8000';
+export const DOMAIN = 'http://192.168.1.116:8000';
 
 const prefix = '/';
 
 const TIME_OUT = 100000;
-const ROOT_URL = `${domain}${prefix}`;
+const ROOT_URL = `${DOMAIN}${prefix}`;
 export const FORM_DATA_HEADER = {'Content-Type': 'multipart/form-data'};
 export const JSON_DATA_HEADER = {'Content-Type': 'application/json'};
 

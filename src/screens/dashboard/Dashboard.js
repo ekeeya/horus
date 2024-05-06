@@ -6,9 +6,9 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Octicons from 'react-native-vector-icons/Octicons';
 import colors from 'tailwindcss/colors';
 import DynamicIcon from '../../components/DynamicIcon';
 import InventoryItems from '../../components/inventory/InventoryItems';
@@ -16,10 +16,9 @@ import {useNavigation} from '@react-navigation/native';
 import InventoryService from '../../services/InventoryService';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchInventoryData} from '../../store/inventory';
-import {TypingAnimation} from 'react-native-typing-animation';
-import {removeOrderItem, setOrderItems, setPosId} from '../../store/orders';
-import {OrderItem} from '../../models/inventory.tsx';
+import {removeOrderItem, setPosId} from '../../store/orders';
 import OrderItems from '../../components/inventory/OrderItems';
+const {width, height} = Dimensions.get('screen');
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
@@ -28,6 +27,7 @@ const Dashboard = props => {
   const [importing, setImporting] = useState(null);
   const [searchTerm, setSearchTerm] = useState(null);
   const [lookups, setLookups] = useState({});
+  const [isFocused, setIsFocused] = useState(false);
 
   const {userData} = useSelector(store => store.auth);
   const {importCategories, importItems, loading} = useSelector(
@@ -37,6 +37,16 @@ const Dashboard = props => {
   const {orderItems, total} = useSelector(store => store.orders);
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // Any additional logic you want to execute when the TextInput is focused
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    // Any additional logic you want to execute when the TextInput loses focus
+  };
 
   const loadRemoteInventoryData = useCallback(async () => {
     const count = await InventoryService.count('category');
@@ -84,7 +94,14 @@ const Dashboard = props => {
   }, [dispatch, loadRemoteInventoryData, userData.user.posCenter.id]);
 
   useEffect(() => {
-    setItems(importItems.slice(0, 5));
+    let items = importItems.slice(0, 5).map(item => {
+      const cat = categories.find(category => category.id === item.categoryId);
+      return {
+        ...item,
+        category: cat,
+      };
+    });
+    setItems(items);
   }, [importItems]);
 
   useEffect(() => {
@@ -153,13 +170,18 @@ const Dashboard = props => {
         </TouchableOpacity>
       </View>
       <View className="flex flex-row mt-5 p-2 justify-between">
-        <View className="flex flex-row items-center p-1 rounded-2xl border border-gray-300 w-96 bg-white">
+        <View
+          className={`flex flex-row justify-center items-center p-1 rounded-2xl ${
+            width < 365 ? 'w-72' : 'w-96'
+          } border border-gray-300 bg-white`}>
           <Ionicons name="search-outline" size={28} />
           <TextInput
-            placeholder="Search Products"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder="Search Items"
             onChangeText={setSearchTerm}
             placeholderTextColor={colors.gray['400']}
-            className="h-auto w-80"
+            className={`h-auto ${width < 365 ? 'w-52' : 'w-80'}`}
           />
         </View>
         <TouchableOpacity
@@ -172,9 +194,11 @@ const Dashboard = props => {
           />
         </TouchableOpacity>
       </View>
-      <View className="flex h-fit align-middle content-center  w-full">
-        <OrderItems items={orderItems} handleRemove={removeOrderItem} />
-      </View>
+      {height < 500 && (
+        <View className="flex h-fit align-middle content-center  w-full">
+          <OrderItems items={orderItems} handleRemove={removeOrderItem} />
+        </View>
+      )}
       <View className="flex-1 mt-5 bg-white w-auto p-2 mx h-full">
         <View className="h-32 mt-2 w-full">
           {loading && importing === 'categories' ? (
@@ -221,42 +245,35 @@ const Dashboard = props => {
           {loading && importing === 'items' && (
             <View className="justify-center mb-2 items-center">
               <ActivityIndicator size="small" color={colors.purple['600']} />
-              {/*<TypingAnimation
-                dotColor={colors.purple['600']}
-                dotMargin={10}
-                dotAmplitude={3}
-                dotSpeed={0.14}
-                dotRadius={3.5}
-                dotX={12}
-                dotY={6}
-              />*/}
             </View>
           )}
           <InventoryItems items={items} />
         </View>
       </View>
-      <View className="absolute bottom-0 left-0 w-full p-2">
-        <TouchableOpacity
-          disabled={orderItems.length === 0}
-          onPress={() => gotoCheckOut()}
-          className="flex flex-row justify-between items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
-          <Text className="text-white font-light">Proceed New Order</Text>
-          <View className="flex flex-row space-x-2">
-            <Text className="text-white  font-normal">
-              {orderItems.length} items
-            </Text>
-            <Text className="text-white  font-bold">
-              {total.toLocaleString()}
-            </Text>
-            <DynamicIcon
-              name="arrow-right-alt"
-              size={22}
-              provider="MaterialIcons"
-              color={colors.white}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
+      {!isFocused && (
+        <View className="absolute bottom-0 left-0 w-full p-2">
+          <TouchableOpacity
+            disabled={orderItems.length === 0}
+            onPress={() => gotoCheckOut()}
+            className="flex flex-row justify-between items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
+            <Text className="text-white font-light">Proceed New Order</Text>
+            <View className="flex flex-row space-x-2">
+              <Text className="text-white  font-normal">
+                {orderItems.length} items
+              </Text>
+              <Text className="text-white  font-bold">
+                {total.toLocaleString()}
+              </Text>
+              <DynamicIcon
+                name="arrow-right-alt"
+                size={22}
+                provider="MaterialIcons"
+                color={colors.white}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };

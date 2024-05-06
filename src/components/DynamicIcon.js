@@ -6,6 +6,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 const DynamicIcon = props => {
   const {provider} = props;
   switch (provider) {
@@ -16,6 +17,8 @@ const DynamicIcon = props => {
       return <MaterialCommunityIcons {...props} />;
     case 'FontAwesome5':
       return <FontAwesome5 {...props} />;
+    case 'FontAwesome6':
+      return <FontAwesome6 {...props} />;
     case 'FontAwesome':
       return <FontAwesome {...props} />;
     case 'Ionicons':

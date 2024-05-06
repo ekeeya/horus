@@ -5,6 +5,7 @@ import {
   StatusBar,
   TouchableOpacity,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {TextInput} from 'react-native-paper';
@@ -14,7 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {login} from '../../store/auth';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-
+const {width, height} = Dimensions.get('screen');
 const LoginScreen = () => {
   const navigation = useNavigation();
 
@@ -58,11 +59,13 @@ const LoginScreen = () => {
             <Text className="text-black font-semibold">Login</Text>
           </View>
           <View
-            className="h-36 w-36 rounded-full"
+            className={`${
+              height < 700 ? 'h-20 w-20' : 'h-36 w-36'
+            } rounded-full`}
             style={{backgroundColor: '#f4f4f4', elevation: -2}}
           />
         </View>
-        <View className="mt-20 p-5">
+        <View className={`${height < 700 ? 'mt-0' : 'mt-20'} p-5`}>
           <Text className="text-purple-900 text-4xl font-light">
             Welcome Back,
           </Text>

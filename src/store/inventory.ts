@@ -54,6 +54,7 @@ export const fetchInventoryData = createAsyncThunk(
             'frequency',
           );
         }
+
         return {type: type, data: data, importType: 'internal'};
       }
     } catch (error) {
@@ -140,15 +141,6 @@ export const inventorySlice = createSlice({
         } else {
           let items = data;
           // @ts-ignore
-          items = items.map(item => {
-            const cat = state.importCategories.find(
-              category => category.id === item.categoryId,
-            );
-            return {
-              ...item,
-              category: cat,
-            };
-          });
           state.importItems =
             importType === 'external' ? items.slice(0, -1) : items;
           if (importType === 'external') {

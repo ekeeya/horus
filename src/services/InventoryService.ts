@@ -24,10 +24,6 @@ class InventoryService {
       'CREATE TABLE IF NOT EXISTS pos_center (id INTEGER PRIMARY KEY, name TEXT NOT NULL, schoolName TEXT NOT NULL, schoolId INTEGER NOT NULL, FOREIGN KEY (schoolId) REFERENCES school(id));',
       'CREATE TABLE IF NOT EXISTS category (id INTEGER PRIMARY KEY, name TEXT NOT NULL, icon TEXT NOT NULL, provider TEXT NOT NULL, image TEXT NOT NULL, frequency INTEGER DEFAULT 0);',
       'CREATE TABLE IF NOT EXISTS inventory_item (id INTEGER PRIMARY KEY, name TEXT NOT NULL, categoryId INTEGER NOT NULL, price REAL NOT NULL, posId INTEGER NOT NULL, quantity INTEGER DEFAULT 0, frequency INTEGER DEFAULT 0, FOREIGN KEY (categoryId) REFERENCES category(id));',
-      //"CREATE TABLE IF NOT EXISTS wallet (id INTEGER PRIMARY KEY, cardNo TEXT NOT NULL, balance REAL NOT NULL, maximumDailyLimit REAL NOT NULL, enableDailyLimit INTEGER NOT NULL CHECK (enableDailyLimit IN (0, 1)), status TEXT NOT NULL CHECK (status IN ('PENDING', 'SUSPENDED', 'ACTIVE', 'DISABLED')));",
-      //'CREATE TABLE IF NOT EXISTS student (id INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, middleName TEXT NOT NULL, fullName TEXT NOT NULL, walletId INTEGER NOT NULL, schoolId INTEGER NOT NULL, classId INTEGER NOT NULL, className TEXT NOT NULL, FOREIGN KEY (walletId) REFERENCES wallet(id), FOREIGN KEY (schoolId) REFERENCES school(id));',
-      // "CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, walletId INTEGER NOT NULL, amount REAL NOT NULL, date TEXT NOT NULL, status TEXT NOT NULL CHECK (status IN ('Pending', 'Processed', 'Cancelled')), posId INTEGER NOT NULL, FOREIGN KEY (walletId) REFERENCES wallet(id), FOREIGN KEY (posId) REFERENCES pos_center(id));",
-      // 'CREATE TABLE IF NOT EXISTS order_item (id INTEGER PRIMARY KEY, name TEXT NOT NULL, categoryId INTEGER NOT NULL, price REAL NOT NULL, orderId INTEGER NOT NULL, quantity INTEGER NOT NULL, FOREIGN KEY (categoryId) REFERENCES category(id), FOREIGN KEY (orderId) REFERENCES orders(id));',
     ];
 
     tableQueries.map(async query => {
@@ -164,6 +160,7 @@ class InventoryService {
       });
       return items;
     } catch (error) {
+      console.log(error);
       return Promise.reject(error);
     }
   }

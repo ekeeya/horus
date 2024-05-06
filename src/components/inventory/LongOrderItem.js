@@ -4,6 +4,7 @@ import colors from 'tailwindcss/colors';
 import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
 import {useDispatch} from 'react-redux';
+import { DOMAIN } from "../../axios";
 
 const InventoryItem = ({item}) => {
   const {category, name, price} = item;
@@ -19,7 +20,7 @@ const InventoryItem = ({item}) => {
   }, [quantity]);
 
   const imageUri = useMemo(
-    () => `data:image/png;base64,${category.image}`,
+    () => `${DOMAIN}/assets/${category.image}`,
     [category],
   );
 
@@ -43,7 +44,7 @@ const InventoryItem = ({item}) => {
   };
 
   return (
-    <View className="flex flex-row  mb-3 justify-between border border-church-450 h-24 mx-2 rounded-2xl">
+    <View className="flex flex-row mb-3 mt-2 justify-between border border-church-450 h-24 mx-2 rounded-2xl">
       <View className="flex flex-row justify-end items-center">
         <View className="mx-2">
           <Image
@@ -57,12 +58,13 @@ const InventoryItem = ({item}) => {
           <Text className="font-bold text-black">
             {parseFloat(price).toLocaleString()} /=
           </Text>
+          <TouchableOpacity
+            onPress={() => removeItem()}
+            className="w-20 justify-center items-center border-b-2 mb-1 border-b-red-600  mt-2  h-6">
+            <Text className="text-red-600 font-bold text-sm">Remove</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={() => removeItem()}
-          className="mx-10 border border-red-500 bg-red-500  p-1 my-2 rounded">
-          <Text className="text-white">Remove</Text>
-        </TouchableOpacity>
+
       </View>
       <View className="flex mx-3 flex-row justify-evenly items-center">
         <TouchableOpacity
@@ -70,7 +72,7 @@ const InventoryItem = ({item}) => {
           onPress={() => addOrderItem(quantity - 1)}
           className={`border ${
             quantity <= 1 ? 'border-gray-300' : 'border-purple-300'
-          } rounded-full h-16 w-16 justify-center items-center`}>
+          } rounded-full h-12 w-12 justify-center items-center`}>
           <DynamicIcon
             color={quantity <= 1 ? colors.gray['400'] : colors.purple['600']}
             name="minus-a"
@@ -81,7 +83,7 @@ const InventoryItem = ({item}) => {
         <Text className="font-bold text-black text-2xl mx-3">{quantity}</Text>
         <TouchableOpacity
           onPress={() => addOrderItem(quantity + 1)}
-          className="border border-purple-300 rounded-full h-16 w-16 justify-center items-center">
+          className="border border-purple-300 rounded-full h-12 w-12 justify-center items-center">
           <DynamicIcon
             name="plus-a"
             color={colors.purple['600']}
@@ -90,6 +92,7 @@ const InventoryItem = ({item}) => {
           />
         </TouchableOpacity>
       </View>
+
     </View>
   );
 };

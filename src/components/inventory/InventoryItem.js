@@ -4,6 +4,7 @@ import colors from 'tailwindcss/colors';
 import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
 import {useDispatch} from 'react-redux';
+import {DOMAIN} from '../../axios';
 
 const InventoryItem = ({item}) => {
   const {category, name, price} = item;
@@ -15,7 +16,7 @@ const InventoryItem = ({item}) => {
     }
   }, [quantity]);
   const imageUri = useMemo(() => {
-    return `data:image/png;base64,${category.image}`;
+    return `${DOMAIN}/assets/${category.image}`;
   }, [category]);
 
   const addOrderItem = quantity => {
@@ -37,11 +38,11 @@ const InventoryItem = ({item}) => {
   return (
     <View className="flex flex-row  mb-3 justify-between border border-church-450 h-24 mx-2 rounded-2xl">
       <View className="flex flex-row justify-end items-center">
-        <View className="mx-2">
+        <View className="flex mx-2 bg-gray-100 my-2 rounded-2xl w-20 justify-center items-center">
           <Image
             resizeMode="center"
             source={{uri: imageUri}}
-            className="h-full w-10"
+            className="h-full w-16"
           />
         </View>
         <View>
