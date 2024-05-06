@@ -1,10 +1,15 @@
-import {Image, Text, TouchableOpacity, ScrollView, View} from 'react-native';
+import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
 import React, {useMemo} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from 'tailwindcss/colors';
 import {removeOrderItem} from '../../store/orders';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '../../axios';
+
+const {width, height} = Dimensions.get('screen');
+
+const smallScreen = width < 365;
+const shortScreen = height < 500;
 
 const OrderItem = ({item, onClicked}) => {
   const {category, name, price, quantity} = item;
@@ -20,7 +25,10 @@ const OrderItem = ({item, onClicked}) => {
   };
 
   return (
-    <View className="flex mt-5 mx-3 w-48 p-1 h-24 justify-center bg-white border-2 border-gray-300 rounded-xl">
+    <View
+      className={`flex ${
+        smallScreen ? 'mt-2 mx-2 w-32 p-0 h-20' : 'mt-5 mx-3 w-48 p-1 h-24'
+      } justify-center bg-white border-2 border-gray-300 rounded-xl`}>
       <Image
         resizeMode="cover"
         source={{uri: imageUri}}

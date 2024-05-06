@@ -13,6 +13,12 @@ module.exports = {
     extend: {
       colors,
     },
+    screens: {
+      sm: '300px',
+      md: '400px',
+      lg: '500px',
+      xlg: '600px',
+    },
   },
   plugins: [],
 };

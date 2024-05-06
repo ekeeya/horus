@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-export const DOMAIN = 'http://192.168.1.116:8000';
+export const DOMAIN = 'http://192.168.1.198:8000';
 
 const prefix = '/';
 

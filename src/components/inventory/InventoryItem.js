@@ -1,10 +1,15 @@
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
 import DynamicIcon from '../DynamicIcon';
 import colors from 'tailwindcss/colors';
 import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '../../axios';
+
+const {width, height} = Dimensions.get('screen');
+
+const MD = 365;
+const smallScreen = width < MD;
 
 const InventoryItem = ({item}) => {
   const {category, name, price} = item;
@@ -36,17 +41,25 @@ const InventoryItem = ({item}) => {
   };
 
   return (
-    <View className="flex flex-row  mb-3 justify-between border border-church-450 h-24 mx-2 rounded-2xl">
+    <View
+      className={`flex flex-row ${
+        smallScreen ? 'h-20 mx-1 mb-1' : 'h-24 mx-2 mb-3'
+      } justify-between border border-church-450 rounded-2xl`}>
       <View className="flex flex-row justify-end items-center">
-        <View className="flex mx-2 bg-gray-100 my-2 rounded-2xl w-20 justify-center items-center">
+        <View
+          className={`flex ${
+            smallScreen ? 'mx-1 my-1 w-16' : 'mx-2 my-2 w-20'
+          } bg-gray-100  rounded-2xl  justify-center items-center`}>
           <Image
             resizeMode="center"
             source={{uri: imageUri}}
-            className="h-full w-16"
+            className={`h-full ${smallScreen ? 'w-12' : 'w-16'}`}
           />
         </View>
         <View>
-          <Text className="font-semibold">{name}</Text>
+          <Text className={`font-semibold ${smallScreen && 'text-xs'}`}>
+            {name}
+          </Text>
           <Text className="font-bold text-black">
             {parseFloat(price).toLocaleString()} /=
           </Text>
@@ -58,22 +71,31 @@ const InventoryItem = ({item}) => {
           onPress={() => addOrderItem(quantity - 1)}
           className={`border ${
             quantity <= 1 ? 'border-gray-300' : 'border-purple-300'
-          } rounded-full h-16 w-16 justify-center items-center`}>
+          } rounded-full ${
+            smallScreen ? 'h-11 w-11' : 'h-16 w-16'
+          } justify-center items-center`}>
           <DynamicIcon
             color={quantity <= 1 ? colors.gray['400'] : colors.purple['600']}
             name="minus-a"
-            size={15}
+            size={smallScreen ? 12 : 15}
             provider="Fontisto"
           />
         </TouchableOpacity>
-        <Text className="font-bold text-black text-2xl mx-3">{quantity}</Text>
+        <Text
+          className={`font-bold text-black ${
+            smallScreen ? 'text-sm mx-1' : 'text-2xl mx-3'
+          }`}>
+          {quantity}
+        </Text>
         <TouchableOpacity
           onPress={() => addOrderItem(quantity + 1)}
-          className="border border-purple-300 rounded-full h-16 w-16 justify-center items-center">
+          className={`border border-purple-300 rounded-full ${
+            smallScreen ? 'h-11 w-11' : 'h-16 w-16'
+          } justify-center items-center`}>
           <DynamicIcon
             name="plus-a"
             color={colors.purple['600']}
-            size={15}
+            size={smallScreen ? 12 : 15}
             provider="Fontisto"
           />
         </TouchableOpacity>

@@ -20,6 +20,9 @@ import {removeOrderItem, setPosId} from '../../store/orders';
 import OrderItems from '../../components/inventory/OrderItems';
 const {width, height} = Dimensions.get('screen');
 
+const MD = 365;
+const smallScreen = width < MD;
+const shortScreen = height < 700;
 const Dashboard = props => {
   const [active, setActive] = useState(0);
   const [items, setItems] = useState([]);
@@ -158,7 +161,7 @@ const Dashboard = props => {
           <TouchableOpacity>
             <Ionicons name="menu-outline" color={colors.black} size={30} />
           </TouchableOpacity>
-          <Text className="text-black font-bold text-lg">
+          <Text className="text-black  font-bold text-sm lg:text-lg">
             {userData.user.fullName}
           </Text>
           <View className="flex items-center bg-church-200 text-purple-400 p-0.5 rounded-lg">
@@ -169,11 +172,15 @@ const Dashboard = props => {
           <Ionicons name="settings-outline" color={colors.black} size={30} />
         </TouchableOpacity>
       </View>
-      <View className="flex flex-row mt-5 p-2 justify-between">
+      <View
+        className={`flex flex-row ${
+          smallScreen ? 'mt-0 h-16' : 'mt-5'
+        } p-2 justify-between`}>
         <View
-          className={`flex flex-row justify-center items-center p-1 rounded-2xl ${
-            width < 365 ? 'w-72' : 'w-96'
-          } border border-gray-300 bg-white`}>
+          className={`flex flex-row justify-center items-center p-1 rounded-2xl
+                          border border-gray-300 bg-white ${
+                            smallScreen ? 'w-72' : 'w-96'
+                          }`}>
           <Ionicons name="search-outline" size={28} />
           <TextInput
             onFocus={handleFocus}
@@ -181,7 +188,7 @@ const Dashboard = props => {
             placeholder="Search Items"
             onChangeText={setSearchTerm}
             placeholderTextColor={colors.gray['400']}
-            className={`h-auto ${width < 365 ? 'w-52' : 'w-80'}`}
+            className={`h-auto ${smallScreen ? 'w-52' : 'w-80'}`}
           />
         </View>
         <TouchableOpacity
@@ -194,54 +201,71 @@ const Dashboard = props => {
           />
         </TouchableOpacity>
       </View>
-      {height < 500 && (
+      {!shortScreen && (
         <View className="flex h-fit align-middle content-center  w-full">
           <OrderItems items={orderItems} handleRemove={removeOrderItem} />
         </View>
       )}
-      <View className="flex-1 mt-5 bg-white w-auto p-2 mx h-full">
-        <View className="h-32 mt-2 w-full">
-          {loading && importing === 'categories' ? (
-            <ActivityIndicator size="small" color={colors.purple['600']} />
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="h-32 space-x-1">
-              {categories.map((category, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    handleCategorySearch(index, category);
-                  }}
-                  className={`relative border w-28 items-center justify-center h-28 rounded-3xl mx-2 ${
-                    index === active
-                      ? 'bg-church-150 border-church-450'
-                      : 'border-church-200'
-                  }`}>
-                  <View className="flex items-center mt-5">
-                    <View className="flex items-center justify-center rounded-full h-10 w-10 bg-church-155">
-                      <DynamicIcon
-                        name={category.icon}
-                        color={
-                          index === active
-                            ? colors.purple['500']
-                            : colors.purple['600']
-                        }
-                        provider={category.provider}
-                        size={20}
-                      />
+      <View
+        className={`flex ${
+          smallScreen ? 'mt-1 p-1' : 'mt-5 p-2'
+        } bg-white w-auto mx h-full`}>
+        {!isFocused && (
+          <View className={`${shortScreen ? 'h-24 mt-1' : 'h-32 mt-2'} w-full`}>
+            {loading && importing === 'categories' ? (
+              <ActivityIndicator size="small" color={colors.purple['600']} />
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className={`${shortScreen ? 'h-20' : 'h-32'} space-x-1`}>
+                {categories.map((category, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      handleCategorySearch(index, category);
+                    }}
+                    className={`relative border ${
+                      smallScreen ? 'w-20 h-20 nx-1' : 'w-28 h-28 mx-2'
+                    } items-center justify-center rounded-3xl ${
+                      index === active
+                        ? 'bg-church-150 border-church-450'
+                        : 'border-church-200'
+                    }`}>
+                    <View
+                      className={`flex items-center ${
+                        smallScreen ? 'mt-0' : 'mt-2'
+                      }`}>
+                      <View
+                        className={`flex items-center justify-center rounded-full bg-church-155 ${
+                          smallScreen ? 'h-7 w-7' : 'h-10 w-10'
+                        }`}>
+                        <DynamicIcon
+                          name={category.icon}
+                          color={
+                            index === active
+                              ? colors.purple['500']
+                              : colors.purple['600']
+                          }
+                          provider={category.provider}
+                          size={smallScreen ? 15 : 20}
+                        />
+                      </View>
+                      <Text
+                        style={{fontSize: smallScreen ? 10 : 14}}
+                        className={`font-bold text-church-700 ${
+                          smallScreen ? 'mt-0' : 'mt-2'
+                        }`}>
+                        {category.name}
+                      </Text>
                     </View>
-                    <Text className="font-bold text-church-700 mt-0">
-                      {category.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
-        </View>
-        <View className="mt-5">
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        )}
+        <View className={`${smallScreen ? 'mt-0' : 'mt-5'}`}>
           {loading && importing === 'items' && (
             <View className="justify-center mb-2 items-center">
               <ActivityIndicator size="small" color={colors.purple['600']} />
@@ -255,7 +279,9 @@ const Dashboard = props => {
           <TouchableOpacity
             disabled={orderItems.length === 0}
             onPress={() => gotoCheckOut()}
-            className="flex flex-row justify-between items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
+            className={`flex flex-row justify-between items-center bg-purple-500  rounded-full ${
+              smallScreen ? 'py-1 h-12' : 'py-3 h-16'
+            } px-6 mb-4`}>
             <Text className="text-white font-light">Proceed New Order</Text>
             <View className="flex flex-row space-x-2">
               <Text className="text-white  font-normal">
