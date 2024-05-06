@@ -28,7 +28,6 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private ICON_PROVIDER provider;
 
-    @Column(columnDefinition = "TEXT")
     private String image;
 
     @Override

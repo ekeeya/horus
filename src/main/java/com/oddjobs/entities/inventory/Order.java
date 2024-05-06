@@ -47,7 +47,6 @@ public class Order extends BaseEntity {
                 ", amount=" + amount +
                 ", status=" + status +
                 ", pos=" + pos +
-                ", items=" + items +
                 '}';
     }
 }

@@ -356,8 +356,9 @@ public class WalletServiceImpl implements WalletService {
             order.setAmount(paymentAmount);
             order.setPos(((POSAttendant) user).getPosCenter());
             List<OrderItem> orderItems = new ArrayList<>();
+            order = orderRepository.save(order);
             for (OrderItemRequestDTO orderItem: request.getItems()
-                 ) {
+            ) {
                 Category category =  categoryService.findById(orderItem.getCategoryId());
                 OrderItem item  = new OrderItem();
                 item.setName(orderItem.getName());
@@ -365,10 +366,10 @@ public class WalletServiceImpl implements WalletService {
                 item.setPrice(BigDecimal.valueOf(orderItem.getPrice()));
                 item.setQuantity(orderItem.getQuantity());
                 item = orderItemRepository.save(item);
+                item.setOrder(order);
                 orderItems.add(item);
             }
             order.setItems(orderItems);
-            order = orderRepository.save(order);
             inventoryItemService.updateInventoryItems(request);
             log.info("Successful recorded order: {}", order);
         }
