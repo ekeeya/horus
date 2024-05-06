@@ -14,10 +14,9 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findAllByOrderByIdDesc(Pageable pageable);
-
-    Page<Order> findOrdersByPosOrderByIdDesc(PosCenterEntity pos, Pageable pageable);
-
     List<Order> findOrdersByPosAndCreatedAtBetween(PosCenterEntity pos, Date lower, Date upper);
+
+    Page<Order> findAllByCreatedAtBetween(Date lower, Date upper, Pageable pageable);
     Page<Order> findOrdersByPosAndCreatedAtBetween(PosCenterEntity pos, Date lower, Date upper, Pageable pageable);
 
 }

@@ -6,6 +6,20 @@ import {generateError, mergeArrays} from "@utils";
  import {appUsersSlice} from "@src/views/apps/parents/store";
 
 
+ const downloadExcelFile = (data, fileName) => {
+     const blob = new Blob([data], { type: 'application/octet-stream' }); // Set correct MIME type for .xlsx files
+     console.log(blob.size)
+     const url = URL.createObjectURL(blob);
+
+     const link = document.createElement('a');
+     link.href = url;
+     link.setAttribute('download', fileName);
+     document.body.appendChild(link);
+     link.click();
+     document.body.removeChild(link);
+     URL.revokeObjectURL(url);
+ };
+
 export const addItems = createAsyncThunk('appInventory/addItems', async (data, thunkAPI) => {
     try{
         const response = await client.post(
@@ -20,10 +34,9 @@ export const addItems = createAsyncThunk('appInventory/addItems', async (data, t
 export const addCategories = createAsyncThunk('appInventory/addCategories', async (data, thunkAPI) => {
    try{
        const response = await client.post('/api/v1/inventory/categories',data);
-       console.log(response)
        return response.data
-   }catch (e) {
-       return thunkAPI.rejectWithValue(generateError(e))
+   }catch (error) {
+       return thunkAPI.rejectWithValue(generateError(error))
    }
 })
 
@@ -55,6 +68,35 @@ export const getCategories = createAsyncThunk('appInventory/getCategories', asyn
     const response = await client.get('/api/v1/inventory/categories', {params})
     return {params, data: response.data.entries}
 })
+
+ export const getOrders = createAsyncThunk('appInventory/getOrders', async (params) => {
+     const options = "format" in params ? { responseType: 'blob' }:{};
+     const response = await client.get('/api/v1/inventory/orders', {params, ...options})
+     if ("format" in params){
+         const fileName = `orders-report-${new Date().getTime()}.xlsx`
+         downloadExcelFile(response.data, fileName)
+     }
+     else {
+         return {params, data: response.data.entries}
+     }
+ })
+
+
+ export const getSales = createAsyncThunk('appInventory/getSales', async (params, thunkAPI) => {
+     const options = "format" in params ? { responseType: 'blob' }:{};
+     const response = await client.get('/api/v1/inventory/sales', {params, ...options})
+     if ("format" in params){
+         const fileName = `orders-${new Date().getTime()}.xlsx`
+         downloadExcelFile(response.data, fileName)
+     }
+     if ("format" in params){
+         const fileName = `sales-report-${new Date().getTime()}.xlsx`
+         downloadExcelFile(response.data, fileName)
+     }
+     else{
+         return {params, data: response.data.entries}
+     }
+ })
 export const getProducts = createAsyncThunk('appInventory/getProducts', async params => {
     const response = await client.get('/api/v1/inventory/inventory-items', {params})
     return {params, data: response.data}
@@ -76,8 +118,10 @@ export const appInventorySlice = createSlice({
     initialState: {
         categories: [],
         loading: false,
-        cart: [],
+        orders:[],
+        pages:0,
         params: {},
+        sales:[],
         products: [],
         error: null,
         selectedProduct:null,
@@ -86,7 +130,10 @@ export const appInventorySlice = createSlice({
     reducers: {
         setSelectedProduct:(state, action)=>{
             state.selectedProduct =  action.payload
-        }
+        },
+        setLoading :(state, action)=>{
+            state.loading = action.payload
+        },
     },
     extraReducers: builder => {
         builder
@@ -152,8 +199,38 @@ export const appInventorySlice = createSlice({
             .addCase(deleteItems.rejected, (state, action) => {
                 state.error = action.payload
             })
+            .addCase(getOrders.pending, (state, action) => {
+                state.loading = true;
+            })
+            .addCase(getOrders.fulfilled, (state, action) => {
+                state.loading = false;
+                if(action.payload) {
+                    state.params = action.payload.params;
+                    state.orders = action.payload.data;
+                    state.pages = action.payload.data.totalPages;
+                }
+            })
+            .addCase(getOrders.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload
+            })
+            .addCase(getSales.pending, (state, action) => {
+                state.loading = true;
+            })
+            .addCase(getSales.fulfilled, (state, action) => {
+                state.loading = false;
+                if(action.payload){
+                    state.params = action.payload.params;
+                    state.sales = action.payload.data;
+                    state.pages = action.payload.data.totalPages;
+                }
+            })
+            .addCase(getSales.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload
+            })
     }
 })
- export const {setSelectedProduct} = appInventorySlice.actions
+ export const {setSelectedProduct, setLoading} = appInventorySlice.actions
 
 export default appInventorySlice.reducer

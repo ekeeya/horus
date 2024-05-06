@@ -19,7 +19,6 @@ public class RequestToPayStatusResponseDTO implements Serializable {
     private Object payer;
     private Object reason;
     private String currency;
-
     private String payerMessage;
     private String payeeNote;
     private Double amount;

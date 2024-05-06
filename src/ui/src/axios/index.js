@@ -15,3 +15,4 @@ const client = axios.create({});
 client.defaults.timeout = TIME_OUT;
 client.defaults.baseURL = ROOT_URL;
 export default client;
+

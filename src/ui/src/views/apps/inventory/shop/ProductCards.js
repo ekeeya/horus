@@ -15,7 +15,6 @@ const ProductCards = props => {
     products,
     dispatch,
     activeView,
-    getProducts,
   } = props
 
   const showSwal = (item)=>{
@@ -39,7 +38,7 @@ const ProductCards = props => {
         return (
           <Card className='ecommerce-card' key={item.name}>
             <div className='item-img text-center mx-auto'>
-              {<img className='img-fluid card-img-top' src={`data:image/png;base64,${item.category.image}`} alt={item.name} />}
+              {/*<img className='img-fluid card-img-top' src={`data:image/png;base64,${item.category.image}`} alt={item.name} />*/}
             </div>
             <CardBody>
               <div className='item-wrapper'>

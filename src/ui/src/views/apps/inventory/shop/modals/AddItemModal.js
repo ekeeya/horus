@@ -153,7 +153,10 @@ const AddItemModal = ({open, closeModal, single, categories, posId})=>{
             isOpen={open || selectedProduct !== null}
             className='modal-dialog-centered'
             modalClassName="danger">
-            <ModalHeader className='bg-transparent' toggle={() => (closeModal())}>
+            <ModalHeader className='bg-transparent' toggle={() => {
+                closeModal(false)
+                dispatch(setSelectedProduct(null))
+            }}>
                 {single ? 'Add Inventory Item' : 'Bulk Import Inventory Items'}
             </ModalHeader>
             <ModalBody>

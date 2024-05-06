@@ -26,7 +26,7 @@ export default [
         id: 'orders',
         title: 'Orders',
         icon: <FaRegHandshake size={12} />,
-        navLink: '/inventory/orders/list',
+        navLink: '/orders/list',
         action:"manage",
         resource:"inventory",
       },
@@ -34,7 +34,7 @@ export default [
         id: 'sales',
         title: 'Sales',
         icon: <GiTwoCoins size={12} />,
-        navLink: '/inventory/sales/list',
+        navLink: '/sales/list',
         action:"manage",
         resource:"inventory",
       }

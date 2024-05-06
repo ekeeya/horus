@@ -7,17 +7,23 @@ import com.oddjobs.entities.PosCenterEntity;
 import com.oddjobs.entities.inventory.Category;
 import com.oddjobs.entities.inventory.InventoryItem;
 import com.oddjobs.entities.inventory.Order;
+import com.oddjobs.entities.inventory.OrderItem;
 import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.exceptions.PosCenterNotFoundException;
 import com.oddjobs.repositories.inventory.CategoryRepository;
 import com.oddjobs.repositories.inventory.InventoryItemsRepository;
+import com.oddjobs.repositories.inventory.OrderItemRepository;
 import com.oddjobs.repositories.inventory.OrderRepository;
 import com.oddjobs.services.BackgroundTaskExecutor;
 import com.oddjobs.services.inventory.CategoryService;
 import com.oddjobs.services.inventory.InventoryItemService;
 import com.oddjobs.services.inventory.types.*;
 import com.oddjobs.services.pos.POSService;
+import com.oddjobs.services.reports.ExporterService;
+import com.oddjobs.services.reports.types.OrderItemExportDTO;
+import com.oddjobs.services.reports.types.OrdersExportDTO;
+import com.oddjobs.utils.Utils;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -51,7 +59,8 @@ public class InventoryController {
     private final OrderRepository orderRepository;
     private final BackgroundTaskExecutor backgroundTaskExecutor;
     private final ContextProvider contextProvider;
-
+    private final OrderItemRepository orderItemRepository;
+    private final ExporterService exporterService;
     private final POSService posService;
 
 
@@ -192,14 +201,25 @@ public class InventoryController {
 
     @GetMapping("/orders")
     public ResponseEntity<?> findOrders(
-            @RequestParam(value = "posId") Long posId,
+            @RequestParam(value = "posId", required = false) Long posId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(name="lowerDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date lowerDate,
+            @RequestParam(name="upperDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date upperDate,
+            @RequestParam(name="format", required = false) String format
     ) throws PosCenterNotFoundException {
         User user = contextProvider.getPrincipal();
         PosCenterEntity pos = null;
-        Page<Order> orders = null;
+        Page<Order> orders;
+        if(format != null){
+            size = Integer.MAX_VALUE;
+        }
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        if(lowerDate == null || upperDate == null){
+            List<Date> toDayDates = Utils.todayDates(null);
+            lowerDate = toDayDates.get(0);
+            upperDate = toDayDates.get(1);
+        }
         if(posId != null){
             pos =  posService.findById(posId);
         }
@@ -207,16 +227,85 @@ public class InventoryController {
             pos = ((POSAttendant) user).getPosCenter();
         }
         if (pos !=null){
-            orders = orderRepository.findOrdersByPosOrderByIdDesc(pos, pageable);
+            orders = orderRepository.findOrdersByPosAndCreatedAtBetween(pos, lowerDate, upperDate, pageable);
         }else{
-            orders = orderRepository.findAllByOrderByIdDesc(pageable);
+            orders = orderRepository.findAllByCreatedAtBetween(lowerDate, upperDate, pageable);
         }
-
+        if(format != null){
+            List<OrdersExportDTO> exports = orders.stream().map(OrdersExportDTO::new).toList();
+            List<String> fields = List.of("transactionId", "studentName", "cardNo", "amount", "date", "items", "status", "school", "pos");
+            byte[] excelContent = exporterService.writeToExcel(exports, fields);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentLength(excelContent.length);
+            headers.setContentDispositionFormData("attachment", "orders.xlsx");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(excelContent);
+        }
         ListResponseDTO<OrderResponseDTO> response = new ListResponseDTO<>(orders.getContent().stream()
                 .map(OrderResponseDTO::new).toList(), orders.getTotalPages());
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping ("/sales")
+    public ResponseEntity<?> findSales(
+            @RequestParam(value = "posId", required = false) Long posId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(name="lowerDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date lowerDate,
+            @RequestParam(name="upperDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date upperDate,
+            @RequestParam(name="format", required = false) String format
+    ){
+        try{
+            User user = contextProvider.getPrincipal();
+            PosCenterEntity pos = null;
+            Page<OrderItem> items;
+            if(format != null){
+                size = Integer.MAX_VALUE;
+            }
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            if(lowerDate == null || upperDate == null){
+                List<Date> toDayDates = Utils.todayDates(null);
+                lowerDate = toDayDates.get(0);
+                upperDate = toDayDates.get(1);
+            }
+            if(posId != null){
+                pos =  posService.findById(posId);
+            }
+            if (user instanceof POSAttendant){
+                pos =  ((POSAttendant) user).getPosCenter();
+            }
+            if (pos  != null){
+                items =  orderItemRepository.findOrderItemsByOrder_StatusAndOrder_PosAndCreatedAtBetween(
+                        Order.STATUS.Processed, pos, lowerDate, upperDate, pageable);
+            }else{
+                items =  orderItemRepository.findOrderItemsByOrder_StatusAndCreatedAtBetween(
+                        Order.STATUS.Processed,
+                        lowerDate, upperDate, pageable);
+            }
+            if(format != null){
+                List<OrderItemExportDTO> exports = items.stream().map(OrderItemExportDTO::new).toList();
+                List<String> fields = List.of("transactionId", "name", "category", "unitPrice", "quantity", "total", "orderId", "date", "pos", "school");
+                byte[] excelContent = exporterService.writeToExcel(exports, fields);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                headers.setContentLength(excelContent.length);
+                headers.setContentDispositionFormData("attachment", "sales.xlsx");
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(excelContent);
+            }
+            ListResponseDTO<OrderItemResponseDTO> response = new ListResponseDTO<>(items.getContent().stream()
+                    .map(OrderItemResponseDTO::new).toList(), items.getTotalPages());
+            return ResponseEntity.ok(response);
+
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
     @PostMapping("/import-categories")
     public ResponseEntity<?> registerInventoryItems(
