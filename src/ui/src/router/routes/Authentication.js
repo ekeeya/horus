@@ -25,7 +25,7 @@ const TwoStepsCover = lazy(() => import('../../views/pages/authentication/TwoSte
 
 const AuthenticationRoutes = [
   {
-    path: '/login',
+    path: '/auth',
     element: <Login />,
     meta: {
       layout: 'blank',

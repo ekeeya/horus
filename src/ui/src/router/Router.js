@@ -42,9 +42,9 @@ const Router = () => {
       element: <Navigate replace to={getHomeRoute()} />
     },
     {
-      path: '/login',
+      path: '/auth',
       element: <BlankLayout />,
-      children: [{ path: '/login', element: <Login /> }]
+      children: [{ path: '/auth', element: <Login /> }]
     },
     {
       path: '/auth/not-auth',
