@@ -1,0 +1,11 @@
+[Service]
+User=sobolaug
+ExecStart=/home/sobolaug/public_html/horus/target/horus-0.0.1-SNAPSHOT.jar
+StandardOutput=file:/home/sobolaug/public_html/horus/logs/horus-access.log
+StandardError=file:/home/sobolaug/public_html/horus/logs/horus-error.log
+SuccessExitStatus=143
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
