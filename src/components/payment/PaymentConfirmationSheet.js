@@ -16,12 +16,13 @@ import AnimatedLoader from 'react-native-animated-loader';
 import {useDispatch, useSelector} from 'react-redux';
 import {formatCreditCardNumber} from '../../utils';
 import {store} from '../../store/store';
-import { makePayment, setPaid } from "../../store/payment";
+import {makePayment, setPaid} from '../../store/payment';
 import {setOrder} from '../../store/orders';
-import InventoryService from "../../services/InventoryService";
-import { updateInventory } from "../../store/inventory";
+import {updateInventory} from '../../store/inventory';
+const {width, height} = Dimensions.get('screen');
 
-const {width} = Dimensions.get('window');
+const smallScreen = width < 365;
+const shortScreen = height < 700;
 const PaymentConfirmationSheet = ({amount, show, onClose}) => {
   const [index, setIndex] = useState(1);
   const [wallet, setWallet] = useState();
@@ -118,11 +119,21 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
       (cardDetails.wallet && cardDetails.wallet.balance < total);
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
-        <View className="flex flex-row  justify-center space-x-2 m-10">
+        <View
+          className={`flex flex-row  justify-center space-x-2 ${
+            smallScreen ? 'm-3' : 'm-10'
+          }`}>
           <TouchableOpacity
             onPress={() => editOrder()}
-            className="flex flex-row justify-center w-56 space-x-5 items-center border border-red-600 h-10 px-6">
-            <Text className="text-red-600 font-bold text-2xl">Cancel</Text>
+            className={`flex flex-row justify-center w-56 space-x-5 items-center border border-red-600 ${
+              smallScreen ? 'h-10 px-6' : 'h-10 px-6'
+            }`}>
+            <Text
+              className={`text-red-600 font-bold ${
+                smallScreen ? 'text-lg' : 'text-2xl'
+              }`}>
+              Cancel
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             disabled={disable}
@@ -163,11 +174,15 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
         </View>
         {wallet ? (
           <>
-            <View style={styles.cardView}>
+            <View
+              className={`bg-purple-800 ${
+                smallScreen ? 'mt-2 h-16' : 'mt-5 h-20'
+              }  mx-2
+              rounded-2xl flex justify-start items-center flex-row`}>
               <View style={styles.roundImageContainer}>
                 <Image
                   source={require('../../assets/logos/logo.png')}
-                  style={styles.roundImage}
+                  className={`mx-2 ${smallScreen ? 'h-10 w-10':'h-20 w-20'}`}
                 />
               </View>
               <View style={styles.cardDetails}>
@@ -320,24 +335,9 @@ const styles = StyleSheet.create({
     color: '#11192b',
     fontWeight: '500',
   },
-  cardView: {
-    backgroundColor: '#111a2c',
-    marginTop: 20,
-    height: width / 3.5,
-    marginHorizontal: 20,
-    borderRadius: 20,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
+
   cardDetails: {
     marginTop: 5,
-  },
-  roundImageContainer: {},
-  roundImage: {
-    marginHorizontal: 10,
-    height: 80,
-    width: 80,
   },
   cardNoText: {
     color: '#f4f4fa',

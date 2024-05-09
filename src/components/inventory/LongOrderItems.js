@@ -4,7 +4,7 @@ import LongOrderItem from './LongOrderItem';
 
 const InventoryItems = ({items, handleOnClick}) => {
   return (
-    <ScrollView className="h-2/3" showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false}>
       {items.map((item, index) => (
         <LongOrderItem onClicked={handleOnClick} key={index} item={item} />
       ))}

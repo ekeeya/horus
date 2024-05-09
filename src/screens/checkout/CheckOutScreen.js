@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   Alert,
+  Dimensions,
 } from 'react-native';
 import DynamicIcon from '../../components/DynamicIcon';
 import colors from 'tailwindcss/colors';
@@ -19,13 +20,15 @@ import {
   resetCardDetails,
   resetError,
   setPaid,
-  setPaymentAmount,
 } from '../../store/payment';
 import {ALERT_TYPE, Dialog} from 'react-native-alert-notification';
 import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
 import {cleanTag} from '../../utils';
 import {clearOrderItems} from '../../store/orders';
+const {width, height} = Dimensions.get('screen');
 
+const smallScreen = width < 365;
+// const shortScreen = height < 700;
 export const CheckOutScreen = () => {
   const navigation = useNavigation();
   const {orderItems, total} = useSelector(store => store.orders);
@@ -93,22 +96,30 @@ export const CheckOutScreen = () => {
   return (
     <View className="flex flex-1" style={{backgroundColor: '#e9e9eb'}}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
-      <View className="bg-white p-2 h-20 flex flex-row justify-between">
+      <View
+        className={`bg-white flex flex-row justify-between ${
+          smallScreen ? 'p-0 h-10' : 'p-2 h-20'
+        }`}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="h-10 w-10 bg-gray-100 rounded-full">
+          className={`bg-gray-100 rounded-full ${
+            smallScreen ? 'h-8 w-8 mx-2' : 'h-10 w-10'
+          }`}>
           <DynamicIcon
             name="chevron-left"
-            size={40}
+            size={smallScreen ? 30 : 40}
             provider="MaterialIcons"
             color={colors.black}
           />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-black">Order #2145</Text>
-        <TouchableOpacity className="h-10 w-10 bg-gray-100 rounded-full">
+        <TouchableOpacity
+          className={`bg-gray-100 rounded-full ${
+            smallScreen ? 'h-8 w-8 mx-2' : 'h-10 w-10'
+          }`}>
           <DynamicIcon
             name="information-outline"
-            size={40}
+            size={smallScreen ? 30 : 40}
             provider="Ionicons"
             color={colors.black}
           />
@@ -116,12 +127,14 @@ export const CheckOutScreen = () => {
       </View>
       <TouchableOpacity
         style={{elevation: 2}}
-        className="flex flex-row justify-between mt-5 items-center bg-white h-20 mx-4 rounded-xl">
+        className={`flex flex-row justify-between items-center bg-white rounded-xl ${
+          smallScreen ? 'mt-2 h-14 mx-2' : 'mt-5 h-20 mx-4'
+        }`}>
         <View className="flex flex-row">
           <View className="p-2 mx-3 rounded-full items-center h-10 w-10 bg-church-150">
             <DynamicIcon
               name="flag"
-              size={30}
+              size={smallScreen ? 25 : 30}
               provider="Ionicons"
               color={colors.purple['500']}
             />
@@ -130,14 +143,17 @@ export const CheckOutScreen = () => {
             <Text className="font-semibold text-black">
               {userData.user.userSchool.name}
             </Text>
-            <Text className="text-gray-700 font-light">
+            <Text
+              className={`text-gray-700 font-light ${
+                smallScreen && 'text-xs'
+              }`}>
               {userData.user.posCenter.name}
             </Text>
           </View>
         </View>
         <DynamicIcon
           name="chevron-right"
-          size={30}
+          size={smallScreen ? 25 : 30}
           provider="MaterialIcons"
           color={colors.black}
         />
@@ -145,7 +161,9 @@ export const CheckOutScreen = () => {
       {cardDetails.wallet && (
         <View
           style={{elevation: 1}}
-          className="flex flex-row justify-between mt-5 items-center bg-white h-28 mx-4 rounded-xl">
+          className={`flex flex-row justify-between items-center bg-white rounded-xl ${
+            smallScreen ? 'mt-2 h-20 mx-2' : 'mt-5 h-28 mx-4'
+          }`}>
           <View className="flex flex-row">
             <View className="p-2 mx-3 rounded-full items-center h-20 w-20 bg-church-150">
               <Image
@@ -178,19 +196,43 @@ export const CheckOutScreen = () => {
           </View>
         </View>
       )}
-      <View className="bg-white flex-1 mt-10">
-        <Text className="text-black font-bold text-2xl mx-2 mt-2">Items</Text>
-        <View className="mt-5 h-1/2 border-b-2 border-purple-600">
+      <View className={`bg-white flex-1 ${smallScreen ? 'mt-3' : 'mt-10'}`}>
+        <Text
+          className={`text-black mx-2 font-bold ${
+            smallScreen ? 'text-lg mt-1' : 'text-2xl mt-2'
+          }`}>
+          Items
+        </Text>
+        <View
+          className={`border-b-2 border-purple-600 ${
+            smallScreen ? 'mt-2 h-1/2' : 'mt-5 h-1/2'
+          }`}>
           <LongOrderItems items={orderItems} />
         </View>
-        <View className="mt-5 border p-2 mx-2 rounded-xl border-gray-200 h-auto">
+        <View
+          className={`${
+            smallScreen ? 'mt-1 p-1' : 'mt-5 p-2'
+          } border mx-2 rounded-xl border-gray-200 h-auto`}>
           <View className="border-b h-10 border-b-gray-200">
-            <Text className="text-black font-bold text-2xl">Details</Text>
+            <Text
+              className={`text-black mx-2 font-bold ${
+                smallScreen ? 'text-lg mt-1' : 'text-2xl mt-2'
+              }`}>
+              Details
+            </Text>
           </View>
-          <View className="flex mt-2">
-            <View className="flex flex-row justify-between">
-              <Text className="text-lg font-semibold">Total</Text>
-              <Text className="text-2xl text-black font-semibold">
+          <View className={`flex ${smallScreen ? 'mt-1' : 'mt-2'}`}>
+            <View className="flex flex-row p-2 justify-between">
+              <Text
+                className={`${
+                  smallScreen ? 'text-normal' : 'text-lg'
+                } font-semibold`}>
+                Total
+              </Text>
+              <Text
+                className={`text-black font-semibold ${
+                  smallScreen ? 'text-xl' : 'text-2xl'
+                }`}>
                 {total.toLocaleString()}/=
               </Text>
             </View>
@@ -200,9 +242,16 @@ export const CheckOutScreen = () => {
       <View className="absolute bottom-0 left-0 w-full p-2">
         <TouchableOpacity
           onPress={() => openScanner()}
-          className="flex justify-center items-center bg-purple-500 h-16 rounded-full py-3 px-6 mb-4">
+          className={`flex justify-center items-center bg-purple-500 rounded-full ${
+            smallScreen ? 'h-12  py-1 px-3 mb-2' : 'h-16  py-3 px-6 mb-4'
+          }`}>
           <View className="flex flex-row content-center space-x-2">
-            <Text className="text-white text-3xl font-bold">Proceed</Text>
+            <Text
+              className={`text-white font-bold ${
+                smallScreen ? 'text-2xl' : 'text-3xl'
+              }`}>
+              Proceed
+            </Text>
             <DynamicIcon
               className="mt-1"
               name="arrow-right-alt"
