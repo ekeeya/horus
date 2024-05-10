@@ -3,8 +3,9 @@ import DynamicIcon from '../DynamicIcon';
 import colors from 'tailwindcss/colors';
 import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {DOMAIN} from '../../axios';
+import InventoryService from '../../services/InventoryService';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -14,15 +15,30 @@ const smallScreen = width < MD;
 const InventoryItem = ({item}) => {
   const {category, name, price} = item;
   const [quantity, setQuantity] = useState(0);
+  const [itemCategory, setItemCategory] = useState();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const cat = await InventoryService.getById('category', item.categoryId);
+        console.log(cat, item.categoryId);
+        setItemCategory(cat);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (!item.category) {
+      fetchData();
+    } else {
+      setItemCategory(item.category);
+    }
+  }, [itemCategory]);
   useEffect(() => {
     if (quantity < 0) {
       setQuantity(0);
     }
   }, [quantity]);
-  const imageUri = useMemo(() => {
-    return `${DOMAIN}/assets/${category.image}`;
-  }, [category]);
 
   const addOrderItem = quantity => {
     setQuantity(quantity);
@@ -50,11 +66,17 @@ const InventoryItem = ({item}) => {
           className={`flex ${
             smallScreen ? 'mx-1 my-1 w-16' : 'mx-2 my-2 w-20'
           } bg-gray-100  rounded-2xl  justify-center items-center`}>
-          <Image
-            resizeMode="center"
-            source={{uri: imageUri}}
-            className={`h-full ${smallScreen ? 'w-12' : 'w-16'}`}
-          />
+          {itemCategory && (
+            <Image
+              resizeMode="center"
+              source={{
+                uri: `${DOMAIN}/assets/${
+                  item.category ? item.category.image : itemCategory.image
+                }`,
+              }}
+              className={`h-full ${smallScreen ? 'w-12' : 'w-16'}`}
+            />
+          )}
         </View>
         <View>
           <Text className={`font-semibold ${smallScreen && 'text-xs'}`}>

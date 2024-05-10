@@ -16,26 +16,25 @@ import AnimatedLoader from 'react-native-animated-loader';
 import {useDispatch, useSelector} from 'react-redux';
 import {formatCreditCardNumber} from '../../utils';
 import {store} from '../../store/store';
-import {makePayment, setPaid} from '../../store/payment';
+import {makePayment} from '../../store/payment';
 import {setOrder} from '../../store/orders';
 import {updateInventory} from '../../store/inventory';
-const {width, height} = Dimensions.get('screen');
+import colors from 'tailwindcss/colors';
+const {width} = Dimensions.get('screen');
 
 const smallScreen = width < 365;
-const shortScreen = height < 700;
-const PaymentConfirmationSheet = ({amount, show, onClose}) => {
+// const shortScreen = height < 700;
+const PaymentConfirmationSheet = ({show, onClose}) => {
   const [index, setIndex] = useState(1);
   const [wallet, setWallet] = useState();
   const [title, setTitle] = useState('Scan Card');
+  const [editing, setEditing] = useState(false);
 
-  const [loaderTitle, setLoaderTitle] = useState('Validating card...');
+  const [loaderTitle, setLoaderTitle] = useState('Working...');
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPoints = useMemo(() => smallScreen  ? ['25%', '55%'] : ['25%', '50%'], []);
   const handleSheetChanges = useCallback(index => {
     setIndex(index);
-    if (index === -1) {
-      onClose();
-    }
   }, []);
 
   const dispatch = useDispatch();
@@ -43,19 +42,11 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
     store => store.payment,
   );
   const {total, orderItems, order} = useSelector(store => store.orders);
-  const {userData} = useSelector(store => store.auth);
+  // const {userData} = useSelector(store => store.auth);
   const handleClosePress = useCallback(() => {
     bottomSheetRef.current?.close();
+    onClose();
   }, []);
-
-  const renderCardStatus = status => {
-    return {
-      DISABLED: 'red',
-      ACTIVE: 'green',
-      PENDING: 'orange',
-      SUSPENDED: 'red',
-    };
-  };
   const handlePayment = card => {
     const payload = {
       cardNo: card,
@@ -75,14 +66,14 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
   };
 
   const editOrder = () => {
-    handleClosePress();
-    onClose(true);
+    bottomSheetRef.current?.close();
   };
 
   useEffect(() => {
     if (paid) {
       bottomSheetRef.current?.close();
       dispatch(updateInventory(order));
+      onClose();
     }
   }, [paid]);
 
@@ -97,7 +88,6 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
     if (show) {
       setIndex(1);
     } else {
-      handleClosePress();
       setIndex(-1);
     }
   }, [show]);
@@ -119,25 +109,34 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
       (cardDetails.wallet && cardDetails.wallet.balance < total);
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
+        {cardDetails.wallet && cardDetails.wallet.balance < total && (<View className="items-center">
+            <Text className="text-red-600 font-bold">
+              Insufficient account balance for this order
+            </Text>
+          </View>
+        )}
         <View
-          className={`flex flex-row  justify-center space-x-2 ${
+          className={`flex flex-row justify-center space-x-2 ${
             smallScreen ? 'm-3' : 'm-10'
           }`}>
           <TouchableOpacity
-            onPress={() => editOrder()}
-            className={`flex flex-row justify-center w-56 space-x-5 items-center border border-red-600 ${
+            onPress={() => {
+              setEditing(true);
+              editOrder();
+            }}
+            className={`flex flex-row justify-center w-1/2 space-x-5 items-center border border-red-600 ${
               smallScreen ? 'h-10 px-6' : 'h-10 px-6'
             }`}>
             <Text
               className={`text-red-600 font-bold ${
                 smallScreen ? 'text-lg' : 'text-2xl'
               }`}>
-              Cancel
+              Cancel Order
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             disabled={disable}
-            className={`flex flex-row justify-center w-56 space-x-5 items-center border ${
+            className={`flex flex-row justify-center w-1/2 space-x-5 items-center border ${
               disable ? 'border-gray-400' : 'border-purple-800'
             } h-10 px-6`}
             onPress={() => handlePayment(card)}>
@@ -159,15 +158,16 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
       index={index}
       enablePanDownToClose={true}
       bottomInset={0}
-      backgroundStyle={{backgroundColor: '#167D7F', color: '#fff'}}
-      style={styles.sheetContainer}
+      backgroundStyle={{backgroundColor: colors.purple['600'], color: '#fff'}}
       backdropComponent={renderBackdrop}
       footerComponent={wallet ? renderFooter : null}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}>
-      <View style={styles.actionSheetContentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.titleText}>{title}</Text>
+      <View className={'flex flex-1 bg-white'}>
+        <View className={'flex flex-row justify-between p-2'}>
+          <Text className={`${smallScreen ? 'text-lg' : 'text-xl'} font-bold`}>
+            {title}
+          </Text>
           <TouchableOpacity onPress={handleClosePress}>
             <Ionicons name="close-circle-outline" size={30} />
           </TouchableOpacity>
@@ -176,63 +176,77 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
           <>
             <View
               className={`bg-purple-800 ${
-                smallScreen ? 'mt-2 h-16' : 'mt-5 h-20'
+                smallScreen ? 'mt-0 h-12 rounded-xl' : 'mt-5 h-20 rounded-2xl'
               }  mx-2
-              rounded-2xl flex justify-start items-center flex-row`}>
-              <View style={styles.roundImageContainer}>
-                <Image
-                  source={require('../../assets/logos/logo.png')}
-                  className={`mx-2 ${smallScreen ? 'h-10 w-10':'h-20 w-20'}`}
-                />
-              </View>
-              <View style={styles.cardDetails}>
-                <Text
-                  style={{fontWeight: 'bold', color: '#ffff', fontSize: 18}}>
-                  Card No.
-                </Text>
-                <Text style={styles.cardNoText}>
-                  {formatCreditCardNumber(wallet.cardNo)}
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.studentTitleText}>Order Details</Text>
-            <View style={styles.studentContainer}>
-              <View style={styles.studentIconContainer}>
+              flex justify-start items-center flex-row`}>
+              <View
+                className={`bg-white flex justify-center items-center rounded-xl mx-2 ${
+                  smallScreen ? 'h-10 w-14' : 'h-16 w-20'
+                }`}>
                 <Image
                   source={require('../../assets/student.png')}
-                  style={styles.studentIcon}
+                  className={`mx-2 ${smallScreen ? 'h-10 w-10' : 'h-16 w-16'}`}
                 />
               </View>
-              <View style={styles.studentDetails}>
-                <Text style={styles.nameText}>{cardDetails.fullName}</Text>
-                <Text style={{color: '#3b3f4d'}}>{cardDetails.className}</Text>
-                <View style={{flexDirection: 'row'}}>
-                  <Text>Balance:</Text>
-                  <Text style={{color: '#3b3f4d'}}>
+              <View
+                className={
+                  'relative flex flex-row flex-grow mx-2 justify-between  h-10'
+                }>
+                <View className={`${smallScreen ? 'mt-1' : 'mt-3'}`}>
+                  <Text
+                    className={'text-normal text-center font-bold text-white'}>
+                    Card No.
+                  </Text>
+                  <Text className={'text-xs text-white'}>
+                    {formatCreditCardNumber(wallet.cardNo)}
+                  </Text>
+                </View>
+                <View className={`${smallScreen ? 'mt-1' : 'mt-3'}`}>
+                  <Text
+                    className={'text-normal text-center font-bold text-white'}>
+                    Status
+                  </Text>
+                  <Text className={'text-xs text-white font-bold'}>
+                    {wallet.status}
+                  </Text>
+                </View>
+
+                <View className={`${smallScreen ? 'mt-1' : 'mt-3'}`}>
+                  <Text
+                    className={'text-normal font-bold text-white'}>
+                    Balance
+                  </Text>
+                  <Text className={'text-xs text-center text-white'}>
                     {wallet.balance.toLocaleString()}
                   </Text>
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text>Status:</Text>
-                  <Text
-                    style={{
-                      color: renderCardStatus(wallet.status)[wallet.status],
-                      fontWeight: '600',
-                    }}>
-                    {wallet.status}
-                  </Text>
-                  {wallet.status !== 'ACTIVE' && (
-                    <Text
-                      style={{
-                        fontSize: 10,
-                        margin: 5,
-                        fontWeight: '500',
-                        color: 'red',
-                      }}>
-                      (Can't Pay with a card in this state)
-                    </Text>
-                  )}
+              </View>
+            </View>
+            <Text
+              className={`${
+                smallScreen ? 'my-1 text-sm mx-5' : 'my-2 mx-10'
+              }  font-bold underline`}>
+              Order Summary
+            </Text>
+            <View className={`flex ${smallScreen ? 'mx-5' : 'mx-10'} h-1/3`}>
+              {orderItems.map((item, idx) => (
+                <View
+                  key={idx}
+                  className="flex flex-row justify-between border-b border-b-gray-300">
+                  <View className="flex flex-row justify-between space-x-2">
+                    <Text className="font-bold">x{item.quantity}</Text>
+                    <Text>{item.name}</Text>
+                  </View>
+                  <View>
+                    <Text>{(item.price * item.quantity).toLocaleString()}/=</Text>
+                  </View>
                 </View>
+              ))}
+              <View className="flex, flex-row justify-between">
+                <Text className="font-bold">Total</Text>
+                <Text className="font-bold text-lg">
+                  {total.toLocaleString()}/=
+                </Text>
               </View>
             </View>
           </>
@@ -244,8 +258,11 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
                 style={styles.image}
               />
             </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.instructionText}>
+            <View className={'mt-1'}>
+              <Text
+                className={`text-center ${
+                  smallScreen ? 'text-xs' : 'text-normal'
+                }`}>
                 For a successful scan, simply hold a payment card/bracelet close
                 to the payment device until you hear a success beep. The card
                 details will then appear on the screen and replace these
@@ -260,6 +277,7 @@ const PaymentConfirmationSheet = ({amount, show, onClose}) => {
           animationStyle={styles.lottie}
           animationType="slide"
           speed={1}>
+          {/* eslint-disable-next-line react-native/no-inline-styles */}
           <Text style={{fontWeight: '500'}}>{loaderTitle}</Text>
         </AnimatedLoader>
       </View>
@@ -290,15 +308,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
   },
-  sheetContainer: {
-    // add horizontal space
-    marginHorizontal: 0,
-    elevation: 10,
-  },
-  actionSheetContentContainer: {
-    flex: 1,
-    backgroundColor: '#fafafc',
-  },
+
   actionFooterText: {
     textAlign: 'center',
     color: 'white',
@@ -339,15 +349,6 @@ const styles = StyleSheet.create({
   cardDetails: {
     marginTop: 5,
   },
-  cardNoText: {
-    color: '#f4f4fa',
-    paddingVertical: 5,
-    fontWeight: '500',
-    fontSize: 16,
-  },
-  studentContainer: {
-    flexDirection: 'row',
-  },
   studentTitleText: {
     marginHorizontal: 20,
     marginVertical: 10,
@@ -355,26 +356,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: '#3b3f4d',
   },
-  studentIconContainer: {
-    marginHorizontal: 20,
-    borderStyle: 'solid',
-    borderWidth: 2,
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#ebebf2',
-  },
-  studentIcon: {
-    height: 40,
-    width: 40,
-  },
-  studentDetails: {},
-  nameText: {
-    color: '#3b3f4d',
-    fontWeight: 'bold',
-  },
+
   payCurrency: {
     fontWeight: '500',
     marginTop: 10,
@@ -386,15 +368,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'white',
-    borderBottomColor: '#ddd',
-    borderBottomWidth: 1,
-  },
+
   scanInstructionsContainer: {
     flex: 1,
     marginHorizontal: 10,
@@ -408,20 +382,12 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderStyle: 'dashed',
   },
-  textContainer: {
-    flex: 1,
-    marginTop: 5,
-  },
   image: {
     height: '90%',
     width: '90%',
     resizeMode: 'cover',
     borderRadius: 10,
     borderWidth: 1,
-  },
-  instructionText: {
-    //color: "#11192b",
-    textAlign: 'center',
   },
   lottie: {
     width: 100,

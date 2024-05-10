@@ -1,24 +1,21 @@
 import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from 'tailwindcss/colors';
 import {removeOrderItem} from '../../store/orders';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '../../axios';
+import InventoryService from '../../services/InventoryService';
 
 const {width, height} = Dimensions.get('screen');
 
 const smallScreen = width < 365;
-const shortScreen = height < 500;
 
 const OrderItem = ({item, onClicked}) => {
-  const {category, name, price, quantity} = item;
+  const { name, price, quantity} = item;
 
   const dispatch = useDispatch();
-  const imageUri = useMemo(
-    () => `${DOMAIN}/assets/${category.image}`,
-    [category],
-  );
+
 
   const removeItem = () => {
     dispatch(removeOrderItem(item));
@@ -31,7 +28,7 @@ const OrderItem = ({item, onClicked}) => {
       } justify-center bg-white border-2 border-gray-300 rounded-xl`}>
       <Image
         resizeMode="cover"
-        source={{uri: imageUri}}
+        source={{uri: `${DOMAIN}/assets/${item.category.image}`}}
         className="w-full h-full rounded-lg"
       />
       <TouchableOpacity

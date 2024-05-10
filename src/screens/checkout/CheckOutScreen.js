@@ -62,11 +62,13 @@ export const CheckOutScreen = () => {
         Alert.alert(`Oops, could not read the tag: ${ex}`);
       } finally {
         // stop the nfc scanning
+        console.log("Stopping")
         await NfcManager.cancelTechnologyRequest();
       }
     }
   };
   const handlePaymentsSheetOnClose = (edit = false) => {
+    console.log("Fuck I am called")
     setShowScanner(false);
     if (!edit) {
       setCardNo(null);
@@ -87,6 +89,14 @@ export const CheckOutScreen = () => {
     await readNdef();
   };
 
+  const resetStore = () => {
+    setCardNo(null);
+    dispatch(resetCardDetails());
+    dispatch(setPaid(false));
+    dispatch(resetError());
+    dispatch(clearOrderItems());
+  };
+
   useEffect(() => {
     if (cardNo) {
       dispatch(getCard(cardNo));
@@ -101,7 +111,13 @@ export const CheckOutScreen = () => {
           smallScreen ? 'p-0 h-10' : 'p-2 h-20'
         }`}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            resetStore();
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Dashboard'}],
+            });
+          }}
           className={`bg-gray-100 rounded-full ${
             smallScreen ? 'h-8 w-8 mx-2' : 'h-10 w-10'
           }`}>
@@ -165,20 +181,32 @@ export const CheckOutScreen = () => {
             smallScreen ? 'mt-2 h-20 mx-2' : 'mt-5 h-28 mx-4'
           }`}>
           <View className="flex flex-row">
-            <View className="p-2 mx-3 rounded-full items-center h-20 w-20 bg-church-150">
+            <View
+              className={`${
+                smallScreen ? 'p-1 mx-2 h-14 w-14' : 'p-2 mx-3 h-20 w-20'
+              } rounded-full justify-center items-center bg-church-150`}>
               <Image
                 source={require('../../assets/student.png')}
-                className="h-14 w-14"
+                className={`${smallScreen ? 'h-10 w-10' : 'h-14 w-14'}`}
               />
             </View>
             <View className="space-y-1">
-              <Text className="font-semibold text-black">
+              <Text
+                className={`${
+                  smallScreen ? 'text-xs' : 'text-normal'
+                } font-semibold text-black`}>
                 {cardDetails.fullName} ({cardDetails.className})
               </Text>
-              <Text className="text-gray-700 font-light">
+              <Text
+                className={`${
+                  smallScreen ? 'text-xs' : 'text-normal'
+                } text-gray-700 font-light`}>
                 {cardDetails.school.name}
               </Text>
-              <Text className="font-semibold text-black text-xl">
+              <Text
+                className={`font-semibold text-black ${
+                  smallScreen ? 'text-normal' : 'text-xl'
+                }`}>
                 {cardDetails.wallet.balance.toLocaleString()}/=
               </Text>
             </View>
