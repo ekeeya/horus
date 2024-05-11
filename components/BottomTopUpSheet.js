@@ -4,41 +4,42 @@ import {
   Text,
   View,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetFooter,
-  BottomSheetTextInput
+  BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import AnimatedLoader from 'react-native-animated-loader';
-import { XMark } from '@nandorojo/heroicons/24/outline';
-import { useDispatch, useSelector } from 'react-redux'
+import {XMark} from '@nandorojo/heroicons/24/outline';
+import {useDispatch, useSelector} from 'react-redux';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import { depositWallet, setData } from '../store/wallet';
-import { store } from '../store/store';
+import {depositWallet, setData} from '../store/wallet';
+import {store} from '../store/store';
+import colors from "tailwindcss/colors";
 
 const {width, height} = Dimensions.get('window');
 
 const BottomTopUpSheet = ({show, wallet, onClose}) => {
   const [index, setIndex] = useState(1);
   const [title, setTitle] = useState('Top Up Card');
-  const [inputAmount, setInputAmount]  = useState(0);
-  const [tel, setTel] = useState("");
+  const [inputAmount, setInputAmount] = useState(0);
+  const [tel, setTel] = useState('');
   const bottomSheetRef = useRef(null);
 
   const snapPoints = useMemo(() => ['25%', '40%'], []);
 
-  const {submitting, message, amount, msisdn } = useSelector(
+  const {submitting, message, amount, msisdn} = useSelector(
     store => store.wallet,
-  ); 
+  );
 
   const dispatch = useDispatch();
 
   const handleSheetChanges = useCallback(index => {
     setIndex(index);
     if (index === -1) {
-        onClose();
+      onClose();
     }
   }, []);
 
@@ -46,35 +47,35 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
     bottomSheetRef.current?.close();
   }, []);
 
-  useEffect(()=>{
-    dispatch(setData({amount:inputAmount, msisdn:tel}))
-  }, [inputAmount, tel])
+  useEffect(() => {
+    dispatch(setData({amount: inputAmount, msisdn: tel}));
+  }, [inputAmount, tel]);
 
   const handlePayment = () => {
     const {amount, msisdn} = store.getState().wallet;
-    if (amount < 500){
+    if (amount < 500) {
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Wrong Amount',
         textBody: `Deposit amount ${amount} should be above 500`,
       });
-    
-    }else if(msisdn.length < 10){
+
+    } else if (msisdn.length < 10){
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Wrong Telephone',
         textBody: `Telephone number "${msisdn}" is wrong`,
       });
-    }else{
+    } else {
       const data = {
         amount: amount,
-        msisdn:msisdn,
+        msisdn: msisdn,
         cardNo: wallet.cardNo,
-        env:"PRODUCTION"
+        env: 'PRODUCTION',
       };
       dispatch(depositWallet(data));
-      setInputAmount(0)
-      setTel("");
+      setInputAmount(0);
+      setTel('');
       setIndex(-1); // close the action sheet
     }
   };
@@ -98,11 +99,11 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
     [],
   );
   const renderFooter = useCallback(props => {
-  
+
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
         <View className="flex mb-5 flex-row justify-end mx-10 space-x-4">
-        
+
           <TouchableOpacity
             onPress={handleClosePress}
             className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
@@ -110,9 +111,8 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handlePayment()}
-            className="flex-1 h-10 border rounded-lg bg-text items-center justify-center"
-            >
-            <Text  className="text-xl font-bold text-white ">Top-Up</Text>
+            className="flex-1 h-10 border rounded-lg bg-text items-center justify-center">
+            <Text className="text-xl font-bold text-white ">Top-Up</Text>
           </TouchableOpacity>
         </View>
       </BottomSheetFooter>
@@ -135,32 +135,36 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
         <View style={styles.header}>
           <Text style={styles.titleText}>{title}</Text>
           <TouchableOpacity onPress={handleClosePress}>
-            <XMark color="black"/>
+            <XMark color="black" />
           </TouchableOpacity>
         </View>
         <View className="flex-1 mt-5  h-10 mx-10">
-        <View className="mt-0 mb-3">
-                <Text className="text-center font-bold">Please input  your PIN once the prompt appears to complete the  transaction, once you hit "Top-Up"</Text>
-              </View>
-            <BottomSheetTextInput 
-              placeholder='Telephone'
-              value={tel}
-              keyboardType='numeric' 
-              onChangeText={(value)=>{
-                setTel(value)
-              }}
-              style={styles.input} />
-
-            <BottomSheetTextInput 
-              keyboardType='numeric' 
-              value={inputAmount}
-              placeholder='Amount'
-              onChangeText={(value)=>{
-                setInputAmount(value)
-              }}
-              style={styles.input} />
-              
+          <View className="mt-0 mb-3">
+            <Text className="text-center font-bold">
+              Please input your PIN once the prompt appears to complete the
+              transaction, once you hit "Top-Up"
+            </Text>
           </View>
+          <BottomSheetTextInput
+            placeholder="Telephone"
+            value={tel}
+            keyboardType="numeric"
+            onChangeText={value => {
+              setTel(value);
+            }}
+            style={styles.input}
+          />
+
+          <BottomSheetTextInput
+            keyboardType="numeric"
+            value={inputAmount}
+            placeholder="Amount"
+            onChangeText={value => {
+              setInputAmount(value);
+            }}
+            style={styles.input}
+          />
+        </View>
         <AnimatedLoader
           visible={submitting}
           overlayColor="rgba(255,255,255,0.75)"
@@ -353,8 +357,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 10,
     borderRadius: 5,
-    borderWidth:1,
-    borderColor:'black',
+    borderWidth: 1,
+    borderColor: 'black',
     fontSize: 16,
     padding: 10,
     backgroundColor: 'rgba(151, 151, 151, 0.25)',

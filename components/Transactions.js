@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from 'react-native';
 import React from 'react';
-import { formatCreditCardNumber, renderDateTime } from "../utils";
+import {formatCreditCardNumber, renderDateTime} from '../utils';
 import DynamicIcon from './DynamicIcon';
 import colors from 'tailwindcss/colors';
 
@@ -22,10 +22,12 @@ export default function Transactions({transactions, hclass}) {
         let cardNo = transaction.cardNo;
         let tName = transaction.orderName;
         let bcColor = '#ffcecd';
+        let sign = '-';
         let iconColor = colors.red['500'];
         let icon = 'upload';
         if (transaction.transactionType === 'COLLECTION') {
           bcColor = '#dde1fa';
+          sign = '+';
           iconColor = colors.blue['600'];
           tName = 'DEPOSIT';
           icon = 'download';
@@ -68,8 +70,11 @@ export default function Transactions({transactions, hclass}) {
             </View>
             <View className="flex items-end">
               <Text className={`${color} font-bold`}>{transaction.status}</Text>
-              <Text className="font-bold text-red-500">
-                -UGX {transaction.amount.toLocaleString()}
+              <Text
+                className={`${
+                  sign === '+' ? 'text-blue-800' : 'text-red-500'
+                } font-bold`}>
+                {sign} UGX {transaction.amount.toLocaleString()}
               </Text>
             </View>
           </View>

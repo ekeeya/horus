@@ -15,6 +15,9 @@ import ActionsList from '../components/ActionsList';
 import {useDispatch, useSelector} from 'react-redux';
 import {linkToStudent} from '../store/students';
 import {fetchTransactions} from '../store/transactions';
+import DynamicIcon from "../components/DynamicIcon";
+import colors from "tailwindcss/colors";
+import WalletCard from "../components/WalletCard";
 
 export default function WalletScreen() {
   const route = useRoute();
@@ -71,112 +74,63 @@ export default function WalletScreen() {
   }, [action]);
   return (
     <View className="flex h-screen p-2 bg-white">
-      <View className="flex flex-row  justify-between">
+      <View className="flex flex-row mx-2 justify-between">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
           <ArrowLeft color="black" />
         </TouchableOpacity>
-        <View className="content-center justify-center items-center">
-          <Text
-            style={{color: storeColors.blue}}
-            className="font-bold text-4xl">
-            Hi!
-          </Text>
-          <Text
-            style={{color: storeColors.blue}}
-            className="text-grayText text-xl font-semibold">
-            {userData.user.fullName}
-          </Text>
-        </View>
         <View className="flex flex-row">
           <TouchableOpacity className="h-10 w-10 flex justify-center rounded-full items-center bg-cloud">
             <BellAlert color="black" />
           </TouchableOpacity>
         </View>
       </View>
-      <View className="bg-blue  h-56 w-full p-3 self-center  mt-5 rounded-xl">
-        <View className="flex flex-row justify-between">
-          <Text
-            style={{color: storeColors.white}}
-            className="mt-2 font-bold text-lg">
-            {student.fullName.toUpperCase()}
-          </Text>
-          <TouchableOpacity className="h-10 w-10 flex justify-center bg-cloud rounded-full items-center">
-            <ArrowPathRoundedSquare color="black" />
-          </TouchableOpacity>
+      <View className="mt-5">
+        <View className="flex items-center">
+          <Text className="font-bold">Total Spendings</Text>
+          <Text className="font-bold text-2xl text-blue-800">UGX 1,000,000</Text>
         </View>
-        <View className="mb-2">
-          <Text style={{color: storeColors.white}} className="text-lg">
-            {student.school.name}
-          </Text>
-        </View>
-        <View className="mt-1">
-          <View className="flex flex-row space-x-1">
-            <Text
-              style={{color: storeColors.white}}
-              className="font-semibold mr-3 mt-1">
-              Balance:
-            </Text>
-            <Text
-              style={{color: storeColors.white}}
-              className="text-lg font-semibold">
-              UGX
-            </Text>
-            <Text
-              style={{color: storeColors.white}}
-              className="text-2xl font-extrabold">
-              {student.wallet.balance.toLocaleString()}
-            </Text>
+
+        <View className="flex mx-5 flex-row mt-3 space-x-5 justify-center">
+          <View
+            style={{backgroundColor: '#ffcecd'}}
+            className="flex space-x-2 items-center w-1/2 h-12 p-2 rounded-lg flex-row justify-center">
+            <DynamicIcon
+              name="upload"
+              size={25}
+              provider="Feather"
+              color={colors.red['700']}
+            />
+            <Text className="font-bold text-lg text-red-700">UGX 2,000,000</Text>
           </View>
-          <View className="flex flex-row space-x-1">
-            <Text
-              style={{color: storeColors.white}}
-              className="font-semibold mr-3 mt-1">
-              Daily Limit:
-            </Text>
-            <Text
-              style={{color: storeColors.white}}
-              className="text-lg font-semibold">
-              UGX
-            </Text>
-            <Text
-              style={{color: storeColors.white}}
-              className="text-2xl font-extrabold">
-              {student.wallet.maximumDailyLimit.toLocaleString()}
-            </Text>
+          <View
+            style={{backgroundColor: '#dde1fa'}}
+            className="flex space-x-2 items-center w-1/2 h-12 p-2 rounded-lg flex-row justify-center">
+            <DynamicIcon
+              name="download"
+              size={25}
+              provider="Feather"
+              color={colors.blue['700']}
+            />
+            <Text className="font-bold text-lg text-blue-700">UGX 2,000,000</Text>
           </View>
-        </View>
-        <View className="container w-full justify-between">
-          <Text
-            style={{color: storeColors.white}}
-            className="font-thin text-4xl mt-2">
-            {formatCreditCardNumber(student.wallet.cardNo)}
-          </Text>
         </View>
       </View>
-      <View className="flex flex-auto content-center self-center h-16  space-y-2 mt-10">
-        <ActionsList
-          isContributor={isContributor}
-          action={action}
-          onPress={handleSelected}
-        />
+
+      <View className="mt-5">
+        <WalletCard single count={1} idx={0} item={student} />
       </View>
-      {isContributor && (
-        <View className="mt-10">
-          <View className="flex mb-5 flex-row mx-3 justify-between items-end">
-            <Text
-              style={{color: storeColors.text}}
-              className="text-2xl font-bold">
-              Recent Transactions
-            </Text>
-            <Text className="underline" style={{color: 'blue'}}>
-              View All
-            </Text>
-          </View>
-          <Transactions transactions={transactions} />
-        </View>
-      )}
+
+      <View className="mt-3 mb-2">
+        <ActionsList isContributor={true} onPress={handleSelected} />
+      </View>
+      <View className="mx-5 mt-2 p-1">
+        <Text className="font-bold text-blue-800 text-xl">
+          Recent Transactions
+        </Text>
+        <Transactions transactions={transactions} />
+      </View>
       <BottomTopUpSheet
         wallet={student.wallet}
         onClose={handleOnTopUpClose}

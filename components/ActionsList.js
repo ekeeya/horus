@@ -12,16 +12,16 @@ export default function ActionsList({action, isContributor, onPress}) {
   const [actions, setActions] = useState([]);
   const [contributorActions, setContributorActions] = useState([
     {
-      name: 'topup',
-      icon: 'add-card',
-      iconProvider: 'MaterialIcons',
-      label: 'Top Up',
-    },
-    {
       name: 'edit',
       icon: 'edit',
       iconProvider: 'MaterialIcons',
       label: 'Set Limit',
+    },
+    {
+      name: 'topup',
+      icon: 'add-card',
+      iconProvider: 'MaterialIcons',
+      label: 'Top Up',
     },
     {
       name: 'suspend',

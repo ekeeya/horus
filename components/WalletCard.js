@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 export default function WalletCard(props) {
   const navigation = useNavigation();
 
-  const {item, idx, count, createClicked} = props;
+  const {item, idx, count, single, createClicked} = props;
   const [isFavourite, setFavourite] = useState(false);
   let image = require('../assets/images/credit-card-3.png');
   if (idx % 2 > 0) {
@@ -22,6 +22,7 @@ export default function WalletCard(props) {
 
   return item.isEmpty ? (
     <TouchableOpacity
+      disabled={!createClicked}
       onPress={() => createClicked()}
       style={{
         borderWidth: 1,
@@ -46,7 +47,7 @@ export default function WalletCard(props) {
       <Image
         resizeMode="cover"
         source={image}
-        className="w-96 h-56 rounded-3xl"
+        className={`${single ? 'w-full' : 'w-96'} h-56 rounded-3xl`}
       />
       <LinearGradient
         colors={['transparent', 'rgba(0, 0, 0, 0.6)']}
@@ -67,7 +68,10 @@ export default function WalletCard(props) {
               />
             </View>
           </View>
-          <View className="mx-3 mt-16 mb-2">
+          <View
+            className={`mx-3 ${
+              item.wallet.enableDailyLimit ? 'mt-10' : 'mt-16'
+            } mb-2`}>
             <Text
               style={{color: storeColors.white}}
               className="font-bold text-xl">
@@ -87,6 +91,20 @@ export default function WalletCard(props) {
                 {item.wallet.balance.toLocaleString()} /=
               </Text>
             </View>
+            {item.wallet.enableDailyLimit && (
+              <View className="flex-row items-center space-x-2">
+                <Text
+                  style={{color: storeColors.white}}
+                  className="text-white font-extrabold">
+                  Limit:
+                </Text>
+                <Text
+                  style={{color: storeColors.white}}
+                  className="text-sm text-gray-300 font-semibold">
+                  {item.wallet.maximumDailyLimit.toLocaleString()} /=
+                </Text>
+              </View>
+            )}
             <Text
               style={{color: storeColors.white}}
               className="text-sm font-bold text-gray-200">
