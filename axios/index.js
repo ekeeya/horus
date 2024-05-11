@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const domain = 'http://192.168.1.116:8000';
+const domain = 'https://sobola.org';
 
 const prefix = '/';
 

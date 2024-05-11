@@ -32,52 +32,51 @@ export const removeItem = async key => {
   console.log('Done.');
 };
 export const formatCreditCardNumber = number => {
-    try{
-      if (typeof number !== 'string') {
-        number = number.toString();
-      }
-      number = number.replace(/\D/g, '');
-      const formatPattern = /(\d{4})(?=\d)/g;
-      return number.replace(formatPattern, '$1 ');
-    }catch(error){
-      return number;
+  try {
+    if (typeof number !== 'string') {
+      number = number.toString();
     }
-  };
+    number = number.replace(/\D/g, '');
+    const formatPattern = /(\d{4})(?=\d)/g;
+    return number.replace(formatPattern, '$1 ');
+  } catch (error) {
+    return number;
+  }
+};
 
+export const renderDateTime = date => {
+  const m = moment(date);
+  return m.format('hh:mm A - MMMM DD YYYY');
+};
 
-  export const renderDateTime = date => {
-    const m = moment(date);
-    return m.format('hh:mmA | DD.MM.YYYY');
-  };
-
-  export const computeUrlParams=(url, params)=>{
-    const parts = url.split("/")
-    const pattern =  parts[(parts.length-1)]
-    Object.keys(params).forEach((key) => {
-        const prefix = url.endsWith(pattern) ? "?" : "&";
-        if (params[key] != null || params[key] !== "") {
-            url += `${prefix}${key}=${encodeURIComponent(params[key])}`;
-        }
-    });
-    return url;
-}
-
-  export const generateError = error => {
-    let errorMsg = 'Failed';
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      let msg = error.response.data.message
-        ? error.response.data.message
-        : error.response.data.error
-        ? error.response.data.error
-        : error.response.data.detail
-        ? error.response.data.detail
-        : error.response.data;
-      errorMsg = `${msg}`;
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      errorMsg = `${error.message}`;
+export const computeUrlParams = (url, params) => {
+  const parts = url.split('/');
+  const pattern = parts[parts.length - 1];
+  Object.keys(params).forEach(key => {
+    const prefix = url.endsWith(pattern) ? '?' : '&';
+    if (params[key] != null || params[key] !== '') {
+      url += `${prefix}${key}=${encodeURIComponent(params[key])}`;
     }
-    return errorMsg;
-  };
+  });
+  return url;
+};
+
+export const generateError = error => {
+  let errorMsg = 'Failed';
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    let msg = error.response.data.message
+      ? error.response.data.message
+      : error.response.data.error
+      ? error.response.data.error
+      : error.response.data.detail
+      ? error.response.data.detail
+      : error.response.data;
+    errorMsg = `${msg}`;
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    errorMsg = `${error.message}`;
+  }
+  return errorMsg;
+};

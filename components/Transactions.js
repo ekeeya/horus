@@ -1,81 +1,80 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native'
-import React from 'react'
-import { renderDateTime, formatCreditCardNumber } from "../utils"
-import GradientButton from './GradientButton'
-import { storeColors } from '../theme';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
+import React from 'react';
+import { formatCreditCardNumber, renderDateTime } from "../utils";
+import DynamicIcon from './DynamicIcon';
+import colors from 'tailwindcss/colors';
 
-const {width, height} = Dimensions.get("window")
-export default function Transactions({ transactions, hclass }) {
-    return (
-        <ScrollView style={{height:height/2.5}} className={hclass && hclass} showsVerticalScrollIndicator={false}>
-            {
-                transactions.map((transaction, index) => {
-                    let bg = "rgba(255,255,255,0.4)";
-                    let image = require('../assets/images/success.png');
-                    let color = "#0F9D58"
-                    switch (transaction.status.toLocaleLowerCase()) {
-                        case "failed":
-                            image = require('../assets/images/failed.png');
-                            color = "#DB4437"
-                            break;
-                        case "pending":
-                            image = require('../assets/images/pending.png');
-                            color = "#4285F4"
-                            break;
-                        default:
-                            break;
-                    }
-                    return (
-                        <TouchableOpacity
-                            style={{elevation:2}}
-                            className="mx-4 p-2 mb-2 flex-row rounded-3xl bg-cloud"
-                            key={index}>
-                            <Image source={image} style={{ width: 50, height: 50 }}
-                                className="rounded-2xl" />
-                            <View className="flex-1 flex justify-center pl-3 space-y-3">
-                                <View className="flex-row space-x-3">
-                                    <Text
-                                     style={{ color: storeColors.text }}
-                                        className="font-bold">
-                                        TOP-UP
-                                    </Text>
-                                    <Text className="font-bold" style={{ color: storeColors.text }}>
-                                        {formatCreditCardNumber(transaction.cardNo)}
-                                    </Text>
-                                </View>
-                                <View className="flex-row space-x-3">
-                                    <View className="flex-row justify-between space-x-10">
-
-                                        <Text style={{ color: color }} className="text-xs font-extrabold">
-                                            {transaction.status}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View className="flex-row justify-between space-x-10">
-
-                                        <Text style={{ color: storeColors.text }} className="text-xs font-extrabold">
-                                            {transaction.receiver.fullName} ({transaction.receiver.className})
-                                        </Text>
-                                    </View>
-                                <View className="flex-row space-x-3">
-                                    <View className="flex-row justify-between space-x-10">
-
-                                        <Text style={{ color: storeColors.text }} className="text-xs">
-                                            {renderDateTime(transaction.createdAt)}
-                                        </Text>
-                                        <Text style={{ color: storeColors.text }} className="text-xs font-bold">
-                                            {transaction.amount.toLocaleString()}/=
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View className="flex justify-center items-center">
-                                <GradientButton value="View" buttonClass="py-2 px-5" />
-                            </View>
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </ScrollView>
-    )
+const {width, height} = Dimensions.get('window');
+export default function Transactions({transactions, hclass}) {
+  return (
+    <ScrollView
+      style={{height: height / 2.5}}
+      className={hclass && hclass}
+      showsVerticalScrollIndicator={false}>
+      {transactions.map((transaction, index) => {
+        let cardNo = transaction.cardNo;
+        let tName = transaction.orderName;
+        let bcColor = '#ffcecd';
+        let iconColor = colors.red['500'];
+        let icon = 'upload';
+        if (transaction.transactionType === 'COLLECTION') {
+          bcColor = '#dde1fa';
+          iconColor = colors.blue['600'];
+          tName = 'DEPOSIT';
+          icon = 'download';
+          cardNo = transaction.creditAccount.cardNo;
+        }
+        let color = 'text-green-600';
+        switch (transaction.status.toLocaleLowerCase()) {
+          case 'failed':
+            color = 'text-red-600';
+            break;
+          case 'pending':
+            color = 'text-orange-400';
+            break;
+          default:
+            break;
+        }
+        return (
+          <View className="flex flex-row justify-between mt-2 items-center">
+            <View className="flex flex-row items-center justify-start space-x-2">
+              <View
+                style={{backgroundColor: bcColor}}
+                className="h-14 w-14 rounded-full justify-center items-center">
+                <DynamicIcon
+                  name={icon}
+                  size={25}
+                  provider="Feather"
+                  color={iconColor}
+                />
+              </View>
+              <View className="mx-2">
+                <View>
+                  <Text className="font-bold text-blue-800">
+                    {tName} - {formatCreditCardNumber(cardNo)}
+                  </Text>
+                </View>
+                <Text className="font-bold text-gray-500">
+                  {renderDateTime(transaction.createdAt)}
+                </Text>
+              </View>
+            </View>
+            <View className="flex items-end">
+              <Text className={`${color} font-bold`}>{transaction.status}</Text>
+              <Text className="font-bold text-red-500">
+                -UGX {transaction.amount.toLocaleString()}
+              </Text>
+            </View>
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
 }

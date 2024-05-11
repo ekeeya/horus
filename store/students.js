@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import client from '../axios';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import { computeUrlParams } from '../utils';
+import {computeUrlParams} from '../utils';
 
 export const fetchStudents = createAsyncThunk(
   'students/fetchStudents',
@@ -19,8 +19,8 @@ export const searchStudent = createAsyncThunk(
   'students/searchStudent',
   async (params, thunkAPI) => {
     try {
-      let url = "/api/v1/students"
-      url  =  computeUrlParams(url, params);
+      let url = '/api/v1/students';
+      url = computeUrlParams(url, params);
       const response = await client.get(url);
       return response.data;
     } catch (error) {
@@ -33,9 +33,9 @@ export const linkToStudent = createAsyncThunk(
   'students/linkToStudent',
   async (params, thunkAPI) => {
     try {
-      const url = "/api/v1/request-student-link"
+      const url = '/api/v1/request-student-link';
       const response = await client.post(url, params);
-      thunkAPI.dispatch(fetchStudents({}))
+      thunkAPI.dispatch(fetchStudents({}));
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -48,7 +48,7 @@ export const fetchSchools = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await client.get('/api/v1/schools');
-      console.log(response.data)
+      console.log(response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -60,11 +60,11 @@ export const studentSlice = createSlice({
   name: 'students',
   initialState: {
     loading: false,
-    students:[],
-    studentResults:[],
-    selectedSchool:null,
-    schools:[],
-    error:null
+    students: [],
+    studentResults: [],
+    selectedSchool: null,
+    schools: [],
+    error: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -82,7 +82,7 @@ export const studentSlice = createSlice({
       .addCase(fetchStudents.fulfilled, (state, action) => {
         state.loading = false;
         state.students = action.payload.entries;
-        state.students.push({id:0, isEmpty:true})
+        //state.students.push({id: 0, isEmpty: true});
       })
       .addCase(fetchStudents.rejected, (state, action) => {
         state.loading = false;
@@ -99,7 +99,7 @@ export const studentSlice = createSlice({
       .addCase(fetchSchools.fulfilled, (state, action) => {
         state.loading = false;
         state.schools = action.payload.entries;
-        state.schools.unshift({id:0, name:"All"})
+        state.schools.unshift({id: 0, name: 'All'});
       })
       .addCase(fetchSchools.rejected, (state, action) => {
         state.loading = false;
@@ -125,12 +125,15 @@ export const studentSlice = createSlice({
         state.loading = true;
       })
       .addCase(linkToStudent.fulfilled, (state, action) => {
-        const {status} =  action.payload.data;
+        const {status} = action.payload.data;
         state.loading = false;
         Toast.show({
           type: ALERT_TYPE.SUCCESS,
           title: 'Link Request succeded',
-          textBody: status === "PENDING" ? `Wait for Primary parent to approve your request in order  to start contributing` :`You can now start contributing to this wallet`,
+          textBody:
+            status === 'PENDING'
+              ? 'Wait for Primary parent to approve your request in order  to start contributing'
+              : 'You can now start contributing to this wallet',
         });
       })
       .addCase(linkToStudent.rejected, (state, action) => {
@@ -141,7 +144,7 @@ export const studentSlice = createSlice({
           title: 'Error:',
           textBody: `Failed: ${action.payload}`,
         });
-      })
+      });
   },
 });
 

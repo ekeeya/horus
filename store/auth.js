@@ -8,13 +8,9 @@ export const login = createAsyncThunk(
   async (credentials, thunkAPI) => {
     try {
       const headers = FORM_DATA_HEADER;
-      const form  = new FormData();
-      const {username, password} =  credentials;
-      form.append("username", username);
-      form.append("password", password);
-      const response = await client.post('/login', form, {headers});
+      const response = await client.post('/login', credentials, {headers});
       const user = response.data;
-      if (user.user.role !== 'PARENT') {
+      if (user.user.accountType !== 'PARENT') {
         return thunkAPI.rejectWithValue('Authentication Failed');
       }
       Toast.show({
@@ -22,7 +18,6 @@ export const login = createAsyncThunk(
         title: 'Congrats',
         textBody: 'Authentication was successful!',
       });
-
       return user;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
