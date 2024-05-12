@@ -45,4 +45,10 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
             @Param("lowerDate")Date lowerDate,
             @Param("upperDate")Date upperDate
     );
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PaymentTransaction p WHERE p.debitAccount=:debitAccount AND p.status = :status")
+    Double sumPaymentsByStudentAndStatus(
+            @Param("debitAccount")StudentWalletAccount debitAccount,
+            @Param("status")Utils.TRANSACTION_STATUS status
+    );
 }

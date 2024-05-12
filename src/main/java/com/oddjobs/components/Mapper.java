@@ -8,6 +8,8 @@ import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.repositories.students.StudentRepository;
+import com.oddjobs.repositories.transactions.CollectionTransactionRepository;
+import com.oddjobs.repositories.transactions.PaymentTransactionRepository;
 import com.oddjobs.services.students.StudentService;
 import com.oddjobs.services.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,9 @@ public class Mapper {
     private final StudentRepository studentRepository;
     private final ClassRoomRepository classRoomRepository;
     private final WalletService walletService;
-    private  final StudentService studentService;
+    private final PaymentTransactionRepository paymentTransactionRepo;
+    private final CollectionTransactionRepository collectionTransactionRepo;
+
 
     public UserResponseDto toUserDTO(User user, boolean showPerms) {
         UserResponseDto userDto = new UserResponseDto(user, showPerms);
@@ -64,6 +68,8 @@ public class Mapper {
 
     public StudentResponseDTO toStudentDTO(StudentEntity student, boolean showWallet)  {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);
+        WalletResponseDTO w = new WalletResponseDTO(student.getWalletAccount(), paymentTransactionRepo, collectionTransactionRepo);
+        dto.setWallet(w);
         if(student.getParents() !=null && student.getParents().size() > 0){
             List<ParentUser> contributors = student.getParents();
             List<UserResponseDto> parents = contributors.stream().map(r->new UserResponseDto(r, false)).toList();
