@@ -32,6 +32,7 @@ public class UserResponseDto {
     private  boolean enabled;
     private Utils.GENDER gender;
     private boolean using2fa = false;
+    private Double totalContributions=0.0;
     private  boolean isSuperUser;
     private List<Map<String, Object>> permissions = new ArrayList<>();
 

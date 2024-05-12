@@ -12,6 +12,7 @@ import com.oddjobs.repositories.transactions.CollectionTransactionRepository;
 import com.oddjobs.repositories.transactions.PaymentTransactionRepository;
 import com.oddjobs.services.students.StudentService;
 import com.oddjobs.services.wallet.WalletService;
+import com.oddjobs.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +44,7 @@ public class Mapper {
             case PARENT -> {
                 ParentUser u = (ParentUser) user;
                 userDto = new ParentUserDTO(user);
+                userDto.setTotalContributions(collectionTransactionRepo.sumCollectionsByParentAndStatus(u, Utils.TRANSACTION_STATUS.SUCCESS));
                 List<StudentEntity> students =studentRepository.findStudentEntitiesByParentsContaining(u);
                 students =  students!=null ? students: new ArrayList<>();
                 List<StudentResponseDTO> sl = students.stream().map(r-> new StudentResponseDTO(r, true)).toList();
