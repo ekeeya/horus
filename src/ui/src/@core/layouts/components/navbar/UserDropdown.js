@@ -55,14 +55,14 @@ const UserDropdown = () => {
           <User size={14} className='me-75'/>
           <span className='align-middle'>Profile</span>
         </DropdownItem>)}
-        
+
         <DropdownItem divider />
         <DropdownItem tag={Link} to='/pages/account-settings'>
           <Settings size={14} className='me-75' />
           <span className='align-middle'>Settings</span>
         </DropdownItem>
-        
-        <DropdownItem tag={Link} to='/login' onClick={() => dispatch(handleLogout())}>
+
+        <DropdownItem tag={Link} to='/auth' onClick={() => dispatch(handleLogout())}>
           <Power size={14} className='me-75' />
           <span className='align-middle'>Logout</span>
         </DropdownItem>
