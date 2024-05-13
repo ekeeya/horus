@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const domain = 'https://sobola.org';
+// const domain = 'https://sobola.org';
+const domain = 'http:127.0.0.1:8000';
 
 const prefix = '/';
 

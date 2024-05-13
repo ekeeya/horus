@@ -48,7 +48,6 @@ export const fetchSchools = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await client.get('/api/v1/schools');
-      console.log(response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -62,6 +61,7 @@ export const studentSlice = createSlice({
     loading: false,
     students: [],
     studentResults: [],
+    selectedStudent: {},
     selectedSchool: null,
     schools: [],
     error: null,
@@ -73,6 +73,9 @@ export const studentSlice = createSlice({
     setSelectedSchool: (state, action) => {
       state.selectedSchool = action.payload;
     },
+    setSelectedStudent: (state, action) => {
+      state.selectedStudent = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -82,7 +85,9 @@ export const studentSlice = createSlice({
       .addCase(fetchStudents.fulfilled, (state, action) => {
         state.loading = false;
         state.students = action.payload.entries;
-        //state.students.push({id: 0, isEmpty: true});
+        if (action.payload.entries.length === 1) {
+          state.selectedStudent = action.payload.entries[0];
+        }
       })
       .addCase(fetchStudents.rejected, (state, action) => {
         state.loading = false;

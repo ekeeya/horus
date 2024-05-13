@@ -15,9 +15,10 @@ import ActionsList from '../components/ActionsList';
 import {useDispatch, useSelector} from 'react-redux';
 import {linkToStudent} from '../store/students';
 import {fetchTransactions} from '../store/transactions';
-import DynamicIcon from "../components/DynamicIcon";
-import colors from "tailwindcss/colors";
-import WalletCard from "../components/WalletCard";
+import DynamicIcon from '../components/DynamicIcon';
+import colors from 'tailwindcss/colors';
+import WalletCard from '../components/WalletCard';
+import { setShowTopUp } from "../store/wallet";
 
 export default function WalletScreen() {
   const route = useRoute();
@@ -29,49 +30,20 @@ export default function WalletScreen() {
 
   const {fetching, transactions} = useSelector(store => store.transactions);
 
-  const {students, loading} = useSelector(store => store.students);
-
-  const isContributor = useMemo(() => {
-    return students.some(s => s.id === student.id);
-  }, []);
-
-  const {userData} = useSelector(store => store.auth);
+  const {loading} = useSelector(store => store.students);
 
   const handleSelected = value => {
     setAction(value);
   };
 
   const handleOnTopUpClose = () => {
-    setAction(null);
-    dispatch(fetchTransactions({}));
+    dispatch(fetchTransactions({student: student.id}));
   };
 
   useEffect(() => {
-    if (action === 'link') {
-      Alert.alert(
-        'Confirm',
-        "Are you sure you want to start contributing to this student's Wallet?",
-        [
-          {
-            text: 'Cancel',
-            onPress: () => setAction(null),
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: () => {
-              const params = {
-                parent: userData.id,
-                studentId: student.id,
-              };
-              dispatch(linkToStudent(params));
-              setAction(null);
-            },
-          },
-        ],
-      );
-    }
-  }, [action]);
+    dispatch(fetchTransactions({student: student.id}));
+  }, [dispatch, student.id]);
+
   return (
     <View className="flex h-screen p-2 bg-white">
       <View className="flex flex-row mx-2 justify-between">
@@ -88,8 +60,10 @@ export default function WalletScreen() {
       </View>
       <View className="mt-5">
         <View className="flex items-center">
-          <Text className="font-bold">Total Spendings</Text>
-          <Text className="font-bold text-2xl text-blue-800">UGX 1,000,000</Text>
+          <Text className="font-bold">Balance</Text>
+          <Text className="font-bold text-2xl text-blue-800">
+            UGX {student.wallet.balance.toLocaleString()}
+          </Text>
         </View>
 
         <View className="flex mx-5 flex-row mt-3 space-x-5 justify-center">
@@ -102,7 +76,9 @@ export default function WalletScreen() {
               provider="Feather"
               color={colors.red['700']}
             />
-            <Text className="font-bold text-lg text-red-700">UGX 2,000,000</Text>
+            <Text className="font-bold text-lg text-red-700">
+              UGX {student.wallet.totalOut.toLocaleString()}
+            </Text>
           </View>
           <View
             style={{backgroundColor: '#dde1fa'}}
@@ -113,7 +89,9 @@ export default function WalletScreen() {
               provider="Feather"
               color={colors.blue['700']}
             />
-            <Text className="font-bold text-lg text-blue-700">UGX 2,000,000</Text>
+            <Text className="font-bold text-lg text-blue-700">
+              UGX {student.wallet.totalIn.toLocaleString()}
+            </Text>
           </View>
         </View>
       </View>
@@ -123,7 +101,7 @@ export default function WalletScreen() {
       </View>
 
       <View className="mt-3 mb-2">
-        <ActionsList isContributor={true} onPress={handleSelected} />
+        <ActionsList student={student} onPress={handleSelected} />
       </View>
       <View className="mx-5 mt-2 p-1">
         <Text className="font-bold text-blue-800 text-xl">
@@ -131,11 +109,6 @@ export default function WalletScreen() {
         </Text>
         <Transactions transactions={transactions} />
       </View>
-      <BottomTopUpSheet
-        wallet={student.wallet}
-        onClose={handleOnTopUpClose}
-        show={action === 'topup'}
-      />
 
       <AnimatedLoader
         visible={loading}
@@ -145,6 +118,10 @@ export default function WalletScreen() {
         speed={1}>
         <Text className="font-extrabold text-white">Linking....</Text>
       </AnimatedLoader>
+      <BottomTopUpSheet
+        wallet={student.wallet}
+        onClose={handleOnTopUpClose}
+      />
     </View>
   );
 }

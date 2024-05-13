@@ -17,11 +17,10 @@ import {useDispatch, useSelector} from 'react-redux';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 import {depositWallet, setData} from '../store/wallet';
 import {store} from '../store/store';
-import colors from "tailwindcss/colors";
 
 const {width, height} = Dimensions.get('window');
 
-const BottomTopUpSheet = ({show, wallet, onClose}) => {
+const BottomTopUpSheet = ({wallet, onClose}) => {
   const [index, setIndex] = useState(1);
   const [title, setTitle] = useState('Top Up Card');
   const [inputAmount, setInputAmount] = useState(0);
@@ -30,7 +29,7 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
 
   const snapPoints = useMemo(() => ['25%', '40%'], []);
 
-  const {submitting, message, amount, msisdn} = useSelector(
+  const {submitting, showTopUp, message, amount, msisdn} = useSelector(
     store => store.wallet,
   );
 
@@ -81,13 +80,13 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
   };
 
   useEffect(() => {
-    if (show) {
+    if (showTopUp) {
       setIndex(1);
     } else {
       handleClosePress();
       setIndex(-1);
     }
-  }, [show]);
+  }, [showTopUp]);
   const renderBackdrop = useCallback(
     props => (
       <BottomSheetBackdrop
@@ -103,16 +102,15 @@ const BottomTopUpSheet = ({show, wallet, onClose}) => {
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
         <View className="flex mb-5 flex-row justify-end mx-10 space-x-4">
-
           <TouchableOpacity
             onPress={handleClosePress}
-            className="flex-1 h-10 border bg-red rounded-lg border-red items-center justify-center">
-            <Text className="text-white font-bold text-xl">Cancel</Text>
+            className="flex-1 h-10 border bg-red rounded-lg border-red-800 items-center justify-center">
+            <Text className="text-red-500 font-bold text-xl">Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handlePayment()}
             className="flex-1 h-10 border rounded-lg bg-text items-center justify-center">
-            <Text className="text-xl font-bold text-white ">Top-Up</Text>
+            <Text className="text-xl font-bold border-green-800 text-green-600 ">Top-Up</Text>
           </TouchableOpacity>
         </View>
       </BottomSheetFooter>

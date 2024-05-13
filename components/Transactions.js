@@ -45,7 +45,9 @@ export default function Transactions({transactions, hclass}) {
             break;
         }
         return (
-          <View className="flex flex-row justify-between mt-2 items-center">
+          <View
+            key={index}
+            className="flex flex-row justify-between mt-2 items-center">
             <View className="flex flex-row items-center justify-start space-x-2">
               <View
                 style={{backgroundColor: bcColor}}

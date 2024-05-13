@@ -1,16 +1,13 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import client from '../axios';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import { computeUrlParams } from '../utils';
 
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetchTransactions',
   async (params, thunkAPI) => {
     try {
-      let url = "/api/v1/transactions"
-      url = computeUrlParams(url, params)
-      const response = await client.get(url);
-      console.log(response.data)
+      let url = '/api/v1/transactions';
+      const response = await client.get(url, {params});
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -18,22 +15,21 @@ export const fetchTransactions = createAsyncThunk(
   },
 );
 
-
-
 export const transactionSlice = createSlice({
   name: 'transactions',
   initialState: {
     fetching: false,
-    transactions:[],
-    error:null
+    studentTransactions: [],
+    transactions: [],
+    error: null,
   },
   reducers: {
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
-    updateTransactions:(state, action)=>{
-        state.transactions =  state.transactions.unshift(action.payload)
-    }
+    updateTransactions: (state, action) => {
+      state.transactions = state.transactions.unshift(action.payload);
+    },
   },
   extraReducers: builder => {
     builder
@@ -52,7 +48,7 @@ export const transactionSlice = createSlice({
           title: 'Authentication Failed',
           textBody: `Failed: ${action.payload}`,
         });
-      })
+      });
   },
 });
 

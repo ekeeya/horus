@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
-import GradientButton from './GradientButton';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {View, Text, TouchableOpacity, Alert} from 'react-native';
 
 import {storeColors} from '../theme';
 import colors from 'tailwindcss/colors';
 import DynamicIcon from './DynamicIcon';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchTransactions} from '../store/transactions';
+import {setShowTopUp} from '../store/wallet';
 
-export default function ActionsList({action, isContributor, onPress}) {
+export default function ActionsList({action, student, onPress}) {
   const [activeAction, setActiveAction] = useState();
-  const [actions, setActions] = useState([]);
-  const [contributorActions, setContributorActions] = useState([
+  const [actions, setActions] = useState([
     {
       name: 'edit',
       icon: 'edit',
@@ -23,34 +23,26 @@ export default function ActionsList({action, isContributor, onPress}) {
       iconProvider: 'MaterialIcons',
       label: 'Top Up',
     },
-    {
+    /*{
       name: 'suspend',
       icon: 'book-cancel-outline',
       iconProvider: 'MaterialCommunityIcons',
       label: 'Suspend',
-    },
+    },*/
   ]);
-  const [nonContributorActions, setNonContributorActions] = useState([
-    {
-      name: 'link',
-      icon: 'link',
-      label: 'Contribute',
-    },
-  ]);
+
+  const dispatch = useDispatch();
   const handleSelectedAction = value => {
     setActiveAction(value);
-    onPress(value);
-  };
-  useEffect(() => {
-    if (isContributor) {
-      setActions(contributorActions);
-    } else {
-      setActions(nonContributorActions);
+    //onPress(value);
+    if (value === 'topup') {
+      dispatch(setShowTopUp(true));
     }
-  }, [isContributor]);
+  };
+
   return (
     <View className="pl-2">
-      <View className={'flex flex-row justify-between mx-4 p-1'}>
+      <View className={'flex flex-row justify-evenly mx-4 p-1'}>
         {actions.map((action, idx) => {
           return (
             <View key={idx} className="h-2/4">
