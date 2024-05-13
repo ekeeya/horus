@@ -51,7 +51,7 @@ const InventoryItem = ({item}) => {
         <View className="mx-2">
           <Image
             resizeMode="center"
-            source={{uri: `${DOMAIN}/assets/${item.category.image}`}}
+            source={{uri: `${DOMAIN}/statics/${item.category.image}`}}
             className="h-full w-10"
           />
         </View>

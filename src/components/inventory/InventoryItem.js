@@ -70,7 +70,7 @@ const InventoryItem = ({item}) => {
             <Image
               resizeMode="center"
               source={{
-                uri: `${DOMAIN}/assets/${
+                uri: `${DOMAIN}/statics/${
                   item.category ? item.category.image : itemCategory.image
                 }`,
               }}

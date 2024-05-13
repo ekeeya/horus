@@ -1,5 +1,5 @@
 import axios from 'axios';
-export const DOMAIN = 'http://192.168.84.5:8000';
+export const DOMAIN = 'https://sobola.org';
 
 const prefix = '/';
 

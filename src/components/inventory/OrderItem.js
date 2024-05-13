@@ -28,7 +28,7 @@ const OrderItem = ({item, onClicked}) => {
       } justify-center bg-white border-2 border-gray-300 rounded-xl`}>
       <Image
         resizeMode="cover"
-        source={{uri: `${DOMAIN}/assets/${item.category.image}`}}
+        source={{uri: `${DOMAIN}/statics/${item.category.image}`}}
         className="w-full h-full rounded-lg"
       />
       <TouchableOpacity
