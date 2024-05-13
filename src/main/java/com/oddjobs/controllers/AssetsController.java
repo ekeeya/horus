@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 @Controller
 public class AssetsController {
 
-    @GetMapping("/assets/{imageName:.+}")
+    @GetMapping("/statics/{imageName:.+}")
     public ResponseEntity<byte[]> getImage(@PathVariable String imageName) throws IOException {
         String imagePath = "static/categories/" + imageName;
 
