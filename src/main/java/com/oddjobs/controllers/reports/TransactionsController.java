@@ -94,7 +94,7 @@ public class TransactionsController {
             if (user instanceof SchoolUser){
                 schoolId =  ((SchoolUser) user).getSchool().getId(); // set this by default if school user making the request
             }
-            if (user instanceof  ParentUser){
+            if (user instanceof  ParentUser && studentId == null){
                 parentId = user.getId();
             }
             if(format != null){
