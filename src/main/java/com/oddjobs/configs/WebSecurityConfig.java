@@ -73,7 +73,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/login", "/logout").permitAll()
                 .requestMatchers("/api/v1/users/register").permitAll()
                 .requestMatchers("/api/v1/mm/callback/**").permitAll()
-                .requestMatchers("/assets/**").permitAll()
+                .requestMatchers("/statics/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable()
