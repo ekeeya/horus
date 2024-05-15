@@ -1,4 +1,4 @@
-package com.parent
+package com.sobola.parent
 
 import android.app.Application
 import com.facebook.react.PackageList

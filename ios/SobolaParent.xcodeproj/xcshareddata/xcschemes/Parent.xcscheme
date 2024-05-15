@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "Parent.app"
-               BlueprintName = "Parent"
-               ReferencedContainer = "container:Parent.xcodeproj">
+               BuildableName = "SobolaParent.app"
+               BlueprintName = "SobolaParent"
+               ReferencedContainer = "container:SobolaParent.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "ParentTests.xctest"
-               BlueprintName = "ParentTests"
-               ReferencedContainer = "container:Parent.xcodeproj">
+               BuildableName = "SobolaParentTests.xctest"
+               BlueprintName = "SobolaParentTests"
+               ReferencedContainer = "container:SobolaParent.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Parent.app"
-            BlueprintName = "Parent"
-            ReferencedContainer = "container:Parent.xcodeproj">
+            BuildableName = "SobolaParent.app"
+            BlueprintName = "SobolaParent"
+            ReferencedContainer = "container:SobolaParent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Parent.app"
-            BlueprintName = "Parent"
-            ReferencedContainer = "container:Parent.xcodeproj">
+            BuildableName = "SobolaParent.app"
+            BlueprintName = "SobolaParent"
+            ReferencedContainer = "container:SobolaParent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
