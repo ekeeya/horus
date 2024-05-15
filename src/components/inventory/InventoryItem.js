@@ -13,7 +13,7 @@ const MD = 365;
 const smallScreen = width < MD;
 
 const InventoryItem = ({item}) => {
-  const {category, name, price} = item;
+  const { name, price} = item;
   const [quantity, setQuantity] = useState(0);
   const [itemCategory, setItemCategory] = useState();
   const dispatch = useDispatch();
@@ -22,7 +22,6 @@ const InventoryItem = ({item}) => {
     const fetchData = async () => {
       try {
         const cat = await InventoryService.getById('category', item.categoryId);
-        console.log(cat, item.categoryId);
         setItemCategory(cat);
       } catch (error) {
         console.error('Error fetching data:', error);

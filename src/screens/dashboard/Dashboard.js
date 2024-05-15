@@ -18,36 +18,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchInventoryData} from '../../store/inventory';
 import {removeOrderItem, setPosId} from '../../store/orders';
 import OrderItems from '../../components/inventory/OrderItems';
-import * as RNFS from "react-native-fs";
 const {width, height} = Dimensions.get('screen');
 
 const MD = 365;
 const smallScreen = width < MD;
 const shortScreen = height < 700;
 
-const downloadAndSaveImage = async (imageUrl) => {
-    try {
-        const response = await fetch(imageUrl);
-        const imageBlob = await response.blob();
-
-        // Generate a unique filename for the image
-        const filename = `${Date.now()}.jpg`;
-
-        // Create a directory path
-        const directory = `${RNFS.DocumentDirectoryPath}/images`;
-
-        // Ensure the directory exists
-        await RNFS.mkdir(directory);
-
-        // Save the image to phone storage
-        const filePath = `${directory}/${filename}`;
-        await RNFS.writeFile(filePath, imageBlob, 'base64');
-
-        console.log("Image downloaded and saved to:", filePath);
-    } catch (error) {
-        console.error("Error downloading image:", error);
-    }
-};
 const Dashboard = props => {
   const [active, setActive] = useState(0);
   const [items, setItems] = useState([]);
