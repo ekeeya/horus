@@ -6,7 +6,7 @@ const InventoryItems = ({items, handleOnClick}) => {
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       {items.map((item, index) => (
-        <LongOrderItem onClicked={handleOnClick} key={index} item={item} />
+        <LongOrderItem onClicked={handleOnClick} key={item.id} item={item} />
       ))}
     </ScrollView>
   );
