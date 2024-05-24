@@ -187,12 +187,11 @@ const SchoolList = () => {
     )
   }
 
-  
+
 
   const handleSort = (column, sortDirection) => {
     setSort(sortDirection)
     setSortColumn(column.sortField)
-    
   }
 
   return (
@@ -222,7 +221,7 @@ const SchoolList = () => {
                 handlePerPage={handlePerPage}
                 toggleSidebar={toggleSidebar}
               />
-            } 
+            }
           />
         </div>
       </Card>

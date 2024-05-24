@@ -25,7 +25,6 @@ import java.util.List;
 public class Mapper {
 
     private final StudentRepository studentRepository;
-    private final ClassRoomRepository classRoomRepository;
     private final WalletService walletService;
     private final PaymentTransactionRepository paymentTransactionRepo;
     private final CollectionTransactionRepository collectionTransactionRepo;
@@ -53,7 +52,7 @@ public class Mapper {
             case SCHOOL_ADMIN -> {
                 SchoolUser u = (SchoolUser) user;
                 userDto = new SchoolUserDTO(u);
-                if(((SchoolUserDTO) userDto).getSchool() ==null || ((SchoolUserDTO) userDto).getSchool().getClasses().size() < 1){
+                if(((SchoolUserDTO) userDto).getSchool() == null){
                     School s = ((SchoolUser) user).getSchool();
                     SchoolResponseDTO sr =  toSchoolDto(s);
                     ((SchoolUserDTO) userDto).setSchool(sr);
@@ -72,7 +71,7 @@ public class Mapper {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);
         WalletResponseDTO w = new WalletResponseDTO(student.getWalletAccount(), paymentTransactionRepo, collectionTransactionRepo);
         dto.setWallet(w);
-        if(student.getParents() !=null && student.getParents().size() > 0){
+        if(student.getParents() !=null && !student.getParents().isEmpty()){
             List<ParentUser> contributors = student.getParents();
             List<UserResponseDto> parents = contributors.stream().map(r->new UserResponseDto(r, false)).toList();
             for (UserResponseDto parent:parents) {
@@ -91,14 +90,6 @@ public class Mapper {
         SchoolCollectionAccount acc =  walletService.findWalletBySchool(school);
         dto.setAccountId(acc.getId());
         dto.setAccountBalance(acc.getBalance().doubleValue());
-        if (dto.getClasses().size() == 0){
-            List<ClassRoom> rooms =  classRoomRepository.findClassRoomsBySchoolOrderByNameDesc(school);
-            if(rooms !=null){
-                rooms.sort(Comparator.comparing(ClassRoom::getName));
-                List<ClassRoomResponseDTO> classes =  rooms.stream().map(ClassRoomResponseDTO::new).toList();
-                dto.setClasses(classes);
-            }
-        }
         return  dto;
     }
 

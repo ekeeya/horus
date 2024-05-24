@@ -55,7 +55,7 @@ public class TransactionServiceImpl implements TransactionService{
     @Value("${application.default.currency}")
     private String DEFAULT_CURRENCY;
     protected void generatePaymentRows(List<TransactionResponseDTO> transactions, Sheet sheet){
-        List<String> columnNames = List.of("ID", "Attendant","Attendant Contact","POS Center", "Student","Class","CardNo", "School","Type","Status", "Amount", "Date");
+        List<String> columnNames = List.of("ID", "Attendant","Attendant Contact","POS Center", "Student","CardNo", "School","Type","Status", "Amount", "Date");
         Row headerRow = sheet.createRow(0);
         for (int i=0; i<columnNames.size(); i++) {
             headerRow.createCell(i).setCellValue(columnNames.get(i));
@@ -71,13 +71,12 @@ public class TransactionServiceImpl implements TransactionService{
             row.createCell(2).setCellValue(transaction.getPosAttendant().getFullName());
             row.createCell(3).setCellValue(transaction.getPosAttendant().getPosCenterName());
             row.createCell(4).setCellValue(transaction.getDebitAccount().getStudent());
-            row.createCell(5).setCellValue(transaction.getDebitAccount().getClassName());
-            row.createCell(6).setCellValue(transaction.getDebitAccount().getCardNo());
-            row.createCell(7).setCellValue(transaction.getSchool().getName());
-            row.createCell(8).setCellValue(transaction.getTransactionType().toString());
-            row.createCell(9).setCellValue(transaction.getStatus().toString());
-            row.createCell(10).setCellValue(transaction.getAmount().doubleValue());
-            row.createCell(11).setCellValue(createdAt);
+            row.createCell(5).setCellValue(transaction.getDebitAccount().getCardNo());
+            row.createCell(6).setCellValue(transaction.getSchool().getName());
+            row.createCell(7).setCellValue(transaction.getTransactionType().toString());
+            row.createCell(8).setCellValue(transaction.getStatus().toString());
+            row.createCell(9).setCellValue(transaction.getAmount().doubleValue());
+            row.createCell(10).setCellValue(createdAt);
         }
         // Auto-size the columns
         for (int i = 0; i < columnNames.size(); i++) {
@@ -86,7 +85,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     protected void generateCollectionsRows(List<TransactionResponseDTO> transactions, Sheet  sheet){
-        List<String> columnNames = List.of("ID", "Sender","Sender Telephone", "Student","Class","CardNo", "School","Type","Status", "Amount", "Date");
+        List<String> columnNames = List.of("ID", "Sender","Sender Telephone", "Student","CardNo", "School","Type","Status", "Amount", "Date");
         Row headerRow = sheet.createRow(0);
         for (int i=0; i<columnNames.size(); i++) {
             headerRow.createCell(i).setCellValue(columnNames.get(i));
@@ -101,13 +100,12 @@ public class TransactionServiceImpl implements TransactionService{
             row.createCell(1).setCellValue(transaction.getSender().getFullName());
             row.createCell(2).setCellValue(transaction.getSender().getTelephone());
             row.createCell(3).setCellValue(transaction.getReceiver().getFullName());
-            row.createCell(4).setCellValue(transaction.getReceiver().getClassName());
-            row.createCell(5).setCellValue(transaction.getReceiver().getWallet().getCardNo());
-            row.createCell(6).setCellValue(transaction.getSchool().getName());
-            row.createCell(7).setCellValue("DEPOSIT");
-            row.createCell(8).setCellValue(transaction.getStatus().toString());
-            row.createCell(9).setCellValue(transaction.getAmount().doubleValue());
-            row.createCell(10).setCellValue(createdAt);
+            row.createCell(4).setCellValue(transaction.getReceiver().getWallet().getCardNo());
+            row.createCell(5).setCellValue(transaction.getSchool().getName());
+            row.createCell(6).setCellValue("DEPOSIT");
+            row.createCell(7).setCellValue(transaction.getStatus().toString());
+            row.createCell(8).setCellValue(transaction.getAmount().doubleValue());
+            row.createCell(9).setCellValue(createdAt);
         }
         // Auto-size the columns
         for (int i = 0; i < 12; i++) {
@@ -132,8 +130,11 @@ public class TransactionServiceImpl implements TransactionService{
         String description =  String.format("A payment of %s has been made from card %s", amount,account.getCardNo());
         transaction.setDescription(description);
         transaction =  transactionRepository.save(transaction);
-        order.setTransaction(transaction);
-        order.setStatus(Order.STATUS.Processed);
+        if (order != null){
+            order.setTransaction(transaction);
+            order.setStatus(Order.STATUS.Processed);
+        }
+
         transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
         return new Utils.BiWrapper<>(transaction, order);
     }

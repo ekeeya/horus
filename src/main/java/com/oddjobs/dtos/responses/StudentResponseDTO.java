@@ -18,8 +18,6 @@ public class StudentResponseDTO implements Serializable {
     private UserResponseDto primaryParent;
     private List<UserResponseDto> contributors;
     private SchoolResponseDTO school;
-    private Long classId;
-    private String className;
 
     public StudentResponseDTO(StudentEntity student, boolean showWallet){
         this.setId(student.getId());
@@ -28,8 +26,6 @@ public class StudentResponseDTO implements Serializable {
         this.setMiddleName(student.getMiddleName()!=null ?student.getMiddleName():"");
         this.setFullName(String.format("%s %s %s", firstName, middleName, lastName));
 
-        setClassId(student.getClassRoom().getId());
-        setClassName(student.getClassRoom().getName());
         setSchool(new SchoolResponseDTO(student.getSchool()));
         if(showWallet){
             WalletResponseDTO w =  new WalletResponseDTO(student.getWalletAccount());

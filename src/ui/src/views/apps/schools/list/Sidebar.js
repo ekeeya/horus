@@ -108,10 +108,7 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                 name: data.name,
                 address: data.address,
                 alias:data.alias,
-                user: edit ? null : user,
-                classes: classes.map(r => {
-                    return r.label
-                })
+                user: edit ? null : user
             }
             dispatch(registerSchool(payload))
         } else {
@@ -134,7 +131,6 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
             setValue("address", selectedSchool.address)
             setValue("commissionRate", selectedSchool.commissionRate)
             setValue("alias", selectedSchool.alias)
-            setClasses(selectedSchool.classes)
         }
     }, [edit, selectedSchool])
 
@@ -233,27 +229,7 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                         )}
                     />
                 </div>
-                <div className='divider'>
-                    <div className='divider-text'>Class Rooms</div>
-                </div>
-                <div className='mb-1' md='6' sm='12'>
-                    <Label className='form-label'>Add Class Rooms</Label>
-                    <CreatableSelect
-                        isClearable={false}
-                        theme={selectThemeColors}
-                        defaultValue={classes.map(row => {
-                            return row
-                        })}
-                        isMulti
-                        name='colors'
-                        options={classes}
-                        onChange={(v) => setClasses(v)}
-                        //onCreateOption={handleCreate}
-                        className='react-select'
-                        classNamePrefix='select'
-                    />
-                    <FormText color='muted'>Type a non-listed class to create it.</FormText>
-                </div>
+
                 {!edit && (<>
                     <div className='divider'>
                         <div className='divider-text'>Access account information</div>

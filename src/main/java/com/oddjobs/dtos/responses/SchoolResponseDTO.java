@@ -22,7 +22,6 @@ public class SchoolResponseDTO implements Serializable {
     private Long accountId;
     private Double accountBalance  = 0.0 ;
     private Double commissionRate= 0.0;
-    List<ClassRoomResponseDTO> classes = new ArrayList<>();
 
     public SchoolResponseDTO(School school){
         setName(school.getName());
@@ -32,15 +31,5 @@ public class SchoolResponseDTO implements Serializable {
         setPrimaryContact(school.getPrimaryContact());
         setCommissionRate(school.getCommissionRate());
         setStatus(school.getEnabled() ? "Active" : "In Active");
-        try{
-            List<ClassRoom> rooms = school.getClasses();
-            if(rooms !=null){
-                rooms.sort(Comparator.comparing(ClassRoom::getName));
-                List<ClassRoomResponseDTO> classes =  rooms.stream().map(ClassRoomResponseDTO::new).toList();
-                setClasses(classes);
-            }
-        }catch (Exception e){
-            log.warn("Failed to lazy load school classes");
-        }
     }
 }

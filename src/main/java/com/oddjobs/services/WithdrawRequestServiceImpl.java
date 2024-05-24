@@ -187,11 +187,12 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         transaction.setDescription("Cash-out transaction, yeah they want their money.");
         transaction.setTransactionId(Utils.generateTransactionId());
         transaction.setNature(Utils.TRANSACTION_NATURE.DEBIT);
-        transactionRepository.save(transaction);
+        transaction = transactionRepository.save(transaction);
         // Create a payment transaction
         PaymentRequestDTO paymentRequest =  new PaymentRequestDTO();
         paymentRequest.setAmount(request.getAmount());
         paymentRequest.setCardNo(studentWalletAccount.getCardNo());
+        paymentRequest.setCashOutTransactionId(transaction.getId());
         walletService.processPayment(paymentRequest);
         log.info("Successfully cashed-out on account: {}",studentWalletAccount);
         return studentWalletAccount;

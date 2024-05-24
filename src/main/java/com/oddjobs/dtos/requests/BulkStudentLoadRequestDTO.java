@@ -24,6 +24,15 @@ public class BulkStudentLoadRequestDTO {
     @CsvBindByName(column = "parent_email")
     private String parentEmail;
 
+    @CsvBindByName(column = "daily_limit")
+    private Double dailyLimit = 0.0;
+    @CsvBindByName(column = "balance")
+    private Double balance = 0.0;
+
+    @CsvBindByName(column = "card_no")
+    private String cardNo;
+
+
 
     public BulkStudentLoadRequestDTO() {} // this is required
 

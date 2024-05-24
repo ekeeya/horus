@@ -402,20 +402,6 @@ const StudentList = () => {
                   />
                 </Col>
             }
-            <Col lg='2' md='3' className='mb-1'>
-              <Label className='form-label' for='class'>
-                Class:
-              </Label>
-              <Select
-                  isSearchable
-                  isClearable={true}
-                  value={selectedClass}
-                  placeholder="Select Class"
-                  options={selectedSchool && selectedSchool.classes}
-                  name="class"
-                  onChange={v=>setSelectedClass(v)}
-              />
-            </Col>
             <Col lg='4' md='6' className='mb-1'>
               <Label className='form-label' for='class'>
                 Student Name:

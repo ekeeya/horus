@@ -23,8 +23,6 @@ public class School extends  BaseEntity{
     private String address;
     @Column(name="commission_rate")
     private Double commissionRate = 0.0;
-    @OneToMany(mappedBy = "school")
-    private List<ClassRoom> classes;
 
     @Override
     public String toString() {

@@ -85,8 +85,8 @@ public class SchoolServiceImpl implements SchoolService{
                     walletAccountRepository.save(paymentAccount);
                 }
                 // check if Classes were provided and add them
-                List<ClassRoom> requestRooms = new ArrayList<>();
-                if(request.getClasses()!=null && request.getClasses().size()>0){
+                /*List<ClassRoom> requestRooms = new ArrayList<>();
+                    if(request.getClasses()!=null && request.getClasses().size()>0){
                     for (String clazz: request.getClasses()) {
                         ClassRoom room;
                         if(!classRoomRepository.existsClassRoomByNameAndSchool(clazz, school)){
@@ -104,7 +104,7 @@ public class SchoolServiceImpl implements SchoolService{
                     originalRooms.removeAll(requestRooms);
                     // remove those that aren't in the request
                     classRoomRepository.deleteAll(originalRooms);
-                }
+                }*/
                 //check if user is provided
                 if(request.getUser() != null){
                     UserRequestDto u =  request.getUser();
@@ -127,12 +127,7 @@ public class SchoolServiceImpl implements SchoolService{
     @Override
     public School findById(Long id) throws SchoolNotFoundException {
         try{
-            School school = schoolRepository.findById(id).get();
-            if(school.getClasses() == null){
-                List<ClassRoom> classes = classRoomRepository.findClassRoomsBySchoolOrderByNameDesc(school);
-                school.setClasses(classes != null ? classes : new ArrayList<>() );
-            }
-            return school;
+            return schoolRepository.findById(id).get();
         }catch (Exception e){
             throw new SchoolNotFoundException(id);
         }

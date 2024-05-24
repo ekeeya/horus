@@ -67,7 +67,6 @@ public class WalletServiceImpl implements WalletService {
     private  final SchoolService schoolService;
     private final MobileMoneyService mobileMoneyService;
     private final StudentWalletAccountRepository studentWalletAccountRepository;
-    private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
     private final WalletAccountRepository walletAccountRepository;
     private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
     private final MMTransactionRepository mmTransactionRepository;
@@ -76,7 +75,7 @@ public class WalletServiceImpl implements WalletService {
     private final CardProvisionRequestRepository cardProvisionRequestRepository;
     private final NotificationService notificationService;
     private final ContextProvider contextProvider;
-    private  final SettingService settingService;
+    private final SettingService settingService;
     private final CategoryService categoryService;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -339,14 +338,17 @@ public class WalletServiceImpl implements WalletService {
         if (account.getBalance().compareTo(paymentAmount) < 0 ){
             throw  new InsufficientBalanceException(account.getBalance().toBigIntegerExact().doubleValue(), request.getAmount(),account.getCardNo());
         }
-        if (exceedsDailyExpenditureLimit(account)){
-            throw new ExceedDailyExpenditureException(account.getCardNo());
-        }
         // check if card has no daily expenditure restrictions.
         account = (StudentWalletAccount) updateWalletBalance(account, -request.getAmount()); // debit parse negative
         // Record Payment transaction and return it.
         if (request.getCashOutTransactionId() != null){
             cashoutTransaction = (CashoutTransaction) transactionRepository.findById(request.getCashOutTransactionId()).get();
+        }
+        if (cashoutTransaction == null){
+            // if it is not  cash out transaction, check daily limit
+            if (exceedsDailyExpenditureLimit(account)){
+                throw new ExceedDailyExpenditureException(account.getCardNo());
+            }
         }
         Order order = null;
         // If orderItems is given then record the order

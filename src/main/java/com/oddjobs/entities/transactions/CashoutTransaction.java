@@ -31,4 +31,9 @@ public class CashoutTransaction extends  Transaction{
     @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private StudentWalletAccount debitAccount;
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

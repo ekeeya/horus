@@ -1,5 +1,6 @@
 package com.oddjobs.entities;
 
+import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,8 +9,7 @@ import lombok.Data;
 @Data
 public class CardEntity extends  BaseEntity{
     @Column(name="card_no", nullable = false, unique = true)
-    private String cardNo;
-
+    private String cardNo = Utils.generateCardNumber();
     private String serialNo;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="student_id", nullable=false)

@@ -4,6 +4,7 @@ import com.oddjobs.dtos.requests.ApprovalRequestCreateDTO;
 import com.oddjobs.dtos.requests.BulkStudentLoadRequestDTO;
 import com.oddjobs.dtos.requests.StudentRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
+import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
@@ -11,6 +12,7 @@ import com.oddjobs.exceptions.GenericException;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
+import com.oddjobs.repositories.students.CardRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.users.UserRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
@@ -45,6 +47,7 @@ public class StudentServiceImpl implements StudentService{
     private final SchoolRepository schoolRepository;
     private final WalletService walletService;
     private final ClassRoomRepository classRoomRepository;
+    private final CardRepository cardRepository;
     private final WalletAccountRepository walletAccountRepository;
     private final UserRepository userRepository;
     private final UserService userService;
@@ -65,29 +68,21 @@ public class StudentServiceImpl implements StudentService{
         }else{
             student =  new StudentEntity();
         }
-        ClassRoom classRoom = null;
-        try{
-            if (request.getId() == null){
-                classRoom =  classRoomRepository.findClassRoomByNameAndSchool(request.getClassRoom(), school);
-            }else{
-                Long classId =  Long.parseLong(request.getClassRoom());
-                classRoom =  classRoomRepository.findClassRoomById(classId);
-            }
 
-        }catch (NoSuchElementException ignored){}
-        if(classRoom == null){
-            throw new GenericException(String.format("Class room with Id %s not found in the database", request.getClassRoom()));
-        }
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setMiddleName(request.getMiddleName());
         student.setSchool(school);
-        student.setClassRoom(classRoom);
         StudentEntity s = studentRepository.save(student);
+        CardEntity card =  new CardEntity();
+        card.setStudent(s);
+        card = cardRepository.save(card);
         if(request.getId() == null){
             //create wallet account
             StudentWalletAccount account = walletService.createStudentWalletAccount(s);
             s.setWalletAccount(account);
+            account.setCard(card);
+            account.setCardNo(card.getCardNo());
         }
         // attach to parent if any
         if(request.getParent() != null){
@@ -105,7 +100,6 @@ public class StudentServiceImpl implements StudentService{
                 bulkRequest.getLastName(),
                 bulkRequest.getMiddleName(),
                 Utils.generateRandomRegNo(),
-                bulkRequest.getClassRoom(),
                 schoolId,
                 null,
                 false

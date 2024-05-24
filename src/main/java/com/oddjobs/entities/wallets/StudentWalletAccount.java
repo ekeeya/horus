@@ -1,5 +1,6 @@
 package com.oddjobs.entities.wallets;
 
+import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
@@ -16,15 +17,19 @@ import java.util.Date;
 public class StudentWalletAccount extends AccountEntity {
 
     @Column(unique = true)
-    private String cardNo = Utils.generateCardNumber();
+    private String cardNo;
+
+    @ManyToOne
+    @JoinColumn(name="student", referencedColumnName = "id")
+    private StudentEntity student;
 
     private BigDecimal maximumDailyLimit= new BigDecimal(0);
 
     private Boolean enableDailyLimit = false;
 
     @ManyToOne
-    @JoinColumn(name="student", referencedColumnName = "id")
-    private StudentEntity student;
+    @JoinColumn(name="card", referencedColumnName = "id")
+    private CardEntity card;
 
     @Enumerated(EnumType.STRING)
     private  Utils.WALLET_STATUS status = Utils.WALLET_STATUS.PENDING;

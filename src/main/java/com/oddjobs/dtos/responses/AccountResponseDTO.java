@@ -23,7 +23,7 @@ public class AccountResponseDTO implements Serializable {
     private Long schoolId;
     private String  SchoolName;
     private String student;
-    private String className;
+    //private String className;
     private Date createdAt;
     // private SchoolResponseDTO school;
     public AccountResponseDTO(AccountEntity account){
@@ -35,7 +35,7 @@ public class AccountResponseDTO implements Serializable {
             setEnableDailyLimit(((StudentWalletAccount) account).getEnableDailyLimit());
             setStudentId(((StudentWalletAccount) account).getStudent().getId());
             setStudent(((StudentWalletAccount) account).getStudent().fullName());
-            setClassName(((StudentWalletAccount) account).getStudent().getClassRoom().getName());
+            //setClassName(((StudentWalletAccount) account).getStudent().getClassRoom().getName());
             setSchoolId(((StudentWalletAccount) account).getStudent().getSchool().getId());
             setSchoolName(((StudentWalletAccount) account).getStudent().getSchool().getName());
         } else if (account instanceof SchoolCollectionAccount){

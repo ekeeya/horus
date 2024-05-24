@@ -32,11 +32,9 @@ import {
 } from "@src/views/apps/user/store";
 import {Minus, Plus, X} from "react-feather";
 import Select from "react-select";
-import {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
+import students, {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
 import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
-import {FaPlus} from "react-icons/fa";
-import {GiReceiveMoney} from "react-icons/gi";
 import NumericInput from "react-numeric-input";
 
 const roleColors = {
@@ -66,12 +64,13 @@ const UserInfoCard = ({selectedStudent}) => {
     const [cashOutAmount, setCashOutAmount] = useState(selectedStudent.wallet.balance);
     const [liftDate, setLiftDate] = useState(new Date());
     const [showSuspend, setShowSuspend] = useState(false);
-    const [selectedClass, setSelectedClass] = useState({});
+    // const [selectedClass, setSelectedClass] = useState({});
     const [selectedParent, setSelectedParent] = useState({});
     const [parents, setParents] = useState([])
 
     const dispatch = useDispatch();
     const {loading, submitted, users, error} = useSelector((store) => store.users);
+    const studentStore = useSelector(store => store.students)
     //const {userData} = useSelector((store) => store.auth);
 
     // ** Hook
@@ -104,13 +103,10 @@ const UserInfoCard = ({selectedStudent}) => {
     }, [loading, error]);
 
     useEffect(() => {
-        const classRoom = selectedStudent.school.classes.find(c => c.id === selectedStudent.classId);
-        setSelectedClass(classRoom);
         const parent = selectedStudent.primaryParent ? {
             value: selectedStudent.primaryParent.id,
             label: `${selectedStudent.primaryParent.fullName} (${selectedStudent.primaryParent.telephone})`
         } : null;
-        setSelectedClass(classRoom)
         if (parent !== null){
             setSelectedParent(parent)
             setParents([parent])
@@ -188,12 +184,9 @@ const UserInfoCard = ({selectedStudent}) => {
         if (Object.values(data).every(field => field.length > 0)) {
             const formData = data;
             const parent = selectedParent.value
-            const classRoom = selectedClass.value;
-
             formData["id"] = selectedStudent.id;
             formData["parent"] = parent;
             formData["editing"] = true; // in order to override the primary parent
-            formData["classRoom"] = classRoom;
             formData["school"] = selectedStudent.school.id;
             dispatch(registerStudent(formData));
         } else {
@@ -286,10 +279,6 @@ const UserInfoCard = ({selectedStudent}) => {
                     <div className='info-container'>
                         <ul className='list-unstyled'>
                             <li className='mb-75'>
-                                <span className='fw-bolder me-25'>Class:</span>
-                                <span>{selectedStudent.className}</span>
-                            </li>
-                            <li className='mb-75'>
                                 <span className='fw-bolder me-25'>Card:</span>
                                 <span>{formatCreditCardNumber(selectedStudent.wallet.cardNo)}</span>
                             </li>
@@ -302,14 +291,14 @@ const UserInfoCard = ({selectedStudent}) => {
                                     </div>
                                     <div className="col">
                                         <div className="btn-group btn-group-sm">
-                                            <Button onClick={() => setShowBalanceUpdate(true)} className="btn btn-sm btn-icon btn-success" id={`pw-tooltip-top-up`}>
-                                                <FaPlus color='white' size={13}/>&nbsp;Top-Up
+                                            <Button onClick={() => setShowBalanceUpdate(true)} className="btn btn-sm  btn-success" id={`pw-tooltip-top-up`}>
+                                                Top-Up
                                             </Button>
                                             <UncontrolledTooltip placement='top' target={`pw-tooltip-top-up`}>
                                                 Top-up wallet balance
                                             </UncontrolledTooltip>
-                                            <Button onClick={() => setShowCashOut(true)} className="btn btn-sm btn-icon btn-info" id={`pw-tooltip-cash-out`}>
-                                                <GiReceiveMoney size={13} />&nbsp;Cash Out
+                                            <Button onClick={() => setShowCashOut(true)} className="btn btn-sm  btn-info" id={`pw-tooltip-cash-out`}>
+                                                Cash Out
                                             </Button>
                                             <UncontrolledTooltip placement='top' target={`pw-tooltip-cash-out`}>
                                                 Click to initiate a cash out.
@@ -529,6 +518,7 @@ const UserInfoCard = ({selectedStudent}) => {
                         await dispatch(topupWallet(payload))
                         setShowBalanceUpdate(false);
                     }}>
+                        {studentStore.loading && <Spinner size="sm" className="mx-1"/>}
                         Top-Up
                     </Button>
                 </ModalFooter>
@@ -576,6 +566,7 @@ const UserInfoCard = ({selectedStudent}) => {
                         await dispatch(cashOut(payload))
                         setShowCashOut(false);
                     }}>
+                        {studentStore.loading && <Spinner size="sm" className="mx-1"/>}
                         Cash-Out
                     </Button>
                 </ModalFooter>
@@ -617,23 +608,6 @@ const UserInfoCard = ({selectedStudent}) => {
                                                invalid={errors.lastName && true}/>
                                     )}
                                 />
-                            </Col>
-                            <Col md={6} xs={12}>
-                                <div className='mb-1'>
-                                    <Label className='form-label' for='selectedClass'>
-                                        Class <span className='text-danger'>*</span>
-                                    </Label>
-                                    <Select
-                                        isSearchable
-                                        isClearable={true}
-                                        value={selectedClass}
-                                        placeholder="Select Class"
-                                        options={selectedStudent.school.classes}
-                                        name="selectedClass"
-                                        classNamePrefix='select'
-                                        onChange={v => setSelectedClass(v)}
-                                    />
-                                </div>
                             </Col>
                             <Col md={6} xs={12}>
                                 <div className='mb-1'>

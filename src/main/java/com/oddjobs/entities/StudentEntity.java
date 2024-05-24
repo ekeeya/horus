@@ -28,7 +28,7 @@ public class StudentEntity extends BaseEntity{
     private String regNo= UUID.randomUUID().toString();
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="class_room_id", nullable=false)
+    @JoinColumn(name="class_room_id")
     private ClassRoom classRoom;
 
     @OneToOne(mappedBy = "student")

@@ -26,7 +26,6 @@ const defaultValues = {
   middleName: '',
   lastName: '',
   school:null,
-  classRoom:null
 }
 
 
@@ -39,7 +38,7 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
   // ** States
   const [selectedParent, setSelectedParent] =  useState({});
   const [selectedSchool, setSelectedSchool] =  useState({});
-  const [selectedClass, setSelectedClass] =  useState({});
+  // const [selectedClass, setSelectedClass] =  useState({});
   const [parents, setParents] = useState([])
 
   const { userData } = useSelector((store) => store.auth);
@@ -55,8 +54,7 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
     if(userData.school){
       setSelectedSchool({
         value:userData.school.id,
-        label:userData.school.name,
-        classes:userData.school.classes,
+        label:userData.school.name
       });
     }
     async function fetchParents(){
@@ -110,8 +108,7 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
     return schoolStore.schools.map(school=>{
       return {
         value:school.id,
-        label:school.name,
-        classes:school.classes
+        label:school.name
       }
     })
   }
@@ -127,13 +124,12 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
 
   // ** Function to handle form submit
   const onSubmit = data => {
+    console.log(data)
     const formData = {
       ...data,
-      classRoom:selectedClass.value === undefined ? null: selectedClass.label,
       school:selectedSchool.value === undefined ? null:selectedSchool.value,
       parent:selectedParent.value === undefined ? null : selectedParent.value
     }
-    delete formData["selectedClass"]
     delete formData["selectedSchool"]
     delete formData["selectedParent"]
     if (!selectedParent.value){
@@ -240,28 +236,6 @@ const SidebarNewStudent = ({ open, toggleSidebar }) => {
                   </div>
               )
           }
-          <div className='mb-1'>
-            <Label className='form-label' for='selectedClass'>
-              Class <span className='text-danger'>*</span>
-            </Label>
-            <Controller
-                name='selectedClass'
-                control={control}
-                render={({field}) => (
-                    <Select
-                        isSearchable
-                        isClearable={true}
-                        placeholder="Select Class"
-                        options={selectedSchool && selectedSchool.classes}
-                        name="selectedClass"
-                        classNamePrefix='select'
-                        className={classnames('react-select', { 'is-invalid': errors.classRoom })}
-                        {...field}
-                        onChange={v=>setSelectedClass(v)}
-                    />
-                )}
-            />
-          </div>
           <div className='divider'>
             <div className='divider-text'>Attach Guardian</div>
           </div>
