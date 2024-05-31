@@ -9,8 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"version", "createdAt","createdBy","lastModifiedAt", "lastModifiedBy","deleted","enabled", "commissionRate"})

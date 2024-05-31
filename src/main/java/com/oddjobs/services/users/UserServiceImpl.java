@@ -101,9 +101,8 @@ public class UserServiceImpl implements UserService {
                 }
                 case POS -> {
                     user =  new POSAttendant();
-                    School school = schoolRepository.findById(request.getSchoolId()).get();
+                    // School school = schoolRepository.findById(request.getSchoolId()).get();
                     PosCenterEntity  pos = posCenterRepository.findById(request.getPosCenterId()).get();
-                    ((POSAttendant) user).setSchool(school);
                     ((POSAttendant) user).setPosCenter(pos);
                 }
                 case SCHOOL_ADMIN -> {

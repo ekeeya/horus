@@ -23,8 +23,4 @@ public class POSAttendant extends  User{
     @JoinColumn(name="pos_id")
     private PosCenterEntity posCenter;
 
-    @ManyToOne
-    @JoinColumn(name="school_id")
-    private School school;
-
 }

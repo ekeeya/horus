@@ -40,7 +40,7 @@ public class UserResponseDto {
         if(user != null){
             School sc;
             if (user instanceof POSAttendant){
-                sc = ((POSAttendant) user).getSchool();
+                sc = ((POSAttendant) user).getPosCenter().getSchool();
                 Map<String, String> smap = new HashMap<>();
                 smap.put("id", sc.getId().toString());
                 smap.put("name", sc.getName());

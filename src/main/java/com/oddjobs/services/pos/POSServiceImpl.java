@@ -102,7 +102,6 @@ public class POSServiceImpl implements POSService{
                 // add them
                 attachedAttendants.add(attendant);
                 attendant.setPosCenter(posCenter);
-                attendant.setSchool(posCenter.getSchool());
             }else{
                 throw new Exception(String.format("%s %s is already attached to pos Center %s.", attendant.getFirstName(), attendant.getLastName(), posCenter));
             }
@@ -111,7 +110,6 @@ public class POSServiceImpl implements POSService{
                 // remove them
                 attachedAttendants.remove(attendant);
                 attendant.setPosCenter(null);
-                attendant.setSchool(posCenter.getSchool());
             }else{
                 throw new Exception(String.format("%s %s is not an attendant at pos Center %s.", attendant.getFirstName(), attendant.getLastName(), posCenter));
             }

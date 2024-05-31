@@ -120,7 +120,7 @@ public class WalletController {
                     }
                 }
                 if (u instanceof POSAttendant){
-                    if(!((POSAttendant) u).getSchool().getId().equals(acc.getStudent().getSchool().getId())){
+                    if(!((POSAttendant) u).getPosCenter().getSchool().getId().equals(acc.getStudent().getSchool().getId())){
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No permissions to carry out this action");
                     }
                 }
