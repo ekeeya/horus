@@ -223,7 +223,7 @@ const Register = () => {
             </Form>
             <p className='text-center mt-2'>
               <span className='me-25'>Already have an account?</span>
-              <Link to='/login'>
+              <Link to='/auth'>
                 <span>Sign in instead</span>
               </Link>
             </p>

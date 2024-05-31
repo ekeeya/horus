@@ -109,11 +109,11 @@ public class ApprovalRequestServiceImpl implements ApprovalRequestService{
                     userRepository.save(parentUser); // we can do better because multiple schools can have the same parent as primary to one of their kids
                 }
                 action = Notification.Action.Approve;
-                msg = String.format("You have been APPROVED by %s on behalf of %s to contribute to wallet card of student %s (%s)",fullName, request.getStudent().getSchool().getName(), request.getStudent().fullName(), request.getStudent().getClassRoom().getName());
+                msg = String.format("You have been APPROVED by %s on behalf of %s to contribute to wallet card of student %s",fullName, request.getStudent().getSchool().getName(), request.getStudent().fullName());
             }else{
                 action = Notification.Action.Reject;
                 request.setStatus(ApprovalRequest.Status.REJECTED);
-                msg = String.format("You have been REJECTED by %s on behalf of %s from contributing to wallet card of student %s (%s)",fullName, request.getStudent().getSchool().getName(), request.getStudent().fullName(), request.getStudent().getClassRoom().getName());
+                msg = String.format("You have been REJECTED by %s on behalf of %s from contributing to wallet card of student %s",fullName, request.getStudent().getSchool().getName(), request.getStudent().fullName());
             }
             approvalRequestRepository.save(request);
             notificationService.createNotification(Notification.Type.PRIMARY_PARENT_APPROVAL_REQUEST,request.getId(), action,msg);

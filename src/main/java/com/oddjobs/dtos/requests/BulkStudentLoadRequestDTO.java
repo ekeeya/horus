@@ -12,9 +12,6 @@ public class BulkStudentLoadRequestDTO {
     private String lastName;
     @CsvBindByName(column = "middle_name")
     private String middleName;
-    @CsvBindByName(column = "class",required = true)
-    private String classRoom;  //these will be provided simple integers
-
     @CsvBindByName(column = "parent_names")
     private String parentNames; // default assume to be firstName, Middle, Last
 
@@ -24,7 +21,7 @@ public class BulkStudentLoadRequestDTO {
     @CsvBindByName(column = "parent_email")
     private String parentEmail;
 
-    @CsvBindByName(column = "daily_limit")
+        @CsvBindByName(column = "daily_limit")
     private Double dailyLimit = 0.0;
     @CsvBindByName(column = "balance")
     private Double balance = 0.0;
@@ -36,12 +33,11 @@ public class BulkStudentLoadRequestDTO {
 
     public BulkStudentLoadRequestDTO() {} // this is required
 
-    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String classRoom, String parentNames, String parentTelephone, String parentEmail) {
+    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String parentNames, String parentTelephone, String parentEmail) {
         this.image = image;
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
-        this.classRoom = classRoom;
         this.parentNames = parentNames;
         this.parentTelephone = parentTelephone;
         this.parentEmail = parentEmail;

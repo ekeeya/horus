@@ -28,6 +28,9 @@ public class StudentRequestDTO extends BaseRequest {
     private Long school;
     private Long parent;
     private Boolean editing=false;
+    private String cardNo;
+    private Double balance=0.0;
+    private  Double dailyLimit=0.0;
 
     public StudentRequestDTO(){};
 

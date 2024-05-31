@@ -69,12 +69,10 @@ export const authSlice = createSlice({
   }, extraReducers: builder => {
     builder
         .addCase(refreshTokens.fulfilled, (state, action) => {
-          console.log(action.payload)
           state.accessToken = action.payload.access_token
           state.refreshToken=action.payload.refresh_token
         })
         .addCase(refreshTokens.rejected, (state, action) => {
-          console.log("Log you out")
           toast.error("Could not reload tokens",{position:"bottom-right"});
         })
   }

@@ -32,9 +32,9 @@ import {
 } from "@src/views/apps/user/store";
 import {Minus, Plus, X} from "react-feather";
 import Select from "react-select";
-import students, {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
+import {cashOut, registerStudent, topupWallet, walletManagement} from "@src/views/apps/students/store";
 import InputNumber from "rc-input-number";
-import {addDaysToDate, formatCreditCardNumber, midnight, sleep} from "@utils";
+import {addDaysToDate,  midnight} from "@utils";
 import NumericInput from "react-numeric-input";
 
 const roleColors = {
@@ -280,7 +280,7 @@ const UserInfoCard = ({selectedStudent}) => {
                         <ul className='list-unstyled'>
                             <li className='mb-75'>
                                 <span className='fw-bolder me-25'>Card:</span>
-                                <span>{formatCreditCardNumber(selectedStudent.wallet.cardNo)}</span>
+                                <span>{selectedStudent.wallet.cardNo}</span>
                             </li>
                             <li className='mb-75'>
                                 <hr/>

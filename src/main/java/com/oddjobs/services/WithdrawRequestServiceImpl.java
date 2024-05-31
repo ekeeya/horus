@@ -175,6 +175,10 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
         if (BigDecimal.valueOf(request.getAmount()).compareTo(studentWalletAccount.getBalance()) > 0){
                 throw new InsufficientBalanceException(studentWalletAccount.getBalance().doubleValue(), studentWalletAccount.getCardNo());
         }
+
+        if (studentWalletAccount.getStatus() != Utils.WALLET_STATUS.ACTIVE){
+            throw new ResourceFobidenException("Account is not active");
+        }
         log.info("Entering cash-out transaction for: {}",studentWalletAccount);
         // create the cash-out transaction
         CashoutTransaction transaction =  new CashoutTransaction();

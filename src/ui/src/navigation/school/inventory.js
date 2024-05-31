@@ -2,6 +2,8 @@
 import { CiBank } from "react-icons/ci";
 import { MdOutlinePointOfSale } from "react-icons/md";
 import { MdOutlineAddToPhotos } from "react-icons/md";
+import {FaRegHandshake} from "react-icons/fa6";
+import {GiTwoCoins} from "react-icons/gi";
 
 export default [
   {
@@ -24,16 +26,16 @@ export default [
       {
         id: 'orders',
         title: 'Orders',
-        icon: <MdOutlinePointOfSale size={12} />,
-        navLink: '/schools/pos/list',
+        icon: <FaRegHandshake size={12} />,
+        navLink: '/orders/list',
         action:"manage",
         resource:"inventory",
       },
       {
         id: 'sales',
         title: 'Sales',
-        icon: <MdOutlinePointOfSale size={12} />,
-        navLink: '/schools/pos/list',
+        icon: <GiTwoCoins size={12} />,
+        navLink: '/sales/list',
         action:"manage",
         resource:"inventory",
       }

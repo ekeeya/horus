@@ -16,8 +16,8 @@ const statusObj = {
     FAILED: 'light-danger'
 }
 
-const renderType=(type)=>{
-    return type==="COLLECTION" ? "DEPOSIT" :type
+const renderType=(row)=>{
+    return row.posAttendant ? 'PAYMENT' :'CASHOUT';
 }
 const renderDate = (date) => {
     //const d = new Date(date)
@@ -73,7 +73,6 @@ export const columns = [
                     >
                         <small className='mb-0'>{row.debitAccount.student}</small>
                     </Link>
-                    <small className='text-body mb-0'>Card:&nbsp;<small className='text-muted mb-0'>{row.debitAccount.cardNo}</small></small>
                     <small className='text-truncate text-muted mb-0'>{row.debitAccount.schoolName}</small>
                 </div>
             </div>
@@ -96,7 +95,7 @@ export const columns = [
         minWidth: '140px',
         sortField: 'transactionType',
         selector: row => row.transactionType,
-        cell: row => renderType(row.transactionType)
+        cell: row => renderType(row)
     },
     {
         name: 'Date',

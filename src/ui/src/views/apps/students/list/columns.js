@@ -65,7 +65,7 @@ export const columns = [
         )
     },
     {
-        name: 'Card Info',
+        name: 'Balance',
         minWidth: '200px',
         sortable: true,
         sortField: 'status',
@@ -73,8 +73,7 @@ export const columns = [
         cell: row => (
             <div className='d-flex justify-content-left align-items-center'>
                 <div className='d-flex flex-column'>
-                    <span className='fw-bolder'>{formatCreditCardNumber(row.wallet.cardNo)}</span>
-                    <small className='text-muted mb-0'>Balance: {row.wallet.balance.toLocaleString()}/=</small>
+                    <small className='text-bold mb-0'>{row.wallet.balance.toLocaleString()}/=</small>
                 </div>
             </div>
         )

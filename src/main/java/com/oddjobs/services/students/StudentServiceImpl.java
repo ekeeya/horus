@@ -8,6 +8,7 @@ import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.exceptions.GenericException;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
@@ -15,6 +16,7 @@ import com.oddjobs.repositories.school.SchoolRepository;
 import com.oddjobs.repositories.students.CardRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.users.UserRepository;
+import com.oddjobs.repositories.wallet.SchoolCollectionAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.approvals.SchoolApprovalRequest;
@@ -33,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,9 +55,11 @@ public class StudentServiceImpl implements StudentService{
     private final UserRepository userRepository;
     private final UserService userService;
     private final ApprovalRequestService approvalRequestService;
+    private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
+
     @Override
     @Transactional
-    public StudentEntity registerStudent(StudentRequestDTO request) throws SchoolNotFoundException, NoSuchElementException, GenericException {
+    public StudentEntity registerStudent(StudentRequestDTO request) throws SchoolNotFoundException, NoSuchElementException {
         // create student record
         School school;
         try{
@@ -75,6 +80,9 @@ public class StudentServiceImpl implements StudentService{
         student.setSchool(school);
         StudentEntity s = studentRepository.save(student);
         CardEntity card =  new CardEntity();
+        if (request.getCardNo() != null){
+            card.setCardNo(request.getCardNo());
+        }
         card.setStudent(s);
         card = cardRepository.save(card);
         if(request.getId() == null){
@@ -83,6 +91,8 @@ public class StudentServiceImpl implements StudentService{
             s.setWalletAccount(account);
             account.setCard(card);
             account.setCardNo(card.getCardNo());
+            account.setBalance(BigDecimal.valueOf(request.getBalance()));
+            account.setMaximumDailyLimit(BigDecimal.valueOf(request.getDailyLimit()));
         }
         // attach to parent if any
         if(request.getParent() != null){
@@ -104,6 +114,9 @@ public class StudentServiceImpl implements StudentService{
                 null,
                 false
         );
+        request.setBalance(bulkRequest.getBalance());
+        request.setCardNo(bulkRequest.getCardNo());
+        request.setDailyLimit(bulkRequest.getDailyLimit());
         StudentEntity student = registerStudent(request);
         // record Parent as primary parent.
         if (bulkRequest.getParentTelephone() != null && bulkRequest.getParentNames() != null){
@@ -145,6 +158,12 @@ public class StudentServiceImpl implements StudentService{
             SchoolApprovalRequest approvalRequest = (SchoolApprovalRequest) approvalRequestService.createApprovalRequest(r, true);
             // approve it
             approvalRequestService.approvePrimaryParent(approvalRequest, true,true, true);
+
+            // increment school collections account;
+            SchoolCollectionAccount collectionAccount = schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(student.getSchool());
+            BigDecimal balance = collectionAccount.getBalance();
+            collectionAccount.setBalance(balance.add(student.getWalletAccount().getBalance()));
+            schoolCollectionAccountRepository.save(collectionAccount);
 
         }else{
             log.warn(String.format("Could not create parent user for student %s since phone number is not provided", student));

@@ -1,27 +1,19 @@
 import {
-    Alert,
     Button,
     Col,
     Input,
     Label,
-    ListGroup,
-    ListGroupItem,
     Modal,
     ModalBody,
     ModalFooter,
     ModalHeader,
     Row,
-    Spinner,
-    UncontrolledTooltip
+    Spinner
 } from "reactstrap";
-import NumericInput from "react-numeric-input";
 import Select from "react-select";
-import {useEffect, useMemo, useState} from "react";
-import {useDropzone} from "react-dropzone";
-import toast from "react-hot-toast";
-import {DownloadCloud, FileText, X} from "react-feather";
+import { useState } from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {addCategories, addItems, importItems, setSelectedProduct} from "@src/views/apps/inventory/store";
+import {addCategories} from "@src/views/apps/inventory/store";
 
 
 const providers =[
@@ -52,24 +44,14 @@ const AddCategoryModal = ({open, closeModal})=>{
 
     const {loading } = useSelector(store=>store.inventory)
     const dispatch =  useDispatch();
-    const handleChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result);
-            };
-            reader.readAsDataURL(selectedFile);
-        }
-    };
+
 
     const addSingleCategory = async()=>{
         const payload = {
             name,
             icon,
             provider:provider.value,
-            image:preview.split(",")[1],
+            image:`${name.toLowerCase().replaceAll(" ", "_")}.png`,
         }
         console.log(payload)
         await dispatch(addCategories([payload]))
@@ -129,25 +111,6 @@ const AddCategoryModal = ({open, closeModal})=>{
                                 name="school"
                                 onChange={v=>setProvider(v)}
                             />
-                        </Col>
-                    </Row>
-                    <Row className='gy-1 pt-75 text-center'>
-                        <Col xs={12}>
-                            <Label className='form-label' for=''>
-                               Image
-                            </Label>
-                            <Input id='image'
-                                   type="file"
-                                   onChange={handleChange} />
-                            {preview &&
-                                <>
-                                    <img src={preview} alt="Preview" style={{ maxWidth: '30%' }} />
-                                    <br/>
-                                </>
-                            }
-                            <small className='text-muted'>
-                               Upload an Image that has a white/no background for better display. the image uploaded here will be displayed for all items under this category
-                            </small>
                         </Col>
                     </Row>
                 </div>

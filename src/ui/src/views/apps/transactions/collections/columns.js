@@ -73,7 +73,6 @@ export const columns = [
                     >
                         <small className='mb-0'>{row.receiver.fullName}</small>
                     </Link>
-                    <small className='text-body mb-0'>Card:&nbsp;<small className='text-muted mb-0'>{row.receiver.wallet.cardNo}</small></small>
                     <small className='text-truncate text-muted mb-0'>{row.receiver.school.name}</small>
                 </div>
             </div>
