@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 
-const domain = "http://127.0.0.1:8000";
-//const domain = "";
+// const domain = "http://127.0.0.1:8000";
+const domain = "";
 
 const prefix = "/";
 
