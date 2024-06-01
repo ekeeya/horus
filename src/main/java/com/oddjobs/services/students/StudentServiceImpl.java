@@ -1,13 +1,11 @@
 package com.oddjobs.services.students;
 
-import com.oddjobs.dtos.requests.ApprovalRequestCreateDTO;
-import com.oddjobs.dtos.requests.BulkStudentLoadRequestDTO;
-import com.oddjobs.dtos.requests.StudentRequestDTO;
-import com.oddjobs.dtos.requests.UserRequestDto;
+import com.oddjobs.dtos.requests.*;
 import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.transactions.CollectionTransaction;
 import com.oddjobs.entities.wallets.CollectionAccount;
 import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.exceptions.GenericException;
@@ -40,6 +38,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static com.oddjobs.utils.Utils.ENV.PRODUCTION;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +115,7 @@ public class StudentServiceImpl implements StudentService{
                 null,
                 false
         );
-        request.setBalance(bulkRequest.getBalance());
+        request.setBalance(0.0);
         request.setCardNo(bulkRequest.getCardNo());
         request.setDailyLimit(bulkRequest.getDailyLimit());
         StudentEntity student = registerStudent(request);
@@ -165,6 +165,16 @@ public class StudentServiceImpl implements StudentService{
             BigDecimal balance = collectionAccount.getBalance();
             collectionAccount.setBalance(balance.add(student.getWalletAccount().getBalance()));
             schoolCollectionAccountRepository.save(collectionAccount);
+
+            if (bulkRequest.getBalance() > 0){
+                WalletDepositDTO deposit =  new WalletDepositDTO();
+                deposit.setAmount(bulkRequest.getBalance());
+                deposit.setStudentId(student.getId());
+                deposit.setCardNo(student.getWalletAccount().getCardNo());
+                deposit.setIsSystem(true);
+                deposit.setEnv(PRODUCTION);
+                walletService.depositIntoWallet(deposit);
+            }
 
         }else{
             log.warn(String.format("Could not create parent user for student %s since phone number is not provided", student));
