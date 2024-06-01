@@ -263,7 +263,6 @@ public class WalletServiceImpl implements WalletService {
                 transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
                 transaction =transactionRepository.save(transaction); // save it first to get the id
                 // this will create handle the balance update right?
-                String status = Utils.TRANSACTION_STATUS.SUCCESS.toString();
                 transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
             }
             StudentWalletAccount w = entityManager.merge(wallet);

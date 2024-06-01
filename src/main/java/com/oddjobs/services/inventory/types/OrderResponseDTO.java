@@ -32,7 +32,7 @@ public class OrderResponseDTO implements Serializable {
         setTransactionId(order.getTransaction() != null ? order.getTransaction().getTransactionId() : "-");
         setStatus(order.getStatus());
         setStudentId(order.getWallet().getStudent().getId());
-        String student =  order.getWallet().getStudent().fullName() + " (" + order.getWallet().getStudent().getClassRoom().getName() +")";
+        String student =  order.getWallet().getStudent().fullName();
         setStudentName(student);
         setItems(order.getItems().stream().map(OrderItemResponseDTO::new).toList());
     }

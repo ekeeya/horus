@@ -8,6 +8,7 @@ import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.entities.wallets.CollectionAccount;
 import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.exceptions.GenericException;
 import com.oddjobs.exceptions.SchoolNotFoundException;
