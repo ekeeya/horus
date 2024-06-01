@@ -8,8 +8,8 @@ public class BulkStudentLoadRequestDTO {
     private String image; // base64 string
     @CsvBindByName(column = "first_name", required = true)
     private String firstName;
-    @CsvBindByName(column = "last_name",required = true)
-    private String lastName;
+    @CsvBindByName(column = "last_name")
+    private String lastName="";
     @CsvBindByName(column = "middle_name")
     private String middleName;
     @CsvBindByName(column = "parent_names")

@@ -123,7 +123,7 @@ public class StudentServiceImpl implements StudentService{
             List<String> names = List.of(bulkRequest.getParentNames().split(" "));
             String middleName = names.size() > 2 ? names.get(1) : null;
             String lastName =  names.size() == 2 ? names.get(1) : names.size() > 2 ? names.get(2): "";
-            String telephone = Utils.sanitizeMsisdn(bulkRequest.getParentTelephone(), null); // gives us 2567XXXXXX
+            String telephone = bulkRequest.getParentTelephone();// nfc_cardUtils.sanitizeMsisdn(bulkRequest.getParentTelephone(), null); // gives us 2567XXXXXX
             UserRequestDto parentUser =  new UserRequestDto(
                     null,
                     Utils.ACCOUNT_TYPE.PARENT,
