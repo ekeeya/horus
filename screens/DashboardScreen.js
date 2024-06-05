@@ -82,7 +82,6 @@ export default function DashboardScreen() {
     if (password.length > 0 && newPassword.length > 0) {
       if (password === newPassword) {
         const payload = {newPassword: password, id: userData.user.id};
-        console.log(payload);
         dispatch(updatePassword(payload));
       } else {
         Toast.show({
