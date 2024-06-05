@@ -9,7 +9,7 @@ import InventoryService from '../../services/InventoryService';
 
 const {width, height} = Dimensions.get('screen');
 
-const MD = 365;
+const MD = 412;
 const smallScreen = width < MD;
 
 const InventoryItem = ({item}) => {
@@ -58,7 +58,7 @@ const InventoryItem = ({item}) => {
   return (
     <View
       className={`flex flex-row ${
-        smallScreen ? 'h-20 mx-1 mb-1' : 'h-24 mx-2 mb-3'
+        smallScreen ? 'h-20 mx-1 mb-1' : 'h-24 mx-2 mb-4'
       } justify-between border border-church-450 rounded-2xl`}>
       <View className="flex flex-row justify-end items-center">
         <View

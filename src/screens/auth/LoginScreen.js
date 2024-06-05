@@ -19,8 +19,8 @@ const {width, height} = Dimensions.get('screen');
 const LoginScreen = () => {
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('namatovu');
+  const [password, setPassword] = useState('12345678');
 
   const dispatch = useDispatch();
   // store

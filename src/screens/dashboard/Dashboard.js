@@ -20,7 +20,7 @@ import {removeOrderItem, setPosId} from '../../store/orders';
 import OrderItems from '../../components/inventory/OrderItems';
 const {width, height} = Dimensions.get('screen');
 
-const MD = 365;
+const MD = 412;
 const smallScreen = width < MD;
 const shortScreen = height < 700;
 
@@ -179,9 +179,9 @@ const Dashboard = props => {
         } p-2 justify-between`}>
         <View
           className={`flex flex-row justify-center items-center p-1 rounded-2xl
-                          border border-gray-300 bg-white ${
-                            smallScreen ? 'w-72' : 'w-96'
-                          }`}>
+                            border border-gray-300 bg-white ${
+                              smallScreen ? 'w-72' : 'w-96'
+                            }`}>
           <Ionicons name="search-outline" size={28} />
           <TextInput
             onFocus={handleFocus}

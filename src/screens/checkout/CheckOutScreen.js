@@ -25,9 +25,9 @@ import {ALERT_TYPE, Dialog} from 'react-native-alert-notification';
 import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
 import {cleanTag} from '../../utils';
 import {clearOrderItems} from '../../store/orders';
-const {width, height} = Dimensions.get('screen');
+const {width} = Dimensions.get('screen');
 
-const smallScreen = width < 365;
+const smallScreen = width < 412;
 // const shortScreen = height < 700;
 export const CheckOutScreen = () => {
   const navigation = useNavigation();
@@ -62,13 +62,11 @@ export const CheckOutScreen = () => {
         Alert.alert(`Oops, could not read the tag: ${ex}`);
       } finally {
         // stop the nfc scanning
-        console.log("Stopping")
         await NfcManager.cancelTechnologyRequest();
       }
     }
   };
   const handlePaymentsSheetOnClose = (edit = false) => {
-    console.log("Fuck I am called")
     setShowScanner(false);
     if (!edit) {
       setCardNo(null);
