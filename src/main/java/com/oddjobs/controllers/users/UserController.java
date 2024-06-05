@@ -224,13 +224,18 @@ public class UserController {
     @PostMapping("change-password")
     public ResponseEntity<?>updatePassword(@Valid @RequestBody UpdateUserPasswordRequestDTO request){
 
-        User user =  userService.findById(request.getId());
-        if(user != null){
-            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            userRepository.save(user);
-            return ResponseEntity.ok("Password Changed successfully.");
+        try{
+            User user =  userService.findById(request.getId());
+            if(user != null){
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                userRepository.save(user);
+                return ResponseEntity.ok("Password Changed successfully.");
+            }
+            return ResponseEntity.badRequest().body("User not found");
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-        return ResponseEntity.badRequest().body("User not found");
 
     }
 

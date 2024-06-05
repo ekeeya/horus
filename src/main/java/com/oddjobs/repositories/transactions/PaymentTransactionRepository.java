@@ -20,6 +20,7 @@ import java.util.List;
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, Long> {
 
     List<PaymentTransaction> findPaymentTransactionsByDebitAccountAndCreatedAtBetween(StudentWalletAccount account, Date lowerDate, Date upperDate);
+    Page<PaymentTransaction> findPaymentTransactionsByDebitAccount(StudentWalletAccount account,Pageable pageable);
     Page<PaymentTransaction> findPaymentTransactionsByAttendant_PosCenter(PosCenterEntity posCenter, Pageable pageable);
     Page<PaymentTransaction> findPaymentTransactionsByAttendant_PosCenterAndCreatedAtBetween(PosCenterEntity posCenter, Date lowerDate, Date upperDate, Pageable pageable);
     Page<PaymentTransaction> findPaymentTransactionsByAttendant_PosCenterAndSchool(PosCenterEntity posCenter, School school, Pageable pageable);

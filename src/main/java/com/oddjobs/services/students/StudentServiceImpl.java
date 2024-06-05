@@ -173,6 +173,7 @@ public class StudentServiceImpl implements StudentService{
                 deposit.setCardNo(student.getWalletAccount().getCardNo());
                 deposit.setIsSystem(true);
                 deposit.setEnv(PRODUCTION);
+                // create a collection transaction
                 walletService.depositIntoWallet(deposit);
             }
 

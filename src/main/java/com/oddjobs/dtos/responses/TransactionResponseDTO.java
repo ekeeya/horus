@@ -23,6 +23,7 @@ public class TransactionResponseDTO implements Serializable {
     private Utils.TRANSACTION_TYPE transactionType;
     private SchoolShortResponseDTO school;
     private String description;
+    private String msisdn;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     private BigDecimal amount=new BigDecimal(0);
@@ -50,6 +51,7 @@ public class TransactionResponseDTO implements Serializable {
             if (((CollectionTransaction) t).getMmTransaction() != null ){
                 MMTransaction mmTransaction =((CollectionTransaction) t).getMmTransaction();
                 setProvider(mmTransaction.getProvider().name());
+                setMsisdn(((CollectionTransaction) t).getMmTransaction().getMsisdn());
             }
         }else if(t instanceof PaymentTransaction) {
             setDebitAccount(new AccountResponseDTO(((PaymentTransaction) t).getDebitAccount()));

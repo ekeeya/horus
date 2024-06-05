@@ -3,6 +3,7 @@ package com.oddjobs.repositories.transactions;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
+import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.users.ParentUser;
@@ -47,11 +48,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Page<Transaction> findTransactionsBySchoolAndTransactionTypeAndCreatedAtBetween(School school, Utils.TRANSACTION_TYPE type, Date lowerDate, Date upperDate, Pageable pageable);
 
-    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CollectionTransaction AND t.receiver = :student AND(t.transactionType=:type)")
-    Page<Transaction> findTransactionsByReceiver(
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CollectionTransaction AND t.receiver = :student")
+    Page<Transaction> findCollectionTransactionsByReceiver(
             @Param("student") StudentEntity student,
-            @Param("type") Utils.TRANSACTION_TYPE type,
             Pageable pageable);
+
 
     @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CollectionTransaction AND t.sender = :parent AND (t.createdAt >=:lowerDate AND t.createdAt <=:upperDate)")
     Page<Transaction> findTransactionsBySenderAndDateBetween(

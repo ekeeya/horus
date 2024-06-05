@@ -115,8 +115,12 @@ public class TransactionsController {
                 }
             }else if(studentId != null){
                 StudentEntity student = studentService.findById(studentId);
-                type = Utils.TRANSACTION_TYPE.PAYMENT;
-                transactions = transactionRepository.findTransactionsByReceiver(student,type, pageable);
+                if (type == Utils.TRANSACTION_TYPE.COLLECTION){
+                    transactions = transactionRepository.findCollectionTransactionsByReceiver(student, pageable);
+                }else {
+                    transactions = paymentTransactionRepository.findPaymentTransactionsByDebitAccount(student.getWalletAccount(), pageable);
+                }
+
             }else if(parentId != null){
                 ParentUser parent = (ParentUser) userService.findById(parentId);
                 Calendar calendar = Calendar.getInstance();

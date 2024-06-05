@@ -44,7 +44,7 @@ import {
 // ** Illustrations Imports
 import illustrationsLight from '@src/assets/images/pages/login-v2.svg'
 import illustrationsDark from '@src/assets/images/pages/login-v2-dark.svg'
-
+import loginCover  from '@src/assets/images/illustration/login_v1.png';
 // ** Styles
 import '@styles/react/pages/page-authentication.scss'
 import logo from '@src/assets/images/logo/logo-full.png'
@@ -85,6 +85,7 @@ const Login = () => {
   } = useForm({ defaultValues })
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
+
   const { loading } = useSelector((store) => store.auth);
 
   const onSubmit = data => {
@@ -125,17 +126,17 @@ const Login = () => {
     <div className='auth-wrapper auth-cover'>
       <Row className='auth-inner m-0'>
         <Link className='navbar-brand' to='/' onClick={e => e.preventDefault()}>
-          <img  style={{height:40, marginTop:"1.55em"}} className='img-fluid'  src={logo} alt="logo" />
+          <img  style={{height:80, marginTop:"1.55em"}} className='img-fluid'  src={logo} alt="logo" />
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
           <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>
-            <img className='img-fluid' src={source} alt='Login Cover' />
+            <img className='img-fluid' src={loginCover} alt='Login Cover' />
           </div>
         </Col>
         <Col className='d-flex align-items-center auth-bg px-2 p-lg-5' lg='4' sm='12'>
           <Col className='px-xl-2 mx-auto' sm='8' md='6' lg='12'>
             <CardTitle tag='h2' className='fw-bold mb-1'>
-              Welcome to Sobola Pocket Pay 👋
+              Welcome to Pocket Pay 👋
             </CardTitle>
             <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText>
             <Form className='auth-login-form mt-2' onSubmit={handleSubmit(onSubmit)}>
