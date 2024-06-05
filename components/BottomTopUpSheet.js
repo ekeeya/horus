@@ -15,7 +15,7 @@ import AnimatedLoader from 'react-native-animated-loader';
 import {XMark} from '@nandorojo/heroicons/24/outline';
 import {useDispatch, useSelector} from 'react-redux';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import {depositWallet, setData} from '../store/wallet';
+import {depositWallet, setData, setShowTopUp} from '../store/wallet';
 import {store} from '../store/store';
 
 const {width, height} = Dimensions.get('window');
@@ -27,7 +27,10 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
   const [tel, setTel] = useState('');
   const bottomSheetRef = useRef(null);
 
-  const snapPoints = useMemo(() => ['25%', '40%'], []);
+  const snapPoints = useMemo(
+    () => (height < 890 ? ['50%', '80%'] : ['25%', '50%']),
+    [],
+  );
 
   const {submitting, showTopUp, message, amount, msisdn} = useSelector(
     store => store.wallet,
@@ -44,6 +47,7 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
 
   const handleClosePress = useCallback(() => {
     bottomSheetRef.current?.close();
+    dispatch(setShowTopUp(false));
   }, []);
 
   useEffect(() => {
@@ -58,8 +62,7 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
         title: 'Wrong Amount',
         textBody: `Deposit amount ${amount} should be above 500`,
       });
-
-    } else if (msisdn.length < 10){
+    } else if (msisdn.length < 10) {
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Wrong Telephone',
@@ -98,10 +101,9 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
     [],
   );
   const renderFooter = useCallback(props => {
-
     return (
       <BottomSheetFooter {...props} bottomInset={10}>
-        <View className="flex mb-5 flex-row justify-end mx-10 space-x-4">
+        <View className="flex mb-10 flex-row justify-end mx-10 space-x-4">
           <TouchableOpacity
             onPress={handleClosePress}
             className="flex-1 h-10 border bg-red rounded-lg border-red-800 items-center justify-center">
@@ -110,7 +112,9 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
           <TouchableOpacity
             onPress={() => handlePayment()}
             className="flex-1 h-10 border rounded-lg bg-text items-center justify-center">
-            <Text className="text-xl font-bold border-green-800 text-green-600 ">Top-Up</Text>
+            <Text className="text-xl font-bold border-green-800 text-green-600 ">
+              Top-Up
+            </Text>
           </TouchableOpacity>
         </View>
       </BottomSheetFooter>
@@ -123,13 +127,12 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
       index={index}
       enablePanDownToClose={false}
       bottomInset={0}
-      //backgroundStyle={{backgroundColor: '#2b68f5', color: '#fff'}}
       style={styles.sheetContainer}
       backdropComponent={renderBackdrop}
-      footerComponent={renderFooter}
+      footerComponent={height >= 600 ? renderFooter : null}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}>
-      <View style={styles.actionSheetContentContainer}>
+      <View className="flex h-2/3">
         <View style={styles.header}>
           <Text style={styles.titleText}>{title}</Text>
           <TouchableOpacity onPress={handleClosePress}>
@@ -163,6 +166,17 @@ const BottomTopUpSheet = ({wallet, onClose}) => {
             style={styles.input}
           />
         </View>
+        {height < 600 && (
+          <View className="flex justify-center items-center w-full absolute bottom-10 left-0">
+            <TouchableOpacity
+              onPress={() => handlePayment()}
+              className="flex-1 h-10 w-32 mx-4 border rounded-lg bg-text items-center justify-center">
+              <Text className="font-bold border-green-800 text-green-600 ">
+                Top-Up
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <AnimatedLoader
           visible={submitting}
           overlayColor="rgba(255,255,255,0.75)"

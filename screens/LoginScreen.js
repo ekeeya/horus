@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
-  StatusBar,
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
@@ -19,8 +18,8 @@ const {height} = Dimensions.get('screen');
 const LoginScreen = () => {
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('256755940615');
+  const [password, setPassword] = useState('12345678');
   //756315407
   const dispatch = useDispatch();
   // store

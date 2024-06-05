@@ -24,6 +24,24 @@ export const login = createAsyncThunk(
     }
   },
 );
+
+export const updatePassword = createAsyncThunk(
+  'access/updatePassword',
+  async (data, thunkAPI) => {
+    try {
+      await client.post('/api/v1/users/change-password', data);
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: '',
+        textBody: 'Password updated successfully!',
+      });
+      return true;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  },
+);
+
 export const refreshTokens = createAsyncThunk(
   'access/refreshToken',
   async (data, thunkAPI) => {
@@ -43,7 +61,6 @@ export const initialUser = async () => {
 
 export const isLoggedIn = async () => {
   const user = await initialUser();
-  console.log(user);
   return user !== null;
 };
 export const initialAccessToken = async () => {
@@ -60,6 +77,7 @@ export const accessSlice = createSlice({
   name: 'access',
   initialState: {
     loading: false,
+    updating:false,
     authenticating: false,
     userData: null,
     accessToken: {},
@@ -118,6 +136,26 @@ export const accessSlice = createSlice({
       })
       .addCase(refreshTokens.rejected, (state, action) => {
         console.log('Log you out');
+      })
+      .addCase(updatePassword.pending, state => {
+        state.updating = true;
+      })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.updating = false;
+        state.userData = null;
+        state.isLoggedIn = false;
+        removeItem('userData');
+        removeItem('accessToken');
+        removeItem('refreshToken');
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.updating = false;
+        state.error = action.payload;
+        Toast.show({
+          type: ALERT_TYPE.DANGER,
+          title: 'Authentication Failed',
+          textBody: `Failed: ${action.payload}`,
+        });
       });
   },
 });

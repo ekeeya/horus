@@ -7,6 +7,7 @@ import {PaperProvider} from 'react-native-paper';
 import {Provider} from 'react-redux';
 import {AlertNotificationRoot} from 'react-native-alert-notification';
 import {store} from './store/store';
+import {MenuProvider} from 'react-native-popup-menu';
 
 export default function App() {
   return (
@@ -17,13 +18,15 @@ export default function App() {
         barStyle="dark-content"
       />
       <GestureHandlerRootView style={{flex: 1}}>
-        <Provider store={store}>
-          <PaperProvider>
-            <AlertNotificationRoot>
-              <AppNavigation />
-            </AlertNotificationRoot>
-          </PaperProvider>
-        </Provider>
+        <MenuProvider>
+          <Provider store={store}>
+            <PaperProvider>
+              <AlertNotificationRoot>
+                <AppNavigation />
+              </AlertNotificationRoot>
+            </PaperProvider>
+          </Provider>
+        </MenuProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

@@ -1,10 +1,13 @@
-import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import React, {useState} from 'react';
 import {LinearGradient} from 'react-native-linear-gradient';
-import {formatCreditCardNumber} from '../utils';
 import {storeColors} from '../theme';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+const {width, height} = Dimensions.get('screen');
+const shortScreen = height < 778;
+const smallWidth = width < 370;
 
 export default function WalletCard(props) {
   const navigation = useNavigation();
@@ -47,7 +50,7 @@ export default function WalletCard(props) {
       <Image
         resizeMode="cover"
         source={image}
-        className={`${single ? 'w-full' : 'w-96'} h-56 rounded-3xl`}
+        className={`${single ? 'w-full h-48' : !smallWidth ? 'w-96 h-48' : 'w-72 h-44'}  rounded-3xl`}
       />
       <LinearGradient
         colors={['transparent', 'rgba(0, 0, 0, 0.6)']}
@@ -59,24 +62,11 @@ export default function WalletCard(props) {
               className="font-bold text-base uppercase">
               {item.fullName}
             </Text>
-            <View
-              onPress={() => setFavourite(!isFavourite)}
-              className="rounded-full">
-              <Image
-                source={require('../assets/images/student.png')}
-                className="w-10 h-10"
-              />
-            </View>
           </View>
           <View
             className={`mx-3 ${
-              item.wallet.enableDailyLimit ? 'mt-10' : 'mt-16'
+              item.wallet.enableDailyLimit ? 'mt-6' : 'mt-10'
             } mb-2`}>
-            <Text
-              style={{color: storeColors.white}}
-              className="font-bold text-xl">
-              {formatCreditCardNumber(item.wallet.cardNo)}
-            </Text>
           </View>
           <View className="space-y-1 mx-3">
             <View className="flex-row items-center space-x-2">

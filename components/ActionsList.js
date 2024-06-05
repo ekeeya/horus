@@ -1,34 +1,27 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 import {View, Text, TouchableOpacity, Alert} from 'react-native';
 
 import {storeColors} from '../theme';
 import colors from 'tailwindcss/colors';
 import DynamicIcon from './DynamicIcon';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchTransactions} from '../store/transactions';
 import {setShowTopUp} from '../store/wallet';
 
 export default function ActionsList({action, student, onPress}) {
   const [activeAction, setActiveAction] = useState();
   const [actions, setActions] = useState([
-    {
+    /* {
       name: 'edit',
       icon: 'edit',
       iconProvider: 'MaterialIcons',
       label: 'Set Limit',
-    },
+    },*/
     {
       name: 'topup',
       icon: 'add-card',
       iconProvider: 'MaterialIcons',
       label: 'Top Up',
     },
-    /*{
-      name: 'suspend',
-      icon: 'book-cancel-outline',
-      iconProvider: 'MaterialCommunityIcons',
-      label: 'Suspend',
-    },*/
   ]);
 
   const dispatch = useDispatch();
@@ -37,6 +30,8 @@ export default function ActionsList({action, student, onPress}) {
     //onPress(value);
     if (value === 'topup') {
       dispatch(setShowTopUp(true));
+    } else {
+      dispatch(setShowTopUp(false));
     }
   };
 
@@ -56,11 +51,11 @@ export default function ActionsList({action, student, onPress}) {
                       : '#dde3fb',
                 }}
                 className={
-                  'h-14 w-14  items-center justify-center rounded-full'
+                  'h-10 w-10  items-center justify-center rounded-full'
                 }>
                 <DynamicIcon
                   name={action.icon}
-                  size={24}
+                  size={20}
                   provider={action.iconProvider}
                   color={
                     action.name === activeAction
