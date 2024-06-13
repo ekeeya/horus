@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
+  Image,
   StatusBar,
   TouchableOpacity,
   ActivityIndicator,
@@ -19,8 +20,8 @@ const {width, height} = Dimensions.get('screen');
 const LoginScreen = () => {
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('namatovu');
-  const [password, setPassword] = useState('12345678');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const dispatch = useDispatch();
   // store
@@ -61,13 +62,20 @@ const LoginScreen = () => {
           <View
             className={`${
               height < 700 ? 'h-20 w-20' : 'h-36 w-36'
-            } rounded-full`}
+            } rounded-full justify-center items-center`}
             style={{backgroundColor: '#f4f4f4', elevation: -2}}
-          />
+          >
+            <Image
+              className={`${height < 700 ? 'h-14 w-14' : 'h-24 w-24'}`}
+              alt="logo"
+              resizeMode="center"
+              source={require('../../assets/logos/logo.png')}
+            />
+          </View>
         </View>
         <View className={`${height < 700 ? 'mt-0' : 'mt-20'} p-5`}>
           <Text className="text-purple-900 text-4xl font-light">
-            Welcome Back,
+            Pocket Pay PoS,
           </Text>
           <Text className="mt-2 text-purple-900 text-lg font-thin">
             Use your credentials to login and start serving!
