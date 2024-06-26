@@ -103,7 +103,7 @@ const defaultValues = {
 const WithdrawRequestList = () => {
     // ** Store Vars
     const dispatch = useDispatch()
-    const {loading, withdrawRequests, pages, selectedRequest,showWithDrawModal, edit, error} = useSelector((store) => store.finance);
+    const {loading, withdrawRequests, pages, selectedRequest,showWithDrawModal} = useSelector((store) => store.finance);
     const {userData} = useSelector((store) => store.auth);
     const schoolStore = useSelector(state => state.schools)
 
@@ -371,7 +371,8 @@ const WithdrawRequestList = () => {
                 </Card>
 
                 <Sidebar open={open} toggleSidebar={toggleSidebar}/>
-                <WithdrawRequestBar open={showWithDrawModal}
+                <WithdrawRequestBar
+                    open={showWithDrawModal}
                          toggleSidebar={togglePaymentSideBar}/>
             </UILoader>
         </Fragment>

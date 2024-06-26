@@ -12,11 +12,12 @@
  */
 
 package com.oddjobs.dtos.requests;
+
 import com.oddjobs.dtos.base.BaseRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 public class StudentRequestDTO extends BaseRequest {
     private Long id;
@@ -27,22 +28,28 @@ public class StudentRequestDTO extends BaseRequest {
     private String regNo;
     private Long school;
     private Long parent;
-    private Boolean editing=false;
     private String cardNo;
-    private Double balance=0.0;
-    private  Double dailyLimit=0.0;
+    private Double balance = 0.0;
+    private Double dailyLimit = 0.0;
+    private String className;
+    private Boolean editing = false;
 
-    public StudentRequestDTO(){};
+    public StudentRequestDTO() {
+    }
 
-    public StudentRequestDTO(Long id,String image, String firstName, String lastName, String middleName, String regNo,Long school, Long parent, Boolean editing) {
-        this.id=id;
+    public StudentRequestDTO(Long id, String image, String firstName, String lastName, String middleName, String regNo, Long school, Long parent, String cardNo, Double balance, Double dailyLimit, String className, Boolean editing) {
+        this.id = id;
         this.image = image;
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.regNo = regNo;
         this.school = school;
-        this.parent=parent;
-        this.editing=editing;
+        this.parent = parent;
+        this.cardNo = cardNo;
+        this.balance = balance;
+        this.dailyLimit = dailyLimit;
+        this.className = className;
+        this.editing = editing;
     }
 }

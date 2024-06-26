@@ -26,7 +26,7 @@ const defaultValues = {
     address: '',
     lastName: '',
     firstName: '',
-    commissionRate: 0.2
+    commissionFee: 10000
 }
 
 const defaultClasses = [
@@ -104,11 +104,14 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
             const payload = {
                 id: selectedSchool ? selectedSchool.id : null,
                 primaryContact: data.primaryContact,
-                commissionRate: data.commissionRate,
+                commissionFee: data.commissionFee,
                 name: data.name,
                 address: data.address,
                 alias:data.alias,
-                user: edit ? null : user
+                user: edit ? null : user,
+                classes: classes.map(r => {
+                    return r.label
+                })
             }
             dispatch(registerSchool(payload))
         } else {
@@ -129,8 +132,9 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
             setValue("name", selectedSchool.name)
             setValue("primaryContact", selectedSchool.primaryContact)
             setValue("address", selectedSchool.address)
-            setValue("commissionRate", selectedSchool.commissionRate)
+            setValue("commissionFee", selectedSchool.commissionFee)
             setValue("alias", selectedSchool.alias)
+            setClasses(selectedSchool.classes)
         }
     }, [edit, selectedSchool])
 
@@ -147,7 +151,6 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
     return (
         <Sidebar
             size='lg'
-            className={"root"}
             open={open}
             title='Register School'
             headerClassName='mb-1'
@@ -199,16 +202,16 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                     <FormText color='muted'>A valid & active email address for the school</FormText>
                 </div>
                 <div className='mb-1'>
-                    <Label className='form-label' for='commissionRate'>
-                        Commission Rate <span className='text-danger'>*</span>
+                    <Label className='form-label' for='commissionFee'>
+                        Commission Fee <span className='text-danger'>*</span>
                     </Label>
                     <Controller
-                        name='commissionRate'
+                        name='commissionFee'
                         control={control}
                         render={({field}) => (
                             <Input
-                                id='commissionRate'
-                                invalid={errors.commissionRate && true}
+                                id='commissionFee'
+                                invalid={errors.commissionFee && true}
                                 {...field}
                             />
                         )}
@@ -229,7 +232,27 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                         )}
                     />
                 </div>
-
+                <div className='divider'>
+                    <div className='divider-text'>Class Rooms</div>
+                </div>
+                <div className='mb-1' md='6' sm='12'>
+                    <Label className='form-label'>Add Class Rooms</Label>
+                    <CreatableSelect
+                        isClearable={false}
+                        theme={selectThemeColors}
+                        defaultValue={classes.map(row => {
+                            return row
+                        })}
+                        isMulti
+                        name='colors'
+                        options={classes}
+                        onChange={(v) => setClasses(v)}
+                        //onCreateOption={handleCreate}
+                        className='react-select'
+                        classNamePrefix='select'
+                    />
+                    <FormText color='muted'>Type a non-listed class to create it.</FormText>
+                </div>
                 {!edit && (<>
                     <div className='divider'>
                         <div className='divider-text'>Access account information</div>

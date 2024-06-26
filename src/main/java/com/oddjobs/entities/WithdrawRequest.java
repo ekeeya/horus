@@ -26,7 +26,7 @@ public class WithdrawRequest extends BaseEntity{
     }
 
     public static enum TYPE {
-        CASH_OUTS, PAYMENTS, COLLECTIONS
+        CASH_OUTS, PAYMENTS, COLLECTIONS, COMMISSION
     }
 
     private String referenceNo= Utils.generateRandomRefNo();

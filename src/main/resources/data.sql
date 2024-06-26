@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS hstore;
 INSERT INTO account(account_no,name,account_type, balance, withdraws) VALUES ('1000000000001', 'SYSTEM COLLECTIONS','SYSTEM', 0.0, 0.0) ON CONFLICT DO NOTHING;
-
+INSERT INTO account(account_no,name,account_type, withdrawn, balance) VALUES ('COM000000000001', 'SYSTEM COMMISSIONS','COMMISSION', 0.0, 0.0) ON CONFLICT DO NOTHING;
 
 CREATE OR REPLACE FUNCTION update_account_balances_at_deposit()
     returns trigger as '

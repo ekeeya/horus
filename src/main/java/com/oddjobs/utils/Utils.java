@@ -22,6 +22,7 @@ public class Utils {
     public  static enum WALLET_ACCOUNT_TYPES{
         SYSTEM(Values.SYSTEM),
         SCHOOL_COLLECTION(Values.SCHOOL_COLLECTION),
+        COMMISSION(Values.COMMISSION),
         SCHOOL_WITHDRAW(Values.SCHOOL_WITHDRAW),
         SCHOOL_PAYMENT(Values.SCHOOL_PAYMENT),
         STUDENT(Values.STUDENT);
@@ -33,6 +34,7 @@ public class Utils {
 
         public static class Values {
             public static final String SYSTEM= "SYSTEM";
+            public static final String COMMISSION= "COMMISSION";
             public static final String SCHOOL_COLLECTION= "SCHOOL_COLLECTION";
             public static final String SCHOOL_WITHDRAW= "SCHOOL_WITHDRAW";
             public static final String SCHOOL_PAYMENT= "SCHOOL_PAYMENT";

@@ -30,6 +30,8 @@ public class SchoolRequestDTO extends BaseRequest {
     private String primaryContact;
     private String alias;
     Double commissionRate= 0.0;
+    Double commissionFee= 0.0;
     private String address;
     private UserRequestDto user;
+    List<String> classes;
 }

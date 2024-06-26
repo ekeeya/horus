@@ -13,9 +13,9 @@ export default () => {
     },
     server: {
       port: 3000,
-      proxy: 'https://pixinvent.com/',
+      proxy: 'https://sobola.org/',
       cors: {
-        origin: ['https://pixinvent.com/', 'http://localhost:3000'],
+        origin: ['https://sobola.org', 'http://localhost:3000'],
         methods: ['GET', 'PATCH', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
       }

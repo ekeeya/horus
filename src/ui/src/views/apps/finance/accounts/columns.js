@@ -5,7 +5,7 @@ import moment from "moment";
 import {store} from "@store/store";
 import {
     setSelectedRequest,
-    setShowWithdrawModal
+    setShowWithdrawModal, setVirtualAccount
 } from "@src/views/apps/finance/store";
 import {GrAtm} from "react-icons/gr";
 
@@ -27,6 +27,7 @@ const renderDate = (date) => {
 const openShowModal =(r)=>{
     store.dispatch(setSelectedRequest(r))
     store.dispatch(setShowWithdrawModal(true))
+    store.dispatch(setVirtualAccount(r))
 }
 const columns = [
 
@@ -87,10 +88,10 @@ const columns = [
                 <div className='column-action d-flex align-items-center'>
 
                     {
-                        (row.accountType === "SCHOOL_PAYMENT") && (
+                        (["SCHOOL_PAYMENT", "COMMISSION"].includes(row.accountType)) && (
                             <>
                                 <Button size="sm"  outline color='info'
-                                        onClick={() => openShowModal()}
+                                        onClick={() => openShowModal(row)}
                                         id={`details-tooltip-${row.id}`}>
                                     <GrAtm  /> Initiate Withdraw
                                 </Button>

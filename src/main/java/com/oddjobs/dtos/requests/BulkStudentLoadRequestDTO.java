@@ -29,11 +29,14 @@ public class BulkStudentLoadRequestDTO {
     @CsvBindByName(column = "card_no")
     private String cardNo;
 
+    @CsvBindByName(column = "class")
+    private String className;
+
 
 
     public BulkStudentLoadRequestDTO() {} // this is required
 
-    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String parentNames, String parentTelephone, String parentEmail) {
+    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String parentNames, String parentTelephone, String parentEmail, Double dailyLimit, Double balance, String cardNo, String className) {
         this.image = image;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -41,5 +44,9 @@ public class BulkStudentLoadRequestDTO {
         this.parentNames = parentNames;
         this.parentTelephone = parentTelephone;
         this.parentEmail = parentEmail;
+        this.dailyLimit = dailyLimit;
+        this.balance = balance;
+        this.cardNo = cardNo;
+        this.className = className;
     }
 }

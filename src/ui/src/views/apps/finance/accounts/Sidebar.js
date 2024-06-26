@@ -33,7 +33,7 @@ import {clearError} from "@src/views/apps/user/store";
 
 const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
 
-    const {loading, error, edit, virtualPaymentAccount, allowedWithdrawAmount} = useSelector(store => store.finance);
+    const {loading, error,virtualPaymentAccount, allowedWithdrawAmount, account} = useSelector(store => store.finance);
     const [amount, setAmount] = useState(0);
     const [dateRange, setDateRange] =  useState(todayDates());
     const [useDate, setUseDate] = useState(false)
@@ -66,8 +66,8 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
             toast.error(msg, {
                 position: "bottom-right"
             })
-        } else if (amount > allowedWithdrawAmount) {
-            const msg = `Specified amount ${amount.toLocaleString()} can not exceed available account balance ${allowedWithdrawAmount.toLocaleString()}`;
+        } else if (amount > account.balance) {
+            const msg = `Specified amount ${amount.toLocaleString()} can not exceed available account balance ${account.balance.toLocaleString()}`;
             toast.error(msg, {
                 position: "bottom-right"
             });
@@ -85,10 +85,18 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                 },
                 buttonsStyling: false
             }).then(function (result) {
-                if (result.value) {
+                let type = "PAYMENTS"
+                    if (account.accountType === "COMMISSION"){
+                        type = "COMMISSION";
+                    }
+                    if (account.accountType === "SCHOOL_PAYMENT"){
+                        type = "PAYMENTS";
+                    }
+                    if (result.value) {
                     const data = {
                         schoolId: userData.schoolId,
-                        amount: amount
+                        amount: amount,
+                        type:type
                     }
                     dispatch(makeWithdrawRequest(data));
                     !error && dispatch(setShowWithdrawModal(false));
@@ -162,7 +170,7 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
             toggleSidebar={toggleSidebar}
             onClosed={handleSidebarClosed}
         >
-            {virtualPaymentAccount && (<Card className='card-developer-meetup'>
+            <Card className='card-developer-meetup'>
                 <CardBody className="root">
 
                     <div>
@@ -172,7 +180,7 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                                     <div className='alert-body font-small-2'>
                                         <p>
                                             <small className='me-50'>
-                                                Allowed maximum withdraw amount <br/> this account is <b>UGX: {allowedWithdrawAmount.toLocaleString()}</b>
+                                                Allowed maximum withdraw amount <br/> this account is <b>UGX: {account.balance.toLocaleString()}</b>
                                             </small>
                                         </p>
                                     </div>
@@ -259,11 +267,11 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                     </div>
                 </CardBody>
                 <CardFooter>
-                    <Button disabled={allowedWithdrawAmount === 0} color="info" onClick={() => initiateWithdrawRequest()}>
+                    <Button disabled={account.balance < 1} color="info" onClick={() => initiateWithdrawRequest()}>
                         Initiate Withdraw
                     </Button>
                 </CardFooter>
-            </Card>)}
+            </Card>
         </Sidebar>
     )
 }

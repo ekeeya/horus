@@ -19,6 +19,7 @@ public class School extends  BaseEntity{
     private String primaryContact;
     private String alias;
     private String address;
+    private Double feePerStudentPerTerm = 0.0;
     @Column(name="commission_rate")
     private Double commissionRate = 0.0;
 

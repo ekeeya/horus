@@ -74,11 +74,12 @@ public class StudentServiceImpl implements StudentService{
         }else{
             student =  new StudentEntity();
         }
-
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setMiddleName(request.getMiddleName());
         student.setSchool(school);
+        ClassRoom classRoom =  classRoomRepository.findClassRoomByNameAndSchool(request.getClassName(), school);
+        student.setClassRoom(classRoom);
         StudentEntity s = studentRepository.save(student);
         CardEntity card =  new CardEntity();
         if (request.getCardNo() != null){
@@ -113,11 +114,15 @@ public class StudentServiceImpl implements StudentService{
                 Utils.generateRandomRegNo(),
                 schoolId,
                 null,
+                bulkRequest.getCardNo(),
+                bulkRequest.getBalance(),
+                bulkRequest.getDailyLimit(),
+                bulkRequest.getClassName(),
                 false
         );
-        request.setBalance(0.0);
-        request.setCardNo(bulkRequest.getCardNo());
-        request.setDailyLimit(bulkRequest.getDailyLimit());
+        // request.setBalance(0.0);
+        //request.setCardNo(bulkRequest.getCardNo());
+        //request.setDailyLimit(bulkRequest.getDailyLimit());
         StudentEntity student = registerStudent(request);
         // record Parent as primary parent.
         if (bulkRequest.getParentTelephone() != null && bulkRequest.getParentNames() != null){

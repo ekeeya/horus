@@ -145,6 +145,22 @@ public class SchoolAdminController {
       }
     }
 
+
+    @GetMapping("set-commission-fee")
+    @Secured({"ROLE_ADMIN"})
+    public ResponseEntity<?> setCommissionFee(
+            @RequestParam(name="fee") Double fee,
+            @RequestParam(name="school") Long schoolId
+    ){
+        try{
+            schoolService.setCommissionFee(schoolId, fee);
+            return ResponseEntity.ok("OK");
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @GetMapping("schools/accounts")
     public ResponseEntity<?> manageSchoolAccounts(
             @RequestParam(name="schoolId") Long schoolId,

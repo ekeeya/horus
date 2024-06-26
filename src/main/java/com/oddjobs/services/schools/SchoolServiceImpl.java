@@ -6,8 +6,7 @@ import com.oddjobs.dtos.requests.SubscriptionRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
-import com.oddjobs.entities.wallets.SchoolPaymentAccount;
-import com.oddjobs.entities.wallets.SchoolWithdrawAccount;
+import com.oddjobs.entities.wallets.*;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
@@ -19,7 +18,6 @@ import com.oddjobs.services.TransactionalExecutorService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
-import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.services.users.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +60,7 @@ public class SchoolServiceImpl implements SchoolService{
                 }
                 school.setName(request.getName());
                 school.setAddress(request.getAddress());
+                school.setFeePerStudentPerTerm(request.getCommissionFee());
                 school.setCommissionRate(request.getCommissionRate());
                 school.setPrimaryContact(request.getPrimaryContact());
                 school.setAlias(request.getAlias());
@@ -73,6 +72,15 @@ public class SchoolServiceImpl implements SchoolService{
                     account.setName(school.getName());
                     account.setSchool(school);
                     walletAccountRepository.save(account);
+
+                    // create school commissions account
+
+                    CommissionAccount commissionAccount =  new CommissionAccount();
+                    commissionAccount.setName(school.getName() +"-Commission");
+                    commissionAccount.setSchool(school);
+                    commissionAccount.setEnabled(true);
+                    walletAccountRepository.save(commissionAccount);
+
                     // Withdraw school account
                     SchoolWithdrawAccount withdrawAccount =  new SchoolWithdrawAccount();
                     withdrawAccount.setSchool(school);
@@ -85,8 +93,8 @@ public class SchoolServiceImpl implements SchoolService{
                     walletAccountRepository.save(paymentAccount);
                 }
                 // check if Classes were provided and add them
-                /*List<ClassRoom> requestRooms = new ArrayList<>();
-                    if(request.getClasses()!=null && request.getClasses().size()>0){
+                List<ClassRoom> requestRooms = new ArrayList<>();
+                    if(request.getClasses()!=null && !request.getClasses().isEmpty()){
                     for (String clazz: request.getClasses()) {
                         ClassRoom room;
                         if(!classRoomRepository.existsClassRoomByNameAndSchool(clazz, school)){
@@ -104,14 +112,14 @@ public class SchoolServiceImpl implements SchoolService{
                     originalRooms.removeAll(requestRooms);
                     // remove those that aren't in the request
                     classRoomRepository.deleteAll(originalRooms);
-                }*/
+                }
                 //check if user is provided
                 if(request.getUser() != null){
                     UserRequestDto u =  request.getUser();
                     u.setSchoolId(school.getId());
                     userService.registerOrUpdateUser(request.getUser());
                 }
-                // Also add a subscription
+                // Also add a subscription, for future use, currently it the commission system
                 SubscriptionRequestDTO subscriptionRequest = new SubscriptionRequestDTO(null,school.getId(), null, null,0.0,
                         school.getCommissionRate(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
                 subscriptionService.register(subscriptionRequest);
@@ -165,6 +173,13 @@ public class SchoolServiceImpl implements SchoolService{
     public void setCommissionRate(Long schoolId, Double rate) throws SchoolNotFoundException {
         School school =  findById(schoolId);
         school.setCommissionRate(rate);
+        schoolRepository.save(school);
+    }
+
+    @Override
+    public void setCommissionFee(Long schoolId, Double fee) throws SchoolNotFoundException {
+        School school =  findById(schoolId);
+        school.setFeePerStudentPerTerm(fee);
         schoolRepository.save(school);
     }
 

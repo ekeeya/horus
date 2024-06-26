@@ -98,11 +98,16 @@ export const appFinanceSlice = createSlice({
         virtualPaymentAccount:{},
         allowedWithdrawAmount:0,
         selectedRequest: null,
+        account:{balance:0},
         pages: 0,
         edit: false,
         error: null
     },
     reducers: {
+
+        setVirtualAccount:(state, {payload})=>{
+            state.account = payload;
+        },
         setEdit: (state, {payload}) => {
             state.edit = payload
         },
@@ -222,7 +227,6 @@ export const appFinanceSlice = createSlice({
             .addCase(fetchAllowedWithdrawPaymentAccountBalance.fulfilled, (state, {payload}) => {
                 state.loading = false;
                 state.allowedWithdrawAmount = payload.data;
-                console.log(payload.data)
             })
             .addCase(fetchAllowedWithdrawPaymentAccountBalance.rejected, (state, action) => {
                 state.loading = false;
@@ -231,5 +235,5 @@ export const appFinanceSlice = createSlice({
     }
 });
 
-export const {setSelectedRequest, setEdit,setShowWithdrawModal} = appFinanceSlice.actions
+export const {setSelectedRequest, setEdit, setVirtualAccount,setShowWithdrawModal} = appFinanceSlice.actions
 export default appFinanceSlice.reducer
