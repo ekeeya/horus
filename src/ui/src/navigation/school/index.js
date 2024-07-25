@@ -10,4 +10,4 @@ import cards from "./cards";
 import studentsAndParents from './students-parents'
 
 // ** Merge & Export
-export default [...dashboards, ...schools,...studentsAndParents, ...finances,...inventory, ...reports, ...access]
+export default [...dashboards, ...schools,...studentsAndParents, ...finances,...reports, ...access]

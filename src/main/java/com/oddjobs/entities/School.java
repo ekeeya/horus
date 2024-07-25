@@ -6,11 +6,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"version", "createdAt","createdBy","lastModifiedAt", "lastModifiedBy","deleted","enabled", "commissionRate"})
 public class School extends  BaseEntity{
 
@@ -19,17 +22,18 @@ public class School extends  BaseEntity{
     private String primaryContact;
     private String alias;
     private String address;
-    private Double feePerStudentPerTerm = 0.0;
-    @Column(name="commission_rate")
-    private Double commissionRate = 0.0;
+    private Double systemFeePerStudentPerTerm = 0.0;
+    private Double schoolFeePerStudentPerTerm = 0.0;
 
     @Override
     public String toString() {
         return "School{" +
                 "name='" + name + '\'' +
                 ", primaryContact='" + primaryContact + '\'' +
+                ", alias='" + alias + '\'' +
                 ", address='" + address + '\'' +
-                ", commissionRate=" + commissionRate +
+                ", systemFeePerStudentPerTerm=" + systemFeePerStudentPerTerm +
+                ", schoolFeePerStudentPerTerm=" + schoolFeePerStudentPerTerm +
                 '}';
     }
 }

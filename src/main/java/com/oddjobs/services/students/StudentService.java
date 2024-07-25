@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface StudentService {
 
-    StudentEntity registerStudent(StudentRequestDTO request) throws SchoolNotFoundException, GenericException;
+    StudentEntity registerStudent(StudentRequestDTO request) throws Exception;
     void registerStudentViaBulk(BulkStudentLoadRequestDTO student, Long schoolId) throws Exception;
     StudentEntity findById(Long id);
     Page<StudentEntity> findBySchool(Long schoolId, int page, int size);

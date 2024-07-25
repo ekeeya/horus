@@ -28,7 +28,7 @@ public class ParentUser extends  User{
     private List<StudentEntity> students;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="school_id")
     private School school; // let's track these parents as they are created.not mandatory but...
 

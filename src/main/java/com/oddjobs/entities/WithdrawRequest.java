@@ -70,8 +70,7 @@ public class WithdrawRequest extends BaseEntity{
 
     @Transient
     public BigDecimal amountReceived(){
-        double rate = school.getCommissionRate();
-        double amountReceived = amount.doubleValue() * rate;
-        return new BigDecimal(amountReceived);
+        //double amountReceived = amount.doubleValue() * rate;
+        return new BigDecimal(0);
     }
 }

@@ -1,7 +1,6 @@
 package com.oddjobs.services.users;
 
 import com.oddjobs.components.ContextProvider;
-import com.oddjobs.dtos.requests.ProspectRequestDto;
 import com.oddjobs.dtos.requests.UserRequestDto;
 import com.oddjobs.entities.PosCenterEntity;
 import com.oddjobs.entities.School;
@@ -14,7 +13,6 @@ import com.oddjobs.repositories.pos.PosCenterRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
 import com.oddjobs.repositories.users.POSUserRepository;
 import com.oddjobs.repositories.users.ParentUserRepository;
-import com.oddjobs.repositories.users.ProspectRepository;
 import com.oddjobs.repositories.users.UserRepository;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,7 +39,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final ProspectRepository prospectUserRepository;
     private final POSUserRepository posUserRepository;
     private final ParentUserRepository parentUserRepository;
     private final PosCenterRepository posCenterRepository;
@@ -134,18 +131,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    @Override
-    public Prospect register(ProspectRequestDto request) {
-        Prospect user = new ProspectUser();
-        user.setEmail(request.getEmail());
-        user.setFirstName(request.getFirstName());
-        user.setAccountRole(request.getAccountRole());
-        user.setLastName(request.getLastName());
-        user.setTelephone(request.getTelephone());
-        user.setMessage(request.getMessage());
-
-        return  prospectUserRepository.save(user);
-    }
 
     @Override
     public User findByUsername(String username) {

@@ -21,7 +21,8 @@ public class SchoolShortResponseDTO implements Serializable {
     private String alias;
     private Long accountId;
     private Double accountBalance  = 0.0 ;
-    private Double commissionRate= 0.0;
+    private Double systemFeePerStudentPerTerm = 0.0;
+    private Double schoolFeePerStudentPerTerm = 0.0;
 
     public SchoolShortResponseDTO(School school){
         setName(school.getName());
@@ -29,7 +30,8 @@ public class SchoolShortResponseDTO implements Serializable {
         setAlias(school.getAlias());
         setAddress(school.getAddress());
         setPrimaryContact(school.getPrimaryContact());
-        setCommissionRate(school.getCommissionRate());
+        setSchoolFeePerStudentPerTerm(school.getSchoolFeePerStudentPerTerm());
+        setSystemFeePerStudentPerTerm(school.getSystemFeePerStudentPerTerm());
         setStatus(school.getEnabled() ? "Active" : "In Active");
     }
 }

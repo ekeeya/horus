@@ -35,7 +35,7 @@ const statusObj = {
     CANCELLED: 'light-danger'
 }
 
-const Sidebar = ({open, toggleSidebar}) => {
+const RequestSidebar = ({open, toggleSidebar}) => {
     // ** States
     const [files, setFiles] = useState([]);
     const [errors, setErrors] = useState(null);
@@ -328,4 +328,4 @@ const Sidebar = ({open, toggleSidebar}) => {
         </Sidebar>
     )
 }
-export default Sidebar
+export default RequestSidebar

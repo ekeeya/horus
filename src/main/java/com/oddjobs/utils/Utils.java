@@ -11,6 +11,17 @@ import java.util.*;
 
 public class Utils {
 
+    public static enum COMMISSION_TYPE{
+        SCHOOL, SYSTEM
+    }
+
+    public static enum COMMISSION_STATUS{
+        PENDING, COMPLETED, CANCELLED
+    }
+
+    public static enum COMMISSION_TERM{
+        I, II, III
+    }
 
     public static enum ACCOUNT_ACTIONS  {
         Delete, Disable, Enable
@@ -109,6 +120,7 @@ public class Utils {
         COLLECTION(Values.COLLECTION),
         DISBURSEMENT(Values.DISBURSEMENT),
         PAYMENT(Values.PAYMENT),
+        COMMISSIONS(Values.COMMISSIONS),
         CASH_OUT(Values.CASH_OUT),
         SYSTEM(Values.SYSTEM),;
         private TRANSACTION_TYPE (String val) {
@@ -122,6 +134,7 @@ public class Utils {
             public static final String DISBURSEMENT= "DISBURSEMENT";
             public static final String CASH_OUT="CASH_OUT";
             public static final String PAYMENT= "PAYMENT";
+            public static final String COMMISSIONS= "COMMISSIONS";
             public static final String SYSTEM= "SYSTEM";
         }
     }

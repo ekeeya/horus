@@ -60,8 +60,8 @@ public class SchoolServiceImpl implements SchoolService{
                 }
                 school.setName(request.getName());
                 school.setAddress(request.getAddress());
-                school.setFeePerStudentPerTerm(request.getCommissionFee());
-                school.setCommissionRate(request.getCommissionRate());
+                school.setSystemFeePerStudentPerTerm(request.getSystemCommissionFee());
+                school.setSchoolFeePerStudentPerTerm(request.getSchoolCommissionFee());
                 school.setPrimaryContact(request.getPrimaryContact());
                 school.setAlias(request.getAlias());
                 school = schoolRepository.save(school);
@@ -74,7 +74,6 @@ public class SchoolServiceImpl implements SchoolService{
                     walletAccountRepository.save(account);
 
                     // create school commissions account
-
                     CommissionAccount commissionAccount =  new CommissionAccount();
                     commissionAccount.setName(school.getName() +"-Commission");
                     commissionAccount.setSchool(school);
@@ -121,7 +120,7 @@ public class SchoolServiceImpl implements SchoolService{
                 }
                 // Also add a subscription, for future use, currently it the commission system
                 SubscriptionRequestDTO subscriptionRequest = new SubscriptionRequestDTO(null,school.getId(), null, null,0.0,
-                        school.getCommissionRate(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
+                        school.getSystemFeePerStudentPerTerm(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
                 subscriptionService.register(subscriptionRequest);
                 return school.getId();
             }catch (Exception e){
@@ -169,17 +168,18 @@ public class SchoolServiceImpl implements SchoolService{
         return schoolRepository.findSchoolsByNameLike(name,pageable);
     }
 
-    @Override
-    public void setCommissionRate(Long schoolId, Double rate) throws SchoolNotFoundException {
-        School school =  findById(schoolId);
-        school.setCommissionRate(rate);
-        schoolRepository.save(school);
-    }
+
 
     @Override
-    public void setCommissionFee(Long schoolId, Double fee) throws SchoolNotFoundException {
+    public void setCommissionFee(Long schoolId, Double fee, Double schoolFee) throws SchoolNotFoundException {
         School school =  findById(schoolId);
-        school.setFeePerStudentPerTerm(fee);
+        if (fee != null){
+            school.setSystemFeePerStudentPerTerm(fee);
+        }
+        if (schoolFee !=null){
+            school.setSchoolFeePerStudentPerTerm(schoolFee);
+        }
+
         schoolRepository.save(school);
     }
 

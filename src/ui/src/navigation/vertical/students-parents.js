@@ -2,6 +2,7 @@
 import { MdOutlineFamilyRestroom } from "react-icons/md";
 import { PiUsersFourLight } from "react-icons/pi";
 import { GiTakeMyMoney } from "react-icons/gi";
+import {AiOutlineUserAdd} from "react-icons/ai";
 
 export default [
     {
@@ -9,22 +10,28 @@ export default [
         action:"manage",
         resource:"students"
     },
-
     {
-        id: 'students',
-        title: 'Register Students',
-        icon: <PiUsersFourLight size={20} />,
-        navLink: '/students/list',
-        action:"manage",
-        resource:"students"
-    },
-    {
-        id: 'parents',
-        title: 'Register Parents',
-        icon:<MdOutlineFamilyRestroom size={20} />,
-        navLink: '/parents/list',
-        action:"manage",
-        resource:"parents"
+        id:"registrations",
+        title:"Registrations",
+        icon:<AiOutlineUserAdd size={20}/>,
+        children:[
+            {
+                id: 'students',
+                title: 'Register Students',
+                icon: <PiUsersFourLight size={20} />,
+                navLink: '/students/list',
+                action:"manage",
+                resource:"students"
+            },
+            {
+                id: 'parents',
+                title: 'Register Parents',
+                icon:<MdOutlineFamilyRestroom size={20} />,
+                navLink: '/parents/list',
+                action:"manage",
+                resource:"parents"
+            },
+        ]
     },
     {
         id: 'requests',

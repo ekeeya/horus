@@ -21,5 +21,6 @@ public class SchoolUser extends User{
     @ManyToOne
     @JoinColumn(name="school_id")
     private School school;
+
     private String department;
 }

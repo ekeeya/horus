@@ -5,10 +5,7 @@ import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
-import com.oddjobs.entities.transactions.CollectionTransaction;
-import com.oddjobs.entities.wallets.CollectionAccount;
 import com.oddjobs.entities.wallets.SchoolCollectionAccount;
-import com.oddjobs.exceptions.GenericException;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
@@ -17,6 +14,7 @@ import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.users.UserRepository;
 import com.oddjobs.repositories.wallet.SchoolCollectionAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
+import com.oddjobs.services.subscriptions.CommissionRequestService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.approvals.SchoolApprovalRequest;
 import com.oddjobs.entities.users.ParentUser;
@@ -58,9 +56,11 @@ public class StudentServiceImpl implements StudentService{
     private final ApprovalRequestService approvalRequestService;
     private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
 
+    private final CommissionRequestService commissionRequestService;
+
     @Override
     @Transactional
-    public StudentEntity registerStudent(StudentRequestDTO request) throws SchoolNotFoundException, NoSuchElementException {
+    public StudentEntity registerStudent(StudentRequestDTO request) throws Exception {
         // create student record
         School school;
         try{
@@ -96,10 +96,17 @@ public class StudentServiceImpl implements StudentService{
             account.setBalance(BigDecimal.valueOf(request.getBalance()));
             account.setMaximumDailyLimit(BigDecimal.valueOf(request.getDailyLimit()));
         }
+
         // attach to parent if any
         if(request.getParent() != null){
             linkStudentToParent(student, request.getParent(), false);
         }
+        if (request.getId() == null){
+            // Create two commission requests for the SP and SCHOOL
+            commissionRequestService.create(student, Utils.COMMISSION_TYPE.SYSTEM);
+            commissionRequestService.create(student, Utils.COMMISSION_TYPE.SCHOOL);
+        }
+
         return s;
     }
 
@@ -120,9 +127,6 @@ public class StudentServiceImpl implements StudentService{
                 bulkRequest.getClassName(),
                 false
         );
-        // request.setBalance(0.0);
-        //request.setCardNo(bulkRequest.getCardNo());
-        //request.setDailyLimit(bulkRequest.getDailyLimit());
         StudentEntity student = registerStudent(request);
         // record Parent as primary parent.
         if (bulkRequest.getParentTelephone() != null && bulkRequest.getParentNames() != null){

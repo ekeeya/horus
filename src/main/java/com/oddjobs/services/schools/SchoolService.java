@@ -17,9 +17,8 @@ public interface SchoolService {
     Page<School> fetchAll(int page, int size);
 
     Page<School> searchByNameLike(String name, int page, int size);
-    void setCommissionRate(Long schoolId, Double rate) throws SchoolNotFoundException;
 
-    void setCommissionFee(Long schoolId, Double fee) throws SchoolNotFoundException;
+    void setCommissionFee(Long schoolId, Double fee, Double schoolFee) throws SchoolNotFoundException;
 
     void schoolAccountManagement(Utils.ACCOUNT_ACTIONS action, Long schoolId) throws Exception;
 

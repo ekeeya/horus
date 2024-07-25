@@ -26,7 +26,8 @@ const defaultValues = {
     address: '',
     lastName: '',
     firstName: '',
-    commissionFee: 10000
+    systemCommissionFee: 10000,
+    schoolCommissionFee:1000
 }
 
 const defaultClasses = [
@@ -104,7 +105,8 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
             const payload = {
                 id: selectedSchool ? selectedSchool.id : null,
                 primaryContact: data.primaryContact,
-                commissionFee: data.commissionFee,
+                systemCommissionFee: data.systemCommissionFee,
+                schoolCommissionFee:data.schoolCommissionFee,
                 name: data.name,
                 address: data.address,
                 alias:data.alias,
@@ -132,9 +134,16 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
             setValue("name", selectedSchool.name)
             setValue("primaryContact", selectedSchool.primaryContact)
             setValue("address", selectedSchool.address)
-            setValue("commissionFee", selectedSchool.commissionFee)
+            setValue("systemCommissionFee", selectedSchool.systemCommissionFee)
             setValue("alias", selectedSchool.alias)
-            setClasses(selectedSchool.classes)
+            const mungedClasses = selectedSchool.classes.map(r => {
+                return {
+                    id:r.id,
+                    label:r.name
+                }
+            }).reverse();
+            setClasses(mungedClasses)
+
         }
     }, [edit, selectedSchool])
 
@@ -179,7 +188,8 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                         name='alias'
                         control={control}
                         render={({field}) => (
-                            <Input id='alias' placeholder='Short Name e.g SMAGOK' invalid={errors.alias && true} {...field} />
+                            <Input id='alias' placeholder='Short Name e.g SMAGOK'
+                                   invalid={errors.alias && true} {...field} />
                         )}
                     />
                 </div>
@@ -202,16 +212,32 @@ const SidebarNewSchools = ({open, toggleSidebar}) => {
                     <FormText color='muted'>A valid & active email address for the school</FormText>
                 </div>
                 <div className='mb-1'>
-                    <Label className='form-label' for='commissionFee'>
-                        Commission Fee <span className='text-danger'>*</span>
+                    <Label className='form-label' for='systemCommissionFee'>
+                        Provider Commission Fee <span className='text-danger'>*</span>
                     </Label>
                     <Controller
-                        name='commissionFee'
+                        name='systemCommissionFee'
                         control={control}
                         render={({field}) => (
                             <Input
-                                id='commissionFee'
-                                invalid={errors.commissionFee && true}
+                                id='systemCommissionFee'
+                                invalid={errors.systemCommissionFee && true}
+                                {...field}
+                            />
+                        )}
+                    />
+                </div>
+                <div className='mb-1'>
+                    <Label className='form-label' for='systemCommissionFee'>
+                        School Commission Fee <span className='text-danger'>*</span>
+                    </Label>
+                    <Controller
+                        name='schoolCommissionFee'
+                        control={control}
+                        render={({field}) => (
+                            <Input
+                                id='schoolCommissionFee'
+                                invalid={errors.schoolCommissionFee && true}
                                 {...field}
                             />
                         )}

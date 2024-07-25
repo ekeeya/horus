@@ -48,13 +48,27 @@ export const columns = [
   {
     name: 'Address',
     sortable: true,
-    minWidth: '300px',
+    minWidth: '250px',
     sortField: 'address',
     selector: row => row.role,
     cell: row => <span className='text-capitalize'>{row.address}</span>
   },
+    {
+        name: 'Sys Commission',
+        sortable: true,
+        sortField: 'systemFeePerStudentPerTerm',
+        selector: row => row.systemFeePerStudentPerTerm,
+        cell: row => <span className='text-capitalize'>{row.systemFeePerStudentPerTerm.toLocaleString()}</span>
+    },
+    {
+        name: 'Sch Commission',
+        sortable: true,
+        sortField: 'schoolFeePerStudentPerTerm',
+        selector: row => row.schoolFeePerStudentPerTerm,
+        cell: row => <span className='text-capitalize'>{row.schoolFeePerStudentPerTerm.toLocaleString()}</span>
+    },
   {
-    name: 'Status',
+    name: 'Subscription',
     minWidth: '90px',
     sortable: true,
     sortField: 'status',
@@ -92,7 +106,7 @@ export const columns = [
         <UncontrolledTooltip placement='top' target={`edit-tooltip-${row.id}`}>
           Edit
         </UncontrolledTooltip>
-       
+
       </div>
     )
   }

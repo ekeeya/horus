@@ -2,14 +2,14 @@
 import { CiBank } from "react-icons/ci";
 import { MdOutlinePointOfSale } from "react-icons/md";
 import { MdOutlineAddToPhotos } from "react-icons/md";
+import {FcNfcSign} from "react-icons/fc";
 
 export default [
   {
-    header: 'SCHOOLS'
+    header: 'SCHOOLS & BRACELETS'
   },
-
   {
-    id: 'users',
+    id: 'schools',
     title: 'Schools & POS',
     icon: <CiBank size={20} />,
     children: [
@@ -30,5 +30,11 @@ export default [
         resource:"schools",
       }
     ]
+  },
+  {
+    id: 'cards',
+    title: 'RFID Requests',
+    navLink: '/cards/provisioning',
+    icon: <FcNfcSign size={20} />
   }
 ]

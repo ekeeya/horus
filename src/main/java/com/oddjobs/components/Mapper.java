@@ -28,6 +28,7 @@ public class Mapper {
     private final WalletService walletService;
     private final PaymentTransactionRepository paymentTransactionRepo;
     private final CollectionTransactionRepository collectionTransactionRepo;
+    private final ClassRoomRepository classRoomRepository;
 
 
     public UserResponseDto toUserDTO(User user, boolean showPerms) {
@@ -62,11 +63,6 @@ public class Mapper {
         return userDto;
     }
 
-    public ProspectResponseDto toProspectUserDTO(Prospect user) {
-        return new ProspectResponseDto(user);
-    }
-
-
     public StudentResponseDTO toStudentDTO(StudentEntity student, boolean showWallet)  {
         StudentResponseDTO dto = new StudentResponseDTO(student, showWallet);
         WalletResponseDTO w = new WalletResponseDTO(student.getWalletAccount(), paymentTransactionRepo, collectionTransactionRepo);
@@ -88,6 +84,9 @@ public class Mapper {
     public SchoolResponseDTO toSchoolDto(School school){
         SchoolResponseDTO dto =  new SchoolResponseDTO(school);
         SchoolCollectionAccount acc =  walletService.findWalletBySchool(school);
+
+        List<ClassRoom> classRooms =  classRoomRepository.findClassRoomsBySchoolOrderByNameDesc(school);
+        dto.setClasses(classRooms);
         dto.setAccountId(acc.getId());
         dto.setAccountBalance(acc.getBalance().doubleValue());
         return  dto;

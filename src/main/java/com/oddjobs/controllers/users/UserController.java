@@ -20,7 +20,6 @@ import com.oddjobs.dtos.base.ListResponseDTO;
 import com.oddjobs.dtos.requests.ProspectRequestDto;
 import com.oddjobs.dtos.requests.UpdateUserPasswordRequestDTO;
 import com.oddjobs.dtos.requests.UserRequestDto;
-import com.oddjobs.dtos.responses.ProspectResponseDto;
 import com.oddjobs.exceptions.UserNameAlreadyExists;
 import com.oddjobs.repositories.users.UserRepository;
 import com.oddjobs.utils.Utils;
@@ -28,7 +27,6 @@ import com.oddjobs.services.jwt.RefreshTokenServiceImpl;
 import com.oddjobs.services.jwt.TokenProviderService;
 import com.oddjobs.dtos.responses.UserResponseDto;
 import com.oddjobs.entities.tokens.RefreshToken;
-import com.oddjobs.entities.users.Prospect;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
 import com.oddjobs.services.users.UserService;
@@ -239,28 +237,6 @@ public class UserController {
 
     }
 
-
-    @PostMapping("prospect/register")
-    public ResponseEntity<?> registerProspectUser(
-            @Valid @RequestBody ProspectRequestDto request, BindingResult result
-    ) {
-        BaseResponse response;
-        try {
-            response = new BaseResponse(result);
-            if (response.isSuccess()) {
-                Prospect user = userService.register(request);
-                ProspectResponseDto u = mapper.toProspectUserDTO(user);
-                response.setData(u);
-                return ResponseEntity.ok(response);
-            }
-            return ResponseEntity.badRequest().body(response);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(), e);
-            response = new BaseResponse(e);
-            return ResponseEntity.internalServerError().body(response);
-        }
-    }
 
     @GetMapping("account-management")
     public ResponseEntity<?> accountActions(

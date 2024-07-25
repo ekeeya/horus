@@ -9,14 +9,12 @@ import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.POSAttendant;
 import com.oddjobs.entities.users.ParentUser;
 import com.oddjobs.entities.users.User;
-import com.oddjobs.entities.users.Prospect;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
 
     User registerOrUpdateUser(UserRequestDto user) throws UserNameAlreadyExists;
-    Prospect register(ProspectRequestDto prospectUser);
     User findByUsername(String username);
     Page<? extends User> findUsersByAccountType(Utils.ACCOUNT_TYPE accountType, int page, int size);
     User findById(Long id);

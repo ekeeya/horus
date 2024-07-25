@@ -130,30 +130,16 @@ public class SchoolAdminController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    @GetMapping("set-commission-rate")
-    @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<?> setCommissionRate(
-            @RequestParam(name="rate") Double rate,
-            @RequestParam(name="school") Long schoolId
-    ){
-      try{
-          schoolService.setCommissionRate(schoolId, rate);
-          return ResponseEntity.ok("OK");
-      }catch (Exception e){
-          log.error(e.getMessage(), e);
-          return ResponseEntity.internalServerError().body(e.getMessage());
-      }
-    }
-
 
     @GetMapping("set-commission-fee")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<?> setCommissionFee(
-            @RequestParam(name="fee") Double fee,
+            @RequestParam(name="fee", required = false) Double fee,
+            @RequestParam(name="schoolFee", required = false) Double schoolFee,
             @RequestParam(name="school") Long schoolId
     ){
         try{
-            schoolService.setCommissionFee(schoolId, fee);
+            schoolService.setCommissionFee(schoolId, fee, schoolFee);
             return ResponseEntity.ok("OK");
         }catch (Exception e){
             log.error(e.getMessage(), e);
