@@ -95,6 +95,7 @@ const Login = () => {
         .login({ username: data.username, password: data.password })
         .then(res => {
           const data = { ...res.data.user, accessToken: res.data.access_token, refreshToken: res.data.refresh_token}
+          console.log(data)
           dispatch(handleLogin(data))
           ability.update(data.permissions)
           dispatch(setLoading(false))

@@ -63,7 +63,7 @@ public class SchoolServiceImpl implements SchoolService{
                 school.setSystemFeePerStudentPerTerm(request.getSystemCommissionFee());
                 school.setSchoolFeePerStudentPerTerm(request.getSchoolCommissionFee());
                 school.setPrimaryContact(request.getPrimaryContact());
-                school.setAlias(request.getAlias());
+                  school.setAlias(request.getAlias());
                 school = schoolRepository.save(school);
 
                 if(request.getId() == null){

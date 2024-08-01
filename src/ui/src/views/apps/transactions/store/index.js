@@ -6,12 +6,18 @@ import {generateError} from "@utils";
 
 export const fetchTransactions = createAsyncThunk('appTransactions/fetchTransactions', async (configs, thunkAPI) => {
     try {
-        let {page} = configs;
+        let {page, student} = configs;
         delete configs['page'];
         if(page === undefined || page === null){
             page = 0
         }
-        let url = `/api/v1/transactions?page=${page}`;
+        let url;
+        if (student){
+           url = `/api/v1/transactions/${student}?page=${page}`;
+           delete configs["student"]
+        }else{
+            url= `/api/v1/transactions?page=${page}`;
+        }
         const specialKeys = ["lowerDate", "upperDate"]
         Object.keys(configs).forEach(key => {
             if (configs[key] != null || configs[key] !== "") {
@@ -36,7 +42,7 @@ export const fetchTransactions = createAsyncThunk('appTransactions/fetchTransact
             link.click();
             document.body.removeChild(link);
         }else{
-            return response.data;
+            return {type:configs.type, data:response.data};
         }
         return {}
     } catch (error) {
@@ -48,6 +54,8 @@ export const appTransactionSlice = createSlice({
     name: 'appTransactions',
     initialState: {
         transactions: [],
+        expenditures:[],
+        deposits:[],
         pages: 1,
         loading: false,
         error: null
@@ -59,11 +67,16 @@ export const appTransactionSlice = createSlice({
         })
             .addCase(fetchTransactions.fulfilled, (state, action) => {
                 state.loading = false;
-                if (action.payload.entries){
-                    state.transactions = action.payload.entries;
+                const {data, type} =  action.payload;
+                if (data.entries){
+                    state.transactions = data.entries;
                     state.pages = action.payload.totalPages
                 }
-
+                if (type === "PAYMENT"){
+                    state.expenditures = data.entries;
+                }else{
+                    state.deposits = data.entries;
+                }
             })
             .addCase(fetchTransactions.rejected, (state, action) => {
                 state.loading = false;

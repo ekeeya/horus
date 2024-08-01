@@ -39,7 +39,7 @@ public class CommissionRequestServiceImpl implements CommissionRequestService {
             term = Utils.COMMISSION_TERM.III;
         }
         CommissionRequestEntity crRequest = new CommissionRequestEntity();
-        CommissionRequestEntity existing  = crRepository.findByStudentAndYearAndTerm(student,year, term);
+        CommissionRequestEntity existing  = crRepository.findByStudentAndYearAndTermAndType(student,year, term, type);
         if (existing != null){
             String error = String.format("Commission request : %s already exists",  existing);
             throw new Exception(error);

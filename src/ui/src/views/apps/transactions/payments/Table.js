@@ -133,7 +133,7 @@ const PaymentTransactions = (props) => {
       }
       setFilterPayload(payload);
     }
-  }, [student])
+  }, [student, props.student])
 
   useEffect(()=>{
     let schoolId =  queryParams.get("school");
@@ -180,24 +180,30 @@ const PaymentTransactions = (props) => {
 
 
   useEffect(() => {
-    dispatch(fetchTransactions(filterPayLoad))
+    let params ={...filterPayLoad};
+    if (props.student){
+      params = {
+        ...params,
+        student:props.student
+      }
+
+      delete params["schoolId"]
+    }
+    dispatch(fetchTransactions(params))
   }, [dispatch, filterPayLoad])
   // ** Function to handle filter
 
   const handlePerPage = e => {
     const value = parseInt(e.currentTarget.value)
     setRowsPerPage(value)
-    dispatch(
-        fetchTransactions({
-          ...filterPayLoad,
-          size: value,
-          page: 0
-        })
-    )
+    const params = filterPayLoad;
+    delete params["format"]
+    setFilterPayload({...params, size:value})
   }
   // ** Function to handle Pagination
   const handlePagination = page => {
     setCurrentPage(page.selected)
+    setFilterPayload({...filterPayLoad, page:page.selected});
   }
 
   const posCenters=()=>{

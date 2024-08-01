@@ -57,11 +57,7 @@ const CollectionTransactions = () => {
     value:""
   });
   const [dateRange, setDateRange] =  useState(todayDates());
-  const [filterPayLoad, setFilterPayload] = useState({
-    page:currentPage,
-    size:rowsPerPage,
-    type:"COLLECTION"
-  })
+  const [filterPayLoad, setFilterPayload] = useState()
 
   const  dispatch = useDispatch();
 
@@ -158,7 +154,9 @@ const CollectionTransactions = () => {
 
 
   useEffect(() => {
-    dispatch(fetchTransactions(filterPayLoad))
+    if (filterPayLoad){
+      dispatch(fetchTransactions(filterPayLoad))
+    }
   }, [dispatch, filterPayLoad])
   // ** Function to handle filter
   const handleFilter = e => {
@@ -170,17 +168,14 @@ const CollectionTransactions = () => {
   const handlePerPage = e => {
     const value = parseInt(e.currentTarget.value)
     setRowsPerPage(value)
-    dispatch(
-        fetchTransactions({
-          ...filterPayLoad,
-          size: value,
-          page: 0
-        })
-    )
+    const params = filterPayLoad;
+    delete params["format"]
+    setFilterPayload({...params, size:value})
   }
   // ** Function to handle Pagination
   const handlePagination = page => {
     setCurrentPage(page.selected)
+    setFilterPayload({...filterPayLoad, page:page.selected});
   }
 
   // ** Custom Pagination
@@ -224,10 +219,6 @@ const CollectionTransactions = () => {
                   <Grid size={15} />
                   <span className='align-middle ms-50' onClick={() => exportReport("excel")} >Excel</span>
                 </DropdownItem>
-                <DropdownItem className='w-100'>
-                  <File size={15} />
-                  <span className='align-middle ms-50'>PDF</span>
-                </DropdownItem>
               </DropdownMenu>
             </UncontrolledButtonDropdown>
           </div>
@@ -242,11 +233,13 @@ const CollectionTransactions = () => {
                   id='rows-per-page'
                   onChange={handlePerPage}
                   value={rowsPerPage}
-                  style={{ width: '5rem' }}
+                  style={{width: '5rem'}}
               >
+                <option value='5'>5</option>
                 <option value='10'>10</option>
                 <option value='25'>25</option>
                 <option value='50'>50</option>
+                <option value='100'>100</option>
               </Input>
               <label htmlFor='rows-per-page'>Entries</label>
             </div>
@@ -305,7 +298,7 @@ const CollectionTransactions = () => {
             pagination
             selectableRows
             columns={columns}
-            paginationPerPage={7}
+            paginationPerPage={rowsPerPage}
             className='react-dataTable'
             sortIcon={<ChevronDown size={10} />}
             paginationComponent={CustomPagination}

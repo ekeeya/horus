@@ -5,8 +5,9 @@ import { Outlet } from 'react-router-dom'
 import Layout from '@layouts/VerticalLayout'
 
 // ** Menu Items Array
-import navigation from '@src/navigation/vertical';
+import navigation from '../navigation/admins';
 import schoolNav from "@src/navigation/school";
+import posNav from "@src/navigation/pos";
 import {useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 
@@ -16,7 +17,7 @@ const VerticalLayout = props => {
     const {userData} =  useSelector(store=>store.auth);
 
     useEffect(()=>{
-        const sideBarNav = userData.role === "SCHOOL" ? schoolNav:navigation;
+        const sideBarNav = userData.role === "SCHOOL" ? schoolNav : userData.role === "POS" ? posNav  :navigation;
         setNav(sideBarNav);
     },[userData])
 

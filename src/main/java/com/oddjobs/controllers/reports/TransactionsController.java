@@ -42,10 +42,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -155,10 +152,53 @@ public class TransactionsController {
                         .body(excelContent);
             }
             response =  new ListResponseDTO<>(dtos, transactions.getTotalPages());
+            response.setLimit(size);
             return ResponseEntity.ok(response);
         }catch (Exception e){
             log.error(e.getMessage(), e);
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/{student}")
+    public ResponseEntity<?> getStudentTransactions(
+            @PathVariable(name="student", required = false) Long studentId,
+            @RequestParam(name="type", required = false) Utils.TRANSACTION_TYPE type,@RequestParam(name="page", defaultValue = "0") int page,
+            @RequestParam(name="size", defaultValue = "10") int size,
+            @RequestParam(name="format", required = false) String format
+    ){
+        try{
+            ListResponseDTO<TransactionResponseDTO> response;
+            Page<? extends Transaction> transactions;
+            if(format != null){
+                size = Integer.MAX_VALUE;
+            }
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            StudentEntity student = studentService.findById(studentId);
+            if (type == Utils.TRANSACTION_TYPE.COLLECTION){
+                transactions = transactionRepository.findCollectionTransactionsByReceiver(student, pageable);
+            }else {
+                transactions = paymentTransactionRepository.findPaymentTransactionsByDebitAccount(student.getWalletAccount(), pageable);
+            }
+            List<TransactionResponseDTO> dtos = transactions.getContent().stream().map(TransactionResponseDTO::new).toList();
+            if(format != null){
+                String t =  type !=null ? type.toString():null;
+                byte[] excelContent = transactionService.writeRecordsToExcel(dtos, t);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                headers.setContentDispositionFormData("attachment", "transactions.xlsx");
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(excelContent);
+            }
+            response =  new ListResponseDTO<>(dtos, transactions.getTotalPages());
+            response.setLimit(size);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 }

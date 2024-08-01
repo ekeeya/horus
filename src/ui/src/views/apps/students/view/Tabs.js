@@ -11,8 +11,11 @@ import {User} from 'react-feather'
 
 // ** User Components
 import ParentStudentsList from "./ParentStudentsList";
-import  Transactions from './Transactions'
+import  Expenditure from './Expenditure'
 import {FaMoneyBillTransfer} from "react-icons/fa6";
+import Deposits from "@src/views/apps/students/view/Deposits";
+import {MdOutlinePayments} from "react-icons/md";
+import {AiOutlineMoneyCollect} from "react-icons/ai";
 
 const UserTabs = ({ active, toggleTab }) => {
     const {selectedStudent} =  useSelector(store=>store.students)
@@ -27,8 +30,14 @@ const UserTabs = ({ active, toggleTab }) => {
           </NavItem>
           <NavItem>
               <NavLink active={active === '2'} onClick={() => toggleTab('2')}>
-                  <FaMoneyBillTransfer className='font-medium-3 me-50' />
-                  <span className='fw-bold'>Transactions</span>
+                  <MdOutlinePayments className='font-medium-3 me-50' />
+                  <span className='fw-bold'>Expenditure</span>
+              </NavLink>
+          </NavItem>
+          <NavItem>
+              <NavLink active={active === '3'} onClick={() => toggleTab('3')}>
+                  <AiOutlineMoneyCollect className='font-medium-3 me-50' />
+                  <span className='fw-bold'>Deposits</span>
               </NavLink>
           </NavItem>
       </Nav>
@@ -37,8 +46,11 @@ const UserTabs = ({ active, toggleTab }) => {
               {<ParentStudentsList data={selectedStudent.contributors ? selectedStudent.contributors : []} />}
           </TabPane>
         <TabPane tabId='2'>
-          <Transactions studentId={selectedStudent.id} />
+          <Expenditure student={selectedStudent.id}/>
         </TabPane>
+          <TabPane tabId='3'>
+            <Deposits student={selectedStudent.id}/>
+          </TabPane>
       </TabContent>
     </Fragment>
   )

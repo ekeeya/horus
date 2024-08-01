@@ -275,7 +275,7 @@ public class TransactionServiceImpl implements TransactionService{
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
             // Create header row
-            Sheet sheet = workbook.createSheet("Transactions");
+            Sheet sheet = workbook.createSheet("Expenditure");
             //List<String> columnNames = List.of("ID", "Attendant","POS Center", "Student","Class","CardNo", "School","Type","Status", "Amount", "Date");
             if (Objects.equals(type, "PAYMENT")){
                 generatePaymentRows(transactions, sheet);

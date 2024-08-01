@@ -15,5 +15,5 @@ public interface CommissionRequestRepository extends JpaRepository<CommissionReq
 
     List<CommissionRequestEntity> findByStatus(Utils.COMMISSION_STATUS  status);
 
-    CommissionRequestEntity findByStudentAndYearAndTerm(StudentEntity student, Integer year, Utils.COMMISSION_TERM term);
+    CommissionRequestEntity findByStudentAndYearAndTermAndType(StudentEntity student, Integer year, Utils.COMMISSION_TERM term, Utils.COMMISSION_TYPE type);
 }

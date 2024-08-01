@@ -106,7 +106,7 @@ const ForgotPassword = () => {
                 </Button>
               </Form>
               <p className='text-center mt-2'>
-                <Link to='/login'>
+                <Link to='/auth'>
                   <ChevronLeft className='rotate-rtl me-25' size={14} />
                   <span className='align-middle'>Back to login</span>
                 </Link>

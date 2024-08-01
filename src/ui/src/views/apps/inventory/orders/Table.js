@@ -264,7 +264,7 @@ const Orders = (props) => {
                         }}
                     />
                   </div>
-                  {!userData.school && (
+                  {userData.accountType === "ADMIN" && (
                       <div className='mt-50 width-250 me-1 mt-sm-0 mt-1'>
                         <Select
                             isSearchable
@@ -278,7 +278,9 @@ const Orders = (props) => {
                             onChange={v => setSelectedSchool(v)}
                         />
                       </div>)}
-                  <div className='d-flex align-items-center me-1'>
+                  {
+                    !userData.accountType ==="POS" &&
+                    <div className='d-flex align-items-center me-1'>
                     <Select
                         isSearchable
                         isClearable={true}
@@ -290,7 +292,7 @@ const Orders = (props) => {
                         classNamePrefix='select'
                         onChange={v => setSelectedPos(v)}
                     />
-                  </div>
+                  </div>}
                 </div>
               </Col>)}
             </Row>

@@ -168,13 +168,6 @@ public class StudentServiceImpl implements StudentService{
             SchoolApprovalRequest approvalRequest = (SchoolApprovalRequest) approvalRequestService.createApprovalRequest(r, true);
             // approve it
             approvalRequestService.approvePrimaryParent(approvalRequest, true,true, true);
-
-            // increment school collections account;
-            SchoolCollectionAccount collectionAccount = schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(student.getSchool());
-            BigDecimal balance = collectionAccount.getBalance();
-            collectionAccount.setBalance(balance.add(student.getWalletAccount().getBalance()));
-            schoolCollectionAccountRepository.save(collectionAccount);
-
             if (bulkRequest.getBalance() > 0){
                 WalletDepositDTO deposit =  new WalletDepositDTO();
                 deposit.setAmount(bulkRequest.getBalance());
@@ -183,6 +176,7 @@ public class StudentServiceImpl implements StudentService{
                 deposit.setIsSystem(true);
                 deposit.setEnv(PRODUCTION);
                 // create a collection transaction
+                // db trigger will update the school collections account
                 walletService.depositIntoWallet(deposit);
             }
 

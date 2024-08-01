@@ -32,12 +32,12 @@ const AnalyticsDashboard = () => {
 
     const dispatch  =  useDispatch();
     const {userData} =  useSelector(store=>store.auth)
-    const [type, setType] =  useState( {value:"PAYMENT", label:"Select Transactions"},);
+    const [type, setType] =  useState( {value:"PAYMENT", label:"Select Expenditure"},);
 
     const [types, setTypes] = useState([
-        {value:"PAYMENT", label:"Purchase Transactions"},
-        {value:"COLLECTION", label:"Card Deposit Transactions"},
-        {value:"WITHDRAW", label:"Cash Withdraw Transactions"},
+        {value:"PAYMENT", label:"Purchase Expenditure"},
+        {value:"COLLECTION", label:"Card Deposit Expenditure"},
+        {value:"WITHDRAW", label:"Cash Withdraw Expenditure"},
     ])
 
     const { colors } = useContext(ThemeColors),

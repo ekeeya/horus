@@ -53,7 +53,6 @@ const ProductsHeader = props => {
     debounceSearchSchools(val)
   }
   const renderSchools =()=>{
-    console.log(userData)
     return schoolStore.schools.map(school=>{
       return {
         value:school.id,
@@ -79,7 +78,17 @@ const ProductsHeader = props => {
   }, [selectedSchool])
 
   useEffect(()=>{
+    if(userData.posCenter){
+      setSelectedPos({
+        label:userData.posCenter.name,
+        value:userData.posCenter.id
+      })
+    }
+  }, [userData])
+
+  useEffect(()=>{
     if(selectedPos.value && selectedPos.value !==""){
+      console.log("fetching for pos: "+ selectedPos.value)
       dispatch(getProducts({posId:selectedPos.value}))
     }
   }, [selectedPos])
@@ -102,7 +111,7 @@ const ProductsHeader = props => {
               <Row className='justify-content-end mx-0'>
                 <Col xs={12} lg={10}>
                   <div className='d-flex align-items-center justify-content-lg-end justify-content-start flex-md-nowrap flex-wrap mt-lg-1 mb-lg-1'>
-                    {!userData.school && (
+                    {userData.accountType === 'ADMIN' && (
                         <>
                           <div className='mt-50 width-350 me-1 mt-sm-0 mt-1'>
                             <Select
@@ -169,7 +178,7 @@ const ProductsHeader = props => {
       </Row>
       <AddItemModal
           single={single}
-          posId={userData.accountType !== 'POS' ? selectedPos.value : userData.user.posCenter.id}
+          posId={userData.accountType !== 'POS' ? selectedPos.value : userData.posCenter.id}
           open={showAddItems}
           closeModal={setShowAddItems}
           categories={store.categories}
