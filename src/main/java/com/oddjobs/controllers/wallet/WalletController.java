@@ -15,6 +15,7 @@ import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.entities.inventory.Order;
 import com.oddjobs.entities.wallets.AccountEntity;
+import com.oddjobs.entities.wallets.CommissionAccount;
 import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.exceptions.ExceedDailyExpenditureException;
 import com.oddjobs.exceptions.InsufficientBalanceException;
@@ -30,6 +31,7 @@ import com.oddjobs.entities.users.User;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.repositories.WithdrawRequestRepository;
 import com.oddjobs.repositories.transactions.TransactionRepository;
+import com.oddjobs.repositories.wallet.CommissionAccountRepository;
 import com.oddjobs.repositories.wallet.SchoolPaymentAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.schools.SchoolService;
@@ -68,6 +70,7 @@ public class WalletController {
     private final SchoolService schoolService;
     private final ContextProvider contextProvider;
     private final Mapper mapper;
+    private final CommissionAccountRepository commissionAccountRepository;
 
 
     @GetMapping("accounts")
@@ -245,6 +248,8 @@ public class WalletController {
             }else{
                 List<Utils.WALLET_ACCOUNT_TYPES> types = List.of(Utils.WALLET_ACCOUNT_TYPES.SYSTEM);
                 accounts = walletAccountRepository.findAccountEntitiesByAccountTypeIn(types);
+                CommissionAccount account = commissionAccountRepository.findCommissionAccountBySchoolIsNull();
+                accounts.add(account);
             }
             List<AccountResponseDTO> cleanAccounts = accounts.stream().map(AccountResponseDTO::new).toList();
             response.setData(cleanAccounts);

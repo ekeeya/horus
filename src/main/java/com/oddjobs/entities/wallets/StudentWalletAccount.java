@@ -32,7 +32,7 @@ public class StudentWalletAccount extends AccountEntity {
     private CardEntity card;
 
     @Enumerated(EnumType.STRING)
-    private  Utils.WALLET_STATUS status = Utils.WALLET_STATUS.PENDING;
+    private  Utils.WALLET_STATUS status = Utils.WALLET_STATUS.NOT_PAID;
 
     private Boolean isCardIssued = false;
 

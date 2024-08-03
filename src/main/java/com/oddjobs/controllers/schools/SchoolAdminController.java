@@ -22,6 +22,9 @@ import com.oddjobs.dtos.requests.ClassesRequestDTO;
 import com.oddjobs.dtos.requests.SchoolRequestDTO;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
+import com.oddjobs.entities.subscriptions.Subscription;
+import com.oddjobs.repositories.school.SubscriptionRepository;
+import com.oddjobs.services.schools.subscriptions.SubscriptionService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.dtos.responses.SchoolResponseDTO;
 import com.oddjobs.entities.users.SchoolUser;
@@ -31,12 +34,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -47,6 +52,8 @@ public class SchoolAdminController {
 
     private final SchoolService schoolService;
     private final ContextProvider contextProvider;
+    private final SubscriptionService subscriptionService;
+    private final SubscriptionRepository subscriptionRepository;
     private final Mapper mapper;
     @PostMapping("class/register/{id}")
     @Secured({"ROLE_ADMIN"})
@@ -127,7 +134,7 @@ public class SchoolAdminController {
             return ResponseEntity.ok(mapper.toSchoolDto(school));
         }catch (Exception e){
             log.error(e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Something wrong happened on our servers");
         }
     }
 
@@ -143,7 +150,7 @@ public class SchoolAdminController {
             return ResponseEntity.ok("OK");
         }catch (Exception e){
             log.error(e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Something wrong happened on our servers");
         }
     }
 
@@ -157,8 +164,25 @@ public class SchoolAdminController {
             return ResponseEntity.ok("OK");
         }catch (Exception e){
             log.error(e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Something wrong happened on our servers");
         }
+    }
+    @GetMapping("subscription/activate/{schoolId}")
+    public ResponseEntity<?> activateSubscription(
+            @PathVariable("schoolId") Long schoolId,
+            @RequestParam("term") Utils.COMMISSION_TERM term,
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate
+    ){
+
+       try{
+           School school = schoolService.findById(schoolId);
+           subscriptionService.activate(school, term, startDate);
+           Subscription subscription = subscriptionRepository.findSubscriptionBySchool(school);
+           return ResponseEntity.ok(subscription);
+       }catch (Exception e){
+           log.error(e.getMessage(), e);
+           return ResponseEntity.internalServerError().body("Something wrong happened on our servers");
+       }
     }
 
 }

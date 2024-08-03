@@ -21,6 +21,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SchoolRepository extends JpaRepository<School, Long> {
 
@@ -28,4 +30,6 @@ public interface SchoolRepository extends JpaRepository<School, Long> {
 
     @Query(value = "SELECT * FROM school WHERE LOWER(name) LIKE %:name% ", nativeQuery = true)
     Page<School> findSchoolsByNameLike(@Param("name") String name, Pageable pageable);
+
+    List<School> findAllByEnabled(Boolean enabled);
 }

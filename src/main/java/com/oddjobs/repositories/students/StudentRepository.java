@@ -4,6 +4,7 @@ import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.users.ParentUser;
+import com.oddjobs.utils.Utils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -24,10 +26,19 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
 
     @Query(value = "SELECT * FROM student WHERE school_id=:schoolId AND ((LOWER(first_name) LIKE %:keyword% OR LOWER(last_name) LIKE %:keyword% OR LOWER(middle_name) LIKE %:keyword%)) LIMIT 10", nativeQuery = true)
     List<StudentEntity> searchStudentsBySchoolAndName(@Param("schoolId") Long schoolId, @Param("keyword") String keyword);
+
     Page<StudentEntity> findStudentEntitiesBySchoolAndClassRoom(School school, ClassRoom classRoom, Pageable pageable);
+
     List<StudentEntity> findStudentEntitiesByParentsContaining(ParentUser parent);
 
     Page<StudentEntity> findStudentEntitiesBySchool(School school, Pageable pageable);
 
+    List<StudentEntity> findStudentEntitiesBySchool(School school);
+
     StudentEntity findStudentEntityById(Long id);
+
+    @Query("SELECT COALESCE(COUNT(id), 0) FROM StudentEntity WHERE school=:school AND enabled =true")
+    Integer countActiveBySchool(
+            @Param("school") School school
+    );
 }

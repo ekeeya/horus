@@ -32,11 +32,15 @@ public class BulkStudentLoadRequestDTO {
     @CsvBindByName(column = "class")
     private String className;
 
+    @CsvBindByName(column = "term")
+    private String term; // record which term we are exporting these students in... necessary for billing (I, II, III)
+
+
 
 
     public BulkStudentLoadRequestDTO() {} // this is required
 
-    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String parentNames, String parentTelephone, String parentEmail, Double dailyLimit, Double balance, String cardNo, String className) {
+    public BulkStudentLoadRequestDTO(String image, String firstName, String lastName, String middleName, String parentNames, String parentTelephone, String parentEmail, Double dailyLimit, Double balance, String cardNo, String className, String term) {
         this.image = image;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -48,5 +52,6 @@ public class BulkStudentLoadRequestDTO {
         this.balance = balance;
         this.cardNo = cardNo;
         this.className = className;
+        this.term = term;
     }
 }

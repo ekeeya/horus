@@ -5,16 +5,14 @@ import com.oddjobs.entities.CardEntity;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
-import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.exceptions.SchoolNotFoundException;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.repositories.school.SchoolRepository;
 import com.oddjobs.repositories.students.CardRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.users.UserRepository;
-import com.oddjobs.repositories.wallet.SchoolCollectionAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
-import com.oddjobs.services.subscriptions.CommissionRequestService;
+import com.oddjobs.services.schools.subscriptions.CommissionService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.approvals.SchoolApprovalRequest;
 import com.oddjobs.entities.users.ParentUser;
@@ -54,9 +52,8 @@ public class StudentServiceImpl implements StudentService{
     private final UserRepository userRepository;
     private final UserService userService;
     private final ApprovalRequestService approvalRequestService;
-    private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
 
-    private final CommissionRequestService commissionRequestService;
+    private final CommissionService commissionService;
 
     @Override
     @Transactional
@@ -103,10 +100,9 @@ public class StudentServiceImpl implements StudentService{
         }
         if (request.getId() == null){
             // Create two commission requests for the SP and SCHOOL
-            commissionRequestService.create(student, Utils.COMMISSION_TYPE.SYSTEM);
-            commissionRequestService.create(student, Utils.COMMISSION_TYPE.SCHOOL);
+            commissionService.create(student, Utils.COMMISSION_TYPE.SYSTEM, request.getTerm());
+            commissionService.create(student, Utils.COMMISSION_TYPE.SCHOOL, request.getTerm());
         }
-
         return s;
     }
 
@@ -125,6 +121,7 @@ public class StudentServiceImpl implements StudentService{
                 bulkRequest.getBalance(),
                 bulkRequest.getDailyLimit(),
                 bulkRequest.getClassName(),
+                bulkRequest.getTerm(),
                 false
         );
         StudentEntity student = registerStudent(request);

@@ -53,10 +53,10 @@ public class Subscription extends BaseEntity {
     private Date endDate;
 
     @Enumerated(EnumType.STRING)
-    private  Utils.SUBSCRIPTION_PLAN plan = Utils.SUBSCRIPTION_PLAN.MONTHLY;
+    private  Utils.SUBSCRIPTION_PLAN plan = Utils.SUBSCRIPTION_PLAN.TERMLY;
 
     @Enumerated(EnumType.STRING)
-    private Utils.SUBSCRIPTION_STATE state= Utils.SUBSCRIPTION_STATE.PENDING;
+    private Utils.SUBSCRIPTION_STATE state= Utils.SUBSCRIPTION_STATE.INACTIVE;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     @Column(name = "amount")

@@ -24,6 +24,7 @@ public class SchoolResponseDTO implements Serializable {
     private Double systemFeePerStudentPerTerm = 0.0;
     private Double schoolFeePerStudentPerTerm = 0.0;
     private List<ClassRoom> classes = new ArrayList<>();
+    private SubscriptionResponseDTO subscription;
 
     public SchoolResponseDTO(School school){
         setName(school.getName());

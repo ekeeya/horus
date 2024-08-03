@@ -64,7 +64,7 @@ import java.util.*;
 public class WalletServiceImpl implements WalletService {
 
     private final StudentRepository studentRepository;
-    private  final SchoolService schoolService;
+    private final SchoolService schoolService;
     private final MobileMoneyService mobileMoneyService;
     private final StudentWalletAccountRepository studentWalletAccountRepository;
     private final WalletAccountRepository walletAccountRepository;
@@ -92,46 +92,47 @@ public class WalletServiceImpl implements WalletService {
     private EntityManager entityManager;
 
 
-    protected boolean exceedsDailyExpenditureLimit(StudentWalletAccount account){
-        if (!account.getEnableDailyLimit()){
+    protected boolean exceedsDailyExpenditureLimit(StudentWalletAccount account) {
+        if (!account.getEnableDailyLimit()) {
             return false;
         }
-        BigDecimal limit =  account.getMaximumDailyLimit();
+        BigDecimal limit = account.getMaximumDailyLimit();
         // check for transactions made today that have this
         List<Date> dates = Utils.todayDates(null);
         List<PaymentTransaction> payments = transactionService.getPaymentsByAccountAndDateRange(account, dates.get(0), dates.get(1));
-        BigDecimal totalTransactionsAmount =  transactionService.calculateTotalTransactionsAmount(payments);
+        BigDecimal totalTransactionsAmount = transactionService.calculateTotalTransactionsAmount(payments);
         int compare = limit.compareTo(totalTransactionsAmount);
         // if we have hit the limit
         return compare > 0 || compare == 0;
     }
+
     @Override
     public StudentWalletAccount createStudentWalletAccount(StudentEntity student) {
-        StudentWalletAccount walletAccount =  new StudentWalletAccount();
+        StudentWalletAccount walletAccount = new StudentWalletAccount();
         walletAccount.setName(String.format("%s %s", student.getFirstName(), student.getLastName()));
         walletAccount.setStudent(student);
         return studentWalletAccountRepository.save(walletAccount);
     }
 
     @Override
-    public StudentEntity suspendDisableActivateWalletAccount(Long  walletId, Date date, Utils.WALLET_STATUS status) throws WalletAccountNotFoundException {
-        try{
+    public StudentEntity suspendDisableActivateWalletAccount(Long walletId, Date date, Utils.WALLET_STATUS status) throws WalletAccountNotFoundException {
+        try {
             StudentWalletAccount wallet = (StudentWalletAccount) walletAccountRepository.findById(walletId).get();
             User u = contextProvider.getPrincipal();
-            if(u instanceof SchoolUser){
+            if (u instanceof SchoolUser) {
                 // we want to be sure of school user to manage cards
-                if(!((SchoolUser) u).getSchool().equals(wallet.getStudent().getSchool())){
-                 throw new Exception(String.format("User %s has no permissions to change this card status", u.getUsername()));
+                if (!((SchoolUser) u).getSchool().equals(wallet.getStudent().getSchool())) {
+                    throw new Exception(String.format("User %s has no permissions to change this card status", u.getUsername()));
                 }
             }
-            switch (status){
+            switch (status) {
                 case ACTIVE, DISABLED, PENDING -> {
                     // set status wallet
                     wallet.setStatus(status);
                 }
                 default -> {
                     // this is suspending
-                    if(date == null){
+                    if (date == null) {
                         throw new Exception("Suspension of a wallet account requires a lift date which has not been provided");
                     }
                     wallet.setStatus(status);
@@ -140,57 +141,58 @@ public class WalletServiceImpl implements WalletService {
             }
             walletAccountRepository.save(wallet);
             return wallet.getStudent();
-        }catch (NoSuchElementException e){
-            throw  new WalletAccountNotFoundException(String.format("Wallet account of id: %s not found in our records", walletId));
+        } catch (NoSuchElementException e) {
+            throw new WalletAccountNotFoundException(String.format("Wallet account of id: %s not found in our records", walletId));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
     @Value("${mm.api.provider.type}")
     private String mmProviderType;
 
     @Override
     public AccountEntity updateWalletBalance(AccountEntity account, Double amount) {
         log.info("Updating wallet balance by user: {}", contextProvider.getPrincipal());
-        BigDecimal newAmount =  new BigDecimal(amount);
-        BigDecimal balance =  account.getBalance();
-        balance =  balance.add(newAmount); // parse a negative for debits
+        BigDecimal newAmount = new BigDecimal(amount);
+        BigDecimal balance = account.getBalance();
+        balance = balance.add(newAmount); // parse a negative for debits
         account.setBalance(balance);
         return walletAccountRepository.save(account);
     }
 
     @Override
     public CollectionTransaction depositIntoWallet(WalletDepositDTO request) {
-        try{
+        try {
             log.info("Entered depositIntoWallet with data: {}", request);
             StudentWalletAccount wallet;
             StudentEntity student;
-            if(request.getStudentId() != null){
-                student =  studentRepository.findById(request.getStudentId()).get();
-                wallet =  student.getWalletAccount();
-            }else {
+            if (request.getStudentId() != null) {
+                student = studentRepository.findById(request.getStudentId()).get();
+                wallet = student.getWalletAccount();
+            } else {
                 wallet = findByCardNo(request.getCardNo());
-                student =  wallet.getStudent();
+                student = wallet.getStudent();
             }
-            if(wallet == null){
+            if (wallet == null) {
                 throw new WalletAccountNotFoundException(String.format("Wallet account %s for student %s not found", request.getCardNo(), request.getStudentId()));
             }
 
             User user = contextProvider.getPrincipal();
             BaseRequestToPay requestToPay;
             Settings settings = settingService.getSettings();
-            if (settings != null){
-                mmProviderType =  settings.getProvider().toString();
+            if (settings != null) {
+                mmProviderType = settings.getProvider().toString();
             }
             Utils.PROVIDER provider;
-            if (request.getIsSystem()){
+            if (request.getIsSystem()) {
                 provider = Utils.PROVIDER.SYSTEM;
-            }else{
-                provider =  mobileMoneyService.isTelecom() ? mobileMoneyService.determineProvider(request.getMsisdn()) : Utils.PROVIDER.valueOf(mmProviderType);
+            } else {
+                provider = mobileMoneyService.isTelecom() ? mobileMoneyService.determineProvider(request.getMsisdn()) : Utils.PROVIDER.valueOf(mmProviderType);
             }
 
             String msisdn;
-            CollectionTransaction transaction =  new CollectionTransaction();
+            CollectionTransaction transaction = new CollectionTransaction();
             switch (provider) {
                 case MTN -> {
                     msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), null);
@@ -212,8 +214,8 @@ public class WalletServiceImpl implements WalletService {
                     ((RelworxRequestToPayDTO) requestToPay).setMsisdn(msisdn);
                 }
                 default -> {
-                    if (user instanceof SchoolUser bursar){
-                        if (!Objects.equals(bursar.getSchool().getId(), student.getSchool().getId())){
+                    if (user instanceof SchoolUser bursar) {
+                        if (!Objects.equals(bursar.getSchool().getId(), student.getSchool().getId())) {
                             log.error("User {} not allowed to update balance for student {}", bursar, student);
                             throw new ResourceFobidenException("You are not allowed to update balance");
                         }
@@ -225,7 +227,7 @@ public class WalletServiceImpl implements WalletService {
                     transaction.setDescription("TOP-UP from Bursary");
                 }
             }
-            if (provider != Utils.PROVIDER.SYSTEM){
+            if (provider != Utils.PROVIDER.SYSTEM) {
                 msisdn = Utils.sanitizeMsisdn(request.getMsisdn(), Utils.PROVIDER.RELWORX);
                 requestToPay = new RelworxRequestToPayDTO();
                 // get parent email
@@ -236,11 +238,11 @@ public class WalletServiceImpl implements WalletService {
                 ((RelworxRequestToPayDTO) requestToPay).setDescription("Wallet top-up from Trinity pocket app system.");
                 ((RelworxRequestToPayDTO) requestToPay).setAccount_no(ACCOUNT_NUMBER);
                 Long mmTransactionId = mobileMoneyService.initiateWalletTopUp(requestToPay, request.getEnv());
-                if (mmTransactionId == null){
+                if (mmTransactionId == null) {
                     log.error("External mobile money request to pay call failed");
-                    return  null;
+                    return null;
                 }
-                MMTransaction t =  mmTransactionRepository.findById(mmTransactionId).get();
+                MMTransaction t = mmTransactionRepository.findById(mmTransactionId).get();
                 requestToPay.setAmount(request.getAmount());
                 requestToPay.setProvider(provider);
                 transaction.setMmTransaction(t);
@@ -259,9 +261,9 @@ public class WalletServiceImpl implements WalletService {
             // DB trigger will handle the rest at this point
             transactionRepository.save(transaction);
             log.info("Exiting depositIntoWallet with transaction: {}", transaction);
-            if (provider == Utils.PROVIDER.SYSTEM){
+            if (provider == Utils.PROVIDER.SYSTEM) {
                 transaction.setTotalPlusCharges(BigDecimal.valueOf(0));
-                transaction =transactionRepository.save(transaction); // save it first to get the id
+                transaction = transactionRepository.save(transaction); // save it first to get the id
                 // this will create handle the balance update right?
                 transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), transaction.getId());
             }
@@ -270,7 +272,7 @@ public class WalletServiceImpl implements WalletService {
             entityManager.refresh(w);
             transaction.getReceiver().setWalletAccount(w);
             return transaction;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException();
         }
@@ -283,8 +285,8 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public StudentWalletAccount findByCardNo(String accNo) throws WalletAccountNotFoundException {
-        StudentWalletAccount wallet =  studentWalletAccountRepository.findWalletAccountEntityByCardNo(accNo);
-        if (wallet == null){
+        StudentWalletAccount wallet = studentWalletAccountRepository.findWalletAccountEntityByCardNo(accNo);
+        if (wallet == null) {
             throw new WalletAccountNotFoundException();
         }
         return wallet;
@@ -293,7 +295,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public StudentWalletAccount findByStudentId(Long studentId) throws StudentNotFoundException {
         StudentEntity student = studentRepository.findStudentEntityById(studentId);
-        if (student == null){
+        if (student == null) {
             throw new StudentNotFoundException(studentId);
         }
         return student.getWalletAccount();
@@ -316,7 +318,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public Page<StudentWalletAccount> findBySchoolAndCardIssued(School school, boolean cardIssued, int page, int size) {
-        Pageable pageable =  PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return studentWalletAccountRepository.findStudentWalletAccountsByStudent_SchoolAndIsCardIssued(school, cardIssued, pageable);
     }
 
@@ -324,44 +326,44 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public Utils.BiWrapper<Transaction, Order> processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException {
         StudentWalletAccount account = studentWalletAccountRepository.findWalletAccountEntityByCardNo(request.getCardNo());
-        User user =  contextProvider.getPrincipal();
-        CashoutTransaction cashoutTransaction=null;
-        if (account == null){
+        User user = contextProvider.getPrincipal();
+        CashoutTransaction cashoutTransaction = null;
+        if (account == null) {
             throw new WalletAccountNotFoundException(request.getCardNo());
         }
-        if(!account.getStatus().equals(Utils.WALLET_STATUS.ACTIVE)){
+        if (!account.getStatus().equals(Utils.WALLET_STATUS.ACTIVE)) {
             throw new WrongWalletStatusException(account.getStatus().toString(), account.getCardNo());
         }
         BigDecimal paymentAmount = BigDecimal.valueOf(request.getAmount());
         // check if account has enough balance.
-        if (account.getBalance().compareTo(paymentAmount) < 0 ){
-            throw  new InsufficientBalanceException(account.getBalance().toBigIntegerExact().doubleValue(), request.getAmount(),account.getCardNo());
+        if (account.getBalance().compareTo(paymentAmount) < 0) {
+            throw new InsufficientBalanceException(account.getBalance().toBigIntegerExact().doubleValue(), request.getAmount(), account.getCardNo());
         }
         // check if card has no daily expenditure restrictions.
         account = (StudentWalletAccount) updateWalletBalance(account, -request.getAmount()); // debit parse negative
         // Record Payment transaction and return it.
-        if (request.getCashOutTransactionId() != null){
+        if (request.getCashOutTransactionId() != null) {
             cashoutTransaction = (CashoutTransaction) transactionRepository.findById(request.getCashOutTransactionId()).get();
         }
-        if (cashoutTransaction == null){
+        if (cashoutTransaction == null) {
             // if it is not  cash out transaction, check daily limit
-            if (exceedsDailyExpenditureLimit(account)){
+            if (exceedsDailyExpenditureLimit(account)) {
                 throw new ExceedDailyExpenditureException(account.getCardNo());
             }
         }
         Order order = null;
         // If orderItems is given then record the order
-        if( user instanceof POSAttendant && request.getItems() != null){
+        if (user instanceof POSAttendant && request.getItems() != null) {
             order = new Order();
             order.setWallet(account);
             order.setAmount(paymentAmount);
             order.setPos(((POSAttendant) user).getPosCenter());
             List<OrderItem> orderItems = new ArrayList<>();
             order = orderRepository.save(order);
-            for (OrderItemRequestDTO orderItem: request.getItems()
+            for (OrderItemRequestDTO orderItem : request.getItems()
             ) {
-                Category category =  categoryService.findById(orderItem.getCategoryId());
-                OrderItem item  = new OrderItem();
+                Category category = categoryService.findById(orderItem.getCategoryId());
+                OrderItem item = new OrderItem();
                 item.setName(orderItem.getName());
                 item.setCategory(category);
                 item.setPrice(BigDecimal.valueOf(orderItem.getPrice()));
@@ -381,7 +383,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public Page<CardProvisionRequest> findByStatus(boolean provisioned, int page, int size) {
-        Pageable pageable =  PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         return cardProvisionRequestRepository.findCardProvisionRequestsByProvisionedIs(provisioned, pageable);
     }
@@ -389,29 +391,30 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public void createCardProvisioningRequest(StudentEntity student) {
         CardProvisionRequest request = null;
-       try{
-           request =  cardProvisionRequestRepository.findCardProvisionRequestsByStudent_WalletAccount_CardNo(student.getWalletAccount().getCardNo());
-       }catch (Exception ignored){}
-        if(request == null){
+        try {
+            request = cardProvisionRequestRepository.findCardProvisionRequestsByStudent_WalletAccount_CardNo(student.getWalletAccount().getCardNo());
+        } catch (Exception ignored) {
+        }
+        if (request == null) {
             request = new CardProvisionRequest();
             request.setStudent(student);
             request = cardProvisionRequestRepository.save(request);
             // create a notification
             String msg = String.format("A new card provisioning request from %s from cardNo %s", student.getSchool().getName(), student.getWalletAccount().getCardNo());
-            notificationService.createNotification(Notification.Type.CARD_PROVISIONING_REQUEST, request.getId(), Notification.Action.Create,msg);
+            notificationService.createNotification(Notification.Type.CARD_PROVISIONING_REQUEST, request.getId(), Notification.Action.Create, msg);
         }
     }
 
     @Override
     public Page<CardProvisionRequest> findProvisioningRequestsBySchoolAndStatus(Long schoolId, boolean provisioned, int page, int size) throws SchoolNotFoundException {
-        School school =  schoolService.findById(schoolId);
-        Pageable pageable =  PageRequest.of(page, size, Sort.by("id").descending());
-        return cardProvisionRequestRepository.findCardProvisionRequestsByStudent_SchoolAndProvisionedIs(school,provisioned,pageable);
+        School school = schoolService.findById(schoolId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return cardProvisionRequestRepository.findCardProvisionRequestsByStudent_SchoolAndProvisionedIs(school, provisioned, pageable);
     }
 
     @Override
     public Page<CardProvisionRequest> findRequestByCardNo(String cardNo) {
-        Pageable pageable =  PageRequest.of(0, 10, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
         return cardProvisionRequestRepository.findCardProvisionRequestsByStudent_WalletAccount_CardNoLike(cardNo, pageable);
     }
 
@@ -419,18 +422,18 @@ public class WalletServiceImpl implements WalletService {
     public List<CardProvisionRequest> markProvisioned(CardProvisioningMarkRequest request) throws Exception {
 
         List<CardProvisionRequest> l = new ArrayList<>();
-        if (request.getRequestId() !=  null){
+        if (request.getRequestId() != null) {
             request.getRequestIds().add(request.getRequestId());
         }
-        if (request.getRequestIds().size() > 0){
-            for (Long id:request.getRequestIds()  ) {
-                try{
-                    CardProvisionRequest r =  cardProvisionRequestRepository.findById(id).get();
+        if (request.getRequestIds().size() > 0) {
+            for (Long id : request.getRequestIds()) {
+                try {
+                    CardProvisionRequest r = cardProvisionRequestRepository.findById(id).get();
                     r.setProvisioned(true);
                     r = cardProvisionRequestRepository.save(r);
                     l.add(r);
-                }catch (NoSuchElementException e){
-                   log.warn(String.format("Card provisioning request id %s not found", id));
+                } catch (NoSuchElementException e) {
+                    log.warn(String.format("Card provisioning request id %s not found", id));
                 }
             }
         } else {

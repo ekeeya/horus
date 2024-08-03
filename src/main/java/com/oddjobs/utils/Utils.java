@@ -15,6 +15,10 @@ public class Utils {
         SCHOOL, SYSTEM
     }
 
+    public static enum ORDER_STATUS{
+        PENDING, EXECUTED, EXECUTING, PAUSED
+    }
+
     public static enum COMMISSION_STATUS{
         PENDING, COMPLETED, CANCELLED
     }
@@ -101,7 +105,7 @@ public class Utils {
     }
 
     public static enum SUBSCRIPTION_STATE{
-        PENDING, INACTIVE, ACTIVE
+       INACTIVE, ACTIVE
     }
 
     public static enum SUBSCRIPTION_PLAN{
@@ -151,7 +155,7 @@ public class Utils {
     }
 
     public static enum WALLET_STATUS{
-       PENDING, SUSPENDED, ACTIVE, DISABLED
+       PENDING, SUSPENDED, ACTIVE, DISABLED, NOT_PAID
     }
     public static enum PRODUCT_TYPE{
         COLLECTIONS, DISBURSEMENT

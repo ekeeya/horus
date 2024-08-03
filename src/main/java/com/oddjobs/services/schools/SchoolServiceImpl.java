@@ -15,6 +15,7 @@ import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.CustomRunnable;
 import com.oddjobs.services.IdentifiableRunnable;
 import com.oddjobs.services.TransactionalExecutorService;
+import com.oddjobs.services.schools.subscriptions.SubscriptionService;
 import com.oddjobs.utils.Utils;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
@@ -120,7 +121,7 @@ public class SchoolServiceImpl implements SchoolService{
                 }
                 // Also add a subscription, for future use, currently it the commission system
                 SubscriptionRequestDTO subscriptionRequest = new SubscriptionRequestDTO(null,school.getId(), null, null,0.0,
-                        school.getSystemFeePerStudentPerTerm(), Utils.SUBSCRIPTION_PLAN.MONTHLY );
+                        school.getSystemFeePerStudentPerTerm(), Utils.SUBSCRIPTION_PLAN.TERMLY );
                 subscriptionService.register(subscriptionRequest);
                 return school.getId();
             }catch (Exception e){
@@ -179,7 +180,6 @@ public class SchoolServiceImpl implements SchoolService{
         if (schoolFee !=null){
             school.setSchoolFeePerStudentPerTerm(schoolFee);
         }
-
         schoolRepository.save(school);
     }
 

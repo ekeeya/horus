@@ -14,6 +14,7 @@
 package com.oddjobs.dtos.requests;
 
 import com.oddjobs.dtos.base.BaseRequest;
+import com.oddjobs.utils.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,12 +33,13 @@ public class StudentRequestDTO extends BaseRequest {
     private Double balance = 0.0;
     private Double dailyLimit = 0.0;
     private String className;
+    private Utils.COMMISSION_TERM term;
     private Boolean editing = false;
 
     public StudentRequestDTO() {
     }
 
-    public StudentRequestDTO(Long id, String image, String firstName, String lastName, String middleName, String regNo, Long school, Long parent, String cardNo, Double balance, Double dailyLimit, String className, Boolean editing) {
+    public StudentRequestDTO(Long id, String image, String firstName, String lastName, String middleName, String regNo, Long school, Long parent, String cardNo, Double balance, Double dailyLimit, String className, String term, Boolean editing) {
         this.id = id;
         this.image = image;
         this.firstName = firstName;
@@ -50,6 +52,7 @@ public class StudentRequestDTO extends BaseRequest {
         this.balance = balance;
         this.dailyLimit = dailyLimit;
         this.className = className;
+        this.term = Utils.COMMISSION_TERM.valueOf(term);
         this.editing = editing;
     }
 }

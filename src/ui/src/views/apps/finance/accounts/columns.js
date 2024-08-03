@@ -80,7 +80,7 @@ const columns = [
         selector: row => row.createdAt,
         cell: row => (renderDate(row.createdAt))
     },
-    userData.accountType === "SCHOOL_ADMIN"?{
+    {
         name: 'Action',
         minWidth: '420px',
         cell: row => {
@@ -104,6 +104,6 @@ const columns = [
                 </div>
             )
         }
-    }:{}
+    }
 ]
 export default columns;

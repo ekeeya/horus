@@ -18,6 +18,7 @@ import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.subscriptions.CommissionRequestEntity;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.entities.users.User;
+import com.oddjobs.entities.wallets.CommissionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.utils.Utils;
 import jakarta.persistence.*;
@@ -38,6 +39,9 @@ public  class CommissionTransaction extends Transaction {
     @ManyToOne
     private StudentEntity student;
 
+    @ManyToOne
+    private CommissionAccount debitAccount;
+
     @OneToOne
     private CommissionRequestEntity request;
     @Override
@@ -45,5 +49,21 @@ public  class CommissionTransaction extends Transaction {
         return "CollectionTransaction{" +
                 ", student=" + student +
                 '}';
+    }
+
+    @Transient
+    public Utils.COMMISSION_TYPE kind(){
+        return request.getType();
+    }
+
+    public CommissionTransaction updateFields() throws Exception {
+        if (request == null){
+            throw new Exception("Commission request is null, first set it on the instance then call this method");
+        }
+        setSchool(request.getStudent().getSchool());
+        setStudent(request.getStudent());
+        setAmount(request.getAmount());
+        setNature(Utils.TRANSACTION_NATURE.DEBIT);// we are debiting(deducting in this case)  student account
+        return this;
     }
 }

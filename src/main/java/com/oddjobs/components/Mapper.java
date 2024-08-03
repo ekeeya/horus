@@ -1,12 +1,14 @@
 package com.oddjobs.components;
 
 import com.oddjobs.dtos.responses.*;
+import com.oddjobs.entities.subscriptions.Subscription;
 import com.oddjobs.entities.users.*;
 import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.repositories.school.ClassRoomRepository;
 import com.oddjobs.entities.ClassRoom;
 import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
+import com.oddjobs.repositories.school.SubscriptionRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.transactions.CollectionTransactionRepository;
 import com.oddjobs.repositories.transactions.PaymentTransactionRepository;
@@ -29,6 +31,7 @@ public class Mapper {
     private final PaymentTransactionRepository paymentTransactionRepo;
     private final CollectionTransactionRepository collectionTransactionRepo;
     private final ClassRoomRepository classRoomRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
 
     public UserResponseDto toUserDTO(User user, boolean showPerms) {
@@ -84,8 +87,9 @@ public class Mapper {
     public SchoolResponseDTO toSchoolDto(School school){
         SchoolResponseDTO dto =  new SchoolResponseDTO(school);
         SchoolCollectionAccount acc =  walletService.findWalletBySchool(school);
-
         List<ClassRoom> classRooms =  classRoomRepository.findClassRoomsBySchoolOrderByNameDesc(school);
+        Subscription subscription = subscriptionRepository.findSubscriptionBySchool(school);
+        dto.setSubscription(new SubscriptionResponseDTO(subscription));
         dto.setClasses(classRooms);
         dto.setAccountId(acc.getId());
         dto.setAccountBalance(acc.getBalance().doubleValue());

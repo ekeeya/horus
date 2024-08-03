@@ -13,8 +13,8 @@ import { setEdit, setSelectedSchool } from '../store'
 
 
 const statusObj = {
-  Active: 'light-success',
-  "In active": 'light-secondary'
+  ACTIVE: 'light-success',
+  INACTIVE: 'light-secondary'
 }
 
 const setEditable =(row)=>{
@@ -26,7 +26,7 @@ export const columns = [
   {
     name: 'Name',
     sortable: true,
-    minWidth: '280px',
+    minWidth: '250px',
     sortField: 'name',
     selector: row => row.name,
     cell: row => (
@@ -48,7 +48,7 @@ export const columns = [
   {
     name: 'Address',
     sortable: true,
-    minWidth: '250px',
+    minWidth: '150px',
     sortField: 'address',
     selector: row => row.role,
     cell: row => <span className='text-capitalize'>{row.address}</span>
@@ -72,10 +72,10 @@ export const columns = [
     minWidth: '90px',
     sortable: true,
     sortField: 'status',
-    selector: row => row.status,
+    selector: row => row.subscription,
     cell: row => (
-      <Badge className='text-capitalize' color={statusObj[row.status]} pill>
-        {row.status}
+      <Badge className='text-capitalize' color={statusObj[row.subscription.state]} pill>
+        {row.subscription.state}
       </Badge>
     )
   },

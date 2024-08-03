@@ -32,7 +32,6 @@ export const fetchAllowedWithdrawPaymentAccountBalance = createAsyncThunk('appWi
     try {
         let url = `/api/v1/wallet/allowed-withdraw-amount`;
         const {lowerDate, upperDate} = configs;
-        console.log(lowerDate)
         if(lowerDate){
             url = `${url}?lowerDate=${lowerDate}&upperDate=${upperDate}`
         }
