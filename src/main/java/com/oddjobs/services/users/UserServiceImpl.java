@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         User user;
         if (request.getId() != null){
             user =  findById(request.getId());
-            // When updating
+            // When updating..
             if(request.getPassword() != null){
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
             }

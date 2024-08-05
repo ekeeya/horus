@@ -3,6 +3,7 @@ import com.oddjobs.entities.School;
 import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.subscriptions.CommissionRequestEntity;
 import com.oddjobs.entities.transactions.CommissionTransaction;
+import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.wallets.CommissionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.repositories.students.StudentRepository;
@@ -13,8 +14,11 @@ import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.BackgroundTaskExecutor;
 import com.oddjobs.utils.Utils;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -35,6 +39,24 @@ public class CommissionServiceImpl implements CommissionService {
     private final WalletAccountRepository walletAccountRepository;
     private final CommissionRequestRepository commissionRequestRepository;
     private final StudentWalletAccountRepository studentWalletAccountRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+
+    @Scheduled(fixedRate = 60000*3)
+    void processCommissionDeductions(){
+        log.info("Entering commissions deduction routine");
+        deductCommission();
+    }
+
+    @Scheduled(fixedRate = 60000*2)
+    void updateCommissionTransactionStatuses(){
+        List<Transaction> transactions = transactionRepository.findPendingCommissionTransactionsStatus();
+        for (Transaction t: transactions){
+            transactionRepository.updateTransactionStatus(Utils.TRANSACTION_STATUS.SUCCESS.toString(), t.getId());
+        }
+    }
 
     @Override
     public List<CommissionRequestEntity> getPendingByStudent(StudentEntity student) {
@@ -82,33 +104,26 @@ public class CommissionServiceImpl implements CommissionService {
             CommissionAccount systemComAccount = commissionAccountRepository.findCommissionAccountBySchoolIsNull();
             CommissionAccount schoolComAccount = commissionAccountRepository.findCommissionAccountBySchool(school);
             CommissionTransaction transaction =  new CommissionTransaction();
+            transaction.setTransactionId(Utils.generateTransactionId());
             transaction.setRequest(request);
             transaction = transaction.updateFields();
+            transaction.setDebitAccount(walletAccount);
 
             if (transaction.kind() == Utils.COMMISSION_TYPE.SYSTEM){
-                BigDecimal balance =  systemComAccount.getBalance();
-                transaction.setDebitAccount(systemComAccount);
-                systemComAccount.setBalance(balance.add(request.getAmount()));
-                commissionAccountRepository.save(schoolComAccount);
+                transaction.setCreditAccount(systemComAccount);
             }else{
-                BigDecimal balance =  systemComAccount.getBalance();
-                transaction.setDebitAccount(schoolComAccount);
-                schoolComAccount.setBalance(balance.add(request.getAmount()));
-                commissionAccountRepository.save(schoolComAccount);
+                transaction.setCreditAccount(schoolComAccount);
             }
-            BigDecimal walletBalance = walletAccount.getBalance();
-            walletAccount.setBalance(walletBalance.subtract(request.getAmount()));
-            walletAccountRepository.save(walletAccount);
+            transactionRepository.save(transaction);
             request.setStatus(Utils.COMMISSION_STATUS.COMPLETED);
             commissionRequestRepository.save(request);
-            transactionRepository.save(transaction); // commit the transaction
             log.info("Done applying commission deduction request: {}", request);
-
         }catch (Exception e){
             throw new RuntimeException(e);
         }
     }
     @Override
+    @Transactional
     public void deductCommission() {
         List<CommissionRequestEntity> allPending = crRepository.findByStatus(Utils.COMMISSION_STATUS.PENDING);
 

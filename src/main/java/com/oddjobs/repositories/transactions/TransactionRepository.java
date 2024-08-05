@@ -17,12 +17,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CollectionTransaction AND t.mmTransaction = :mmTransaction")
-     <T extends Transaction> T findByMMTransaction(@Param("mmTransaction") MMTransaction mmTransaction);
+    <T extends Transaction> T findByMMTransaction(@Param("mmTransaction") MMTransaction mmTransaction);
 
     Transaction findTransactionByTransactionId(String transactionId);
 
@@ -54,32 +55,41 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Pageable pageable);
 
 
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CommissionTransaction AND t.status = 'PENDING'")
+    List<Transaction> findPendingCommissionTransactionsStatus();
+
+
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CommissionTransaction AND t.student = :student")
+    Page<Transaction> findCommissionTransactionsByStudent(
+            @Param("student") StudentEntity student,
+            Pageable pageable);
+
     @Query("SELECT t FROM Transaction t WHERE TYPE(t) = CollectionTransaction AND t.sender = :parent AND (t.createdAt >=:lowerDate AND t.createdAt <=:upperDate)")
     Page<Transaction> findTransactionsBySenderAndDateBetween(
             @Param("parent") ParentUser parent,
-            @Param("lowerDate")Date lowerDate,
-            @Param("upperDate")Date upperDate,
+            @Param("lowerDate") Date lowerDate,
+            @Param("upperDate") Date upperDate,
             Pageable pageable);
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM Transaction  WHERE transactionType =:type AND status = :status")
     Double sumByTransactionTypeAndStatus(
             @Param("type") Utils.TRANSACTION_TYPE type,
-            @Param("status")Utils.TRANSACTION_STATUS status
+            @Param("status") Utils.TRANSACTION_STATUS status
     );
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM Transaction WHERE school=:school AND transactionType =:type AND status = :status")
     Double sumByTransactionTypeAndSchoolAndStatus(
             @Param("type") Utils.TRANSACTION_TYPE type,
-            @Param("school")School school,
-            @Param("status")Utils.TRANSACTION_STATUS status
+            @Param("school") School school,
+            @Param("status") Utils.TRANSACTION_STATUS status
     );
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM Transaction WHERE school=:school AND transactionType =:type AND status = :status AND (createdAt >=:lowerDate AND createdAt <=:upperDate)")
     Double sumByTransactionTypeAndSchoolAndCreatedAtBetweenStatus(
             @Param("type") Utils.TRANSACTION_TYPE type,
-            @Param("school")School school,
-            @Param("lowerDate")Date lowerDate,
-            @Param("upperDate")Date upperDate,
-            @Param("status")Utils.TRANSACTION_STATUS status
+            @Param("school") School school,
+            @Param("lowerDate") Date lowerDate,
+            @Param("upperDate") Date upperDate,
+            @Param("status") Utils.TRANSACTION_STATUS status
     );
 }

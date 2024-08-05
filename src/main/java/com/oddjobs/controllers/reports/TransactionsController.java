@@ -114,7 +114,9 @@ public class TransactionsController {
                 StudentEntity student = studentService.findById(studentId);
                 if (type == Utils.TRANSACTION_TYPE.COLLECTION){
                     transactions = transactionRepository.findCollectionTransactionsByReceiver(student, pageable);
-                }else {
+                } else if (type == Utils.TRANSACTION_TYPE.COMMISSIONS) {
+                    transactions =  transactionRepository.findCommissionTransactionsByStudent(student, pageable);
+                } else {
                     transactions = paymentTransactionRepository.findPaymentTransactionsByDebitAccount(student.getWalletAccount(), pageable);
                 }
 

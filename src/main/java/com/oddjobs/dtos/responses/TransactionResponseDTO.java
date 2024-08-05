@@ -1,6 +1,7 @@
 package com.oddjobs.dtos.responses;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.oddjobs.entities.transactions.CollectionTransaction;
+import com.oddjobs.entities.transactions.CommissionTransaction;
 import com.oddjobs.entities.transactions.PaymentTransaction;
 import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
@@ -29,6 +30,7 @@ public class TransactionResponseDTO implements Serializable {
     private BigDecimal amount=new BigDecimal(0);
     private UserResponseDto sender;
     private StudentResponseDTO receiver;
+    private StudentResponseDTO student;
     private AccountResponseDTO creditAccount;
     private AccountResponseDTO debitAccount;
     private POSAttendantResponseDTO posAttendant;
@@ -44,6 +46,9 @@ public class TransactionResponseDTO implements Serializable {
         setDescription(t.getDescription());
         setCreatedAt(t.getCreatedAt());
         setAmount(t.getAmount());
+        if (t instanceof CommissionTransaction){
+            setStudent(new StudentResponseDTO(((CommissionTransaction) t).getStudent(), false));
+        }
         if(t instanceof CollectionTransaction){
             setSender(new UserResponseDto(((CollectionTransaction) t).getSender(), false));
             setReceiver(new StudentResponseDTO(((CollectionTransaction) t).getReceiver(),true));

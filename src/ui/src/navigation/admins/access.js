@@ -11,11 +11,5 @@ export default [
     title: 'User Accounts',
     icon: <RiUserSettingsLine size={20} />,
     navLink: '/apps/user/list'
-  },
-  {
-    id: 'logout',
-    title: 'Log Out',
-    icon: <IoLogInOutline size={20} />,
-    navLink: '/charts/chartjs'
   }
 ]

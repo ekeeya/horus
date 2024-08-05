@@ -27,6 +27,18 @@ CREATE OR REPLACE FUNCTION update_account_balances_at_payment()
 ' LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION update_account_balances_at_commissions()
+    returns trigger as '
+    BEGIN
+        IF NEW.transaction_type = ''COMMISSIONS'' AND NEW.status=''SUCCESS'' THEN
+            UPDATE account SET balance=balance - NEW.amount WHERE NEW.debit_account_id = account.id;
+            UPDATE account SET balance=balance+NEW.amount WHERE NEW.credit_account_id = account.id;
+        END IF;
+        RETURN NEW;
+    END;
+' LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION update_account_balances_at_withdraw()
     returns trigger as '
     BEGIN
@@ -57,3 +69,10 @@ CREATE OR REPLACE TRIGGER update_balances_on_payment
     ON transaction
     FOR EACH ROW
 execute FUNCTION update_account_balances_at_payment();
+
+
+CREATE OR REPLACE TRIGGER update_balances_on_commissions
+    AFTER UPDATE
+    ON transaction
+    FOR EACH ROW
+execute FUNCTION update_account_balances_at_commissions();

@@ -15,6 +15,7 @@ const UserView = lazy(() => import('../../views/apps/user/view'))
 const CardProvisioningRequestList = lazy(() => import('../../views/apps/students/cards'))
 const CollectionsList = lazy(() => import('../../views/apps/transactions/collections'))
 const PaymentsList = lazy(() => import('../../views/apps/transactions/payments'))
+const CommissionsList = lazy(() => import('../../views/apps/transactions/commissions'))
 const WithDrawsList = lazy(() => import('../../views/apps/transactions/withdraws'))
 const WithdrawRequests = lazy(() => import('../../views/apps/finance/list'))
 const VirtualAccounts = lazy(() => import('../../views/apps/finance/accounts'))
@@ -74,6 +75,14 @@ const AppRoutes = [
   {
     element: <PaymentsList />,
     path: '/transactions/payments',
+    meta:{
+      action:"manage",
+      resource:"transactions"
+    }
+  },
+  {
+    element: <CommissionsList />,
+    path: '/transactions/commissions',
     meta:{
       action:"manage",
       resource:"transactions"

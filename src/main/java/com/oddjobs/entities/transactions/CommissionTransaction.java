@@ -18,6 +18,7 @@ import com.oddjobs.entities.StudentEntity;
 import com.oddjobs.entities.subscriptions.CommissionRequestEntity;
 import com.oddjobs.entities.transactions.mm.MMTransaction;
 import com.oddjobs.entities.users.User;
+import com.oddjobs.entities.wallets.AccountEntity;
 import com.oddjobs.entities.wallets.CommissionAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.utils.Utils;
@@ -40,7 +41,10 @@ public  class CommissionTransaction extends Transaction {
     private StudentEntity student;
 
     @ManyToOne
-    private CommissionAccount debitAccount;
+    private StudentWalletAccount debitAccount; // must be a student account
+
+    @ManyToOne
+    private CommissionAccount creditAccount; // must be a commissions account
 
     @OneToOne
     private CommissionRequestEntity request;
@@ -60,6 +64,7 @@ public  class CommissionTransaction extends Transaction {
         if (request == null){
             throw new Exception("Commission request is null, first set it on the instance then call this method");
         }
+
         setSchool(request.getStudent().getSchool());
         setStudent(request.getStudent());
         setAmount(request.getAmount());

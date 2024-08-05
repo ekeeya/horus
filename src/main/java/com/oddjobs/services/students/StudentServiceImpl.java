@@ -11,6 +11,7 @@ import com.oddjobs.repositories.school.SchoolRepository;
 import com.oddjobs.repositories.students.CardRepository;
 import com.oddjobs.repositories.students.StudentRepository;
 import com.oddjobs.repositories.users.UserRepository;
+import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
 import com.oddjobs.repositories.wallet.WalletAccountRepository;
 import com.oddjobs.services.schools.subscriptions.CommissionService;
 import com.oddjobs.utils.Utils;
@@ -49,6 +50,7 @@ public class StudentServiceImpl implements StudentService{
     private final ClassRoomRepository classRoomRepository;
     private final CardRepository cardRepository;
     private final WalletAccountRepository walletAccountRepository;
+    private final StudentWalletAccountRepository studentWalletAccountRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final ApprovalRequestService approvalRequestService;
@@ -107,6 +109,7 @@ public class StudentServiceImpl implements StudentService{
     }
 
     @Override
+    @Transactional
     public void registerStudentViaBulk(BulkStudentLoadRequestDTO bulkRequest, Long schoolId) throws Exception {
         StudentRequestDTO request = new StudentRequestDTO(
                 null,
@@ -176,6 +179,11 @@ public class StudentServiceImpl implements StudentService{
                 // db trigger will update the school collections account
                 walletService.depositIntoWallet(deposit);
             }
+            // During bulk loading, some methods called above activate the wallet account when its not supposed to be so..
+            StudentWalletAccount walletAccount = student.getWalletAccount();
+            walletAccount.setStatus(Utils.WALLET_STATUS.NOT_PAID);
+            studentWalletAccountRepository.save(walletAccount);
+
 
         }else{
             log.warn(String.format("Could not create parent user for student %s since phone number is not provided", student));
