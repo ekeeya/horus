@@ -34,7 +34,7 @@ CREATE OR REPLACE FUNCTION update_account_balances_at_commissions()
     returns trigger as '
     BEGIN
         IF NEW.transaction_type = ''COMMISSIONS'' AND NEW.status=''SUCCESS'' THEN
-            UPDATE account SET balance=balance + NEW.amount WHERE account_type = ''SYSTEM'';
+            UPDATE account SET balance=balance - NEW.amount WHERE account_type = ''SYSTEM'';
             UPDATE account SET balance=balance - NEW.amount WHERE NEW.school_id = account.school_id AND account_type = ''SCHOOL_COLLECTION'';
             UPDATE account SET balance=balance - NEW.amount WHERE NEW.debit_account_id = account.id;
             UPDATE account SET balance=balance+NEW.amount WHERE NEW.credit_account_id = account.id;
