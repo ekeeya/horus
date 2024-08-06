@@ -33,7 +33,7 @@ import {clearError} from "@src/views/apps/user/store";
 
 const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
 
-    const {loading, error,virtualPaymentAccount, allowedWithdrawAmount, account} = useSelector(store => store.finance);
+    const {loading, error, allowedWithdrawAmount, account} = useSelector(store => store.finance);
     const [amount, setAmount] = useState(0);
     const [dateRange, setDateRange] =  useState(todayDates());
     const [useDate, setUseDate] = useState(false)
@@ -60,6 +60,7 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
     const {userData} = useSelector((store) => store.auth);
 
     const initiateWithdrawRequest = () => {
+        console.log(account)
         // const rate = schoolStore.selectedSchool ? schoolStore.selectedSchool.commissionRate : 0;
         if (amount === null || amount < 5000) {
             const msg = "Please specify an amount greater than 5,000";
@@ -94,6 +95,7 @@ const SidebarWithdrawRequest = ({open, toggleSidebar}) => {
                     }
                     if (result.value) {
                     const data = {
+                        accountId:account.id,
                         schoolId: userData.schoolId,
                         amount: amount,
                         type:type

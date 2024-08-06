@@ -18,7 +18,6 @@ public class CommissionAccount extends  AccountEntity{
     @JoinColumn(name = "school_id")
     private School school;
     private BigDecimal withdrawn = new BigDecimal(0);
-    private BigDecimal balance =  new BigDecimal(0);
     @Transient
     public Boolean isSystem(){
         return school == null;

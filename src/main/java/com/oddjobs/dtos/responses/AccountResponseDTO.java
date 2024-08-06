@@ -12,6 +12,7 @@ import java.util.Date;
 @Data
 public class AccountResponseDTO implements Serializable {
 
+    private Long id;
     private String accountNo;
     private String name;
     private String cardNo;
@@ -27,6 +28,7 @@ public class AccountResponseDTO implements Serializable {
     private Date createdAt;
     // private SchoolResponseDTO school;
     public AccountResponseDTO(AccountEntity account){
+        setId(account.getId());
         setAccountNo(account.getAccountNo());
         setName(account.getName());
         if(account instanceof StudentWalletAccount){

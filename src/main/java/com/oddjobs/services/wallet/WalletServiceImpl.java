@@ -80,6 +80,7 @@ public class WalletServiceImpl implements WalletService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final InventoryItemService inventoryItemService;
+    private final AccountRepository accountRepository;
 
 
     @Value("${application.default.currency}")
@@ -314,6 +315,17 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public SchoolCollectionAccount findWalletBySchool(School school) {
         return schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(school);
+    }
+
+    @Override
+    public AccountEntity findById(Long id) {
+
+        try{
+            return accountRepository.findById(id).get();
+        }catch (Exception e){
+            log.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     @Override

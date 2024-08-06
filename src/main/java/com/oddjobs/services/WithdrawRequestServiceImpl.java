@@ -73,24 +73,18 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
             School school =  schoolService.findById(request.getSchoolId());
             List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
             Double amountInPendingWithdraw = withdrawRequestRepository.sumWithdrawRequestsByStatusInAndSchool(statuses, school);
-            AccountEntity debitAccount;
-            AccountEntity creditAccount;
-            if (request.getType() == WithdrawRequest.TYPE.PAYMENTS){
-                creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
-                debitAccount = schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
-            }else{
-                creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
-                debitAccount = schoolCollectionAccountRepository.findSchoolWalletAccountBySchool(school);
-            }
+            AccountEntity debitAccount = walletService.findById(request.getAccountId());
+            AccountEntity creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
+
             withdrawRequest.setDebitAccount(debitAccount);
             withdrawRequest.setCreditAccount(creditAccount);
             // check if one Already pending
             if(withdrawRequestRepository.countBySchoolAndStatus(school, WithdrawRequest.Status.PENDING) > 0){
                 throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
             }
-            SchoolPaymentAccount account =  schoolPaymentAccountRepository.findSchoolWalletAccountBySchool(school);
-            if (request.getAmount() > (account.getBalance().doubleValue() + amountInPendingWithdraw)){
-                throw new InsufficientBalanceException(request.getAmount(), account.getName());
+            // determine which account we are withdrawing from
+            if (request.getAmount() > (debitAccount.getBalance().doubleValue() + amountInPendingWithdraw)){
+                throw new InsufficientBalanceException(request.getAmount(), debitAccount.getName());
             }
             withdrawRequest.setSchool(school);
             withdrawRequest.setStatus(request.getStatus());

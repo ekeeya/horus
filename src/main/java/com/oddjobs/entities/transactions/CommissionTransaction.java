@@ -47,7 +47,7 @@ public  class CommissionTransaction extends Transaction {
     private CommissionAccount creditAccount; // must be a commissions account
 
     @OneToOne
-    private CommissionRequestEntity request;
+    private CommissionRequestEntity commissionRequest;
     @Override
     public String toString() {
         return "CollectionTransaction{" +
@@ -57,17 +57,17 @@ public  class CommissionTransaction extends Transaction {
 
     @Transient
     public Utils.COMMISSION_TYPE kind(){
-        return request.getType();
+        return commissionRequest.getType();
     }
 
     public CommissionTransaction updateFields() throws Exception {
-        if (request == null){
+        if (commissionRequest == null){
             throw new Exception("Commission request is null, first set it on the instance then call this method");
         }
 
-        setSchool(request.getStudent().getSchool());
-        setStudent(request.getStudent());
-        setAmount(request.getAmount());
+        setSchool(commissionRequest.getStudent().getSchool());
+        setStudent(commissionRequest.getStudent());
+        setAmount(commissionRequest.getAmount());
         setNature(Utils.TRANSACTION_NATURE.DEBIT);// we are debiting(deducting in this case)  student account
         return this;
     }

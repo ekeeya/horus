@@ -105,7 +105,7 @@ public class CommissionServiceImpl implements CommissionService {
             CommissionAccount schoolComAccount = commissionAccountRepository.findCommissionAccountBySchool(school);
             CommissionTransaction transaction =  new CommissionTransaction();
             transaction.setTransactionId(Utils.generateTransactionId());
-            transaction.setRequest(request);
+            transaction.setCommissionRequest(request);
             transaction = transaction.updateFields();
             transaction.setDebitAccount(walletAccount);
 

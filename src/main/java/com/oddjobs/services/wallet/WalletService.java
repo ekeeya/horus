@@ -41,6 +41,8 @@ public interface WalletService {
 
     SchoolCollectionAccount findWalletBySchool(School school);
 
+    AccountEntity findById(Long Id);
+
     Page<StudentWalletAccount> findBySchoolAndCardIssued(School School, boolean cardIssued, int page, int size);
 
     Utils.BiWrapper<Transaction, Order> processPayment(PaymentRequestDTO request) throws WalletAccountNotFoundException, InsufficientBalanceException, ExceedDailyExpenditureException, WrongWalletStatusException;

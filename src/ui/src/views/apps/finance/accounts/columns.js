@@ -28,6 +28,7 @@ const openShowModal =(r)=>{
     store.dispatch(setSelectedRequest(r))
     store.dispatch(setShowWithdrawModal(true))
     store.dispatch(setVirtualAccount(r))
+
 }
 const columns = [
 

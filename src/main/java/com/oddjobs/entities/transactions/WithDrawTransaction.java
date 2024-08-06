@@ -24,7 +24,7 @@ public class WithDrawTransaction extends  Transaction{
     @ManyToOne
     private AccountEntity debitAccount;
 
-    @OneToOne(cascade=CascadeType.ALL)
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private WithdrawRequest request;
 

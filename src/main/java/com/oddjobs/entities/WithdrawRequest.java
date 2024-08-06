@@ -34,7 +34,6 @@ public class WithdrawRequest extends BaseEntity{
 
     @ManyToOne
     private AccountEntity creditAccount;
-
     @ManyToOne
     private AccountEntity debitAccount;
 
@@ -63,7 +62,7 @@ public class WithdrawRequest extends BaseEntity{
                 "referenceNo='" + referenceNo + '\'' +
                 ", status=" + status +
                 ", amount=" + amount +
-                ", school=" + school.getName() +
+                ", school=" + (school != null ? school.getName() : null) +
                 ", cancelReason='" + cancelReason + '\'' +
                 '}';
     }

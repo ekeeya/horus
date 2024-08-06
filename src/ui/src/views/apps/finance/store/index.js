@@ -106,6 +106,7 @@ export const appFinanceSlice = createSlice({
 
         setVirtualAccount:(state, {payload})=>{
             state.account = payload;
+            state.allowedWithdrawAmount = payload.balance;
         },
         setEdit: (state, {payload}) => {
             state.edit = payload
@@ -160,12 +161,6 @@ export const appFinanceSlice = createSlice({
             fetchVirtualAccounts.fulfilled, (state, action) => {
                 state.loading = false
                 state.virtualAccounts = action.payload.data
-                action.payload.data.forEach((account)=>{
-                    if (account.accountType === "SCHOOL_PAYMENT"){
-                        state.virtualPaymentAccount = account;
-                        state.allowedWithdrawAmount = account.balance;
-                    }
-                })
             }
         ).addCase(
             fetchVirtualAccounts.rejected, (state, action) => {

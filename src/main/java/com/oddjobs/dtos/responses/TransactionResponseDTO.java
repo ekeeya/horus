@@ -63,7 +63,6 @@ public class TransactionResponseDTO implements Serializable {
             if (((PaymentTransaction) t).getAttendant() != null){
                 setPosAttendant(new POSAttendantResponseDTO(((PaymentTransaction) t).getAttendant()));
             }
-
         }
 
     }
