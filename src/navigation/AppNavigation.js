@@ -4,6 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Dashboard from '../screens/dashboard/Dashboard';
 import {CheckOutScreen} from '../screens/checkout/CheckOutScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
+import DailySalesReport from '../screens/report/DailySalesReport';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -24,6 +25,11 @@ export default function AppNavigation() {
           name="CheckOutScreen"
           options={{headerShown: false}}
           component={CheckOutScreen}
+        />
+        <Stack.Screen
+          name="ReportScreen"
+          options={{headerShown: false}}
+          component={DailySalesReport}
         />
       </Stack.Navigator>
     </NavigationContainer>

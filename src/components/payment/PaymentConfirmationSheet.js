@@ -22,8 +22,10 @@ import {updateInventory} from '../../store/inventory';
 import colors from 'tailwindcss/colors';
 const {width} = Dimensions.get('screen');
 
-const smallScreen = width < 365;
+// const smallScreen = width < 365;
 // const shortScreen = height < 700;
+const smallScreen = true;
+
 const PaymentConfirmationSheet = ({show, onClose}) => {
   const [index, setIndex] = useState(1);
   const [wallet, setWallet] = useState();

@@ -27,7 +27,8 @@ import {cleanTag} from '../../utils';
 import {clearOrderItems} from '../../store/orders';
 const {width} = Dimensions.get('screen');
 
-const smallScreen = width < 412;
+//const smallScreen = width < 412;
+const smallScreen = true;
 // const shortScreen = height < 700;
 export const CheckOutScreen = () => {
   const navigation = useNavigation();

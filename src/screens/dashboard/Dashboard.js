@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+const Icon = React.lazy(() => import('react-native-vector-icons/MaterialCommunityIcons'));
 import colors from 'tailwindcss/colors';
 import DynamicIcon from '../../components/DynamicIcon';
 import InventoryItems from '../../components/inventory/InventoryItems';
@@ -18,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchInventoryData} from '../../store/inventory';
 import {removeOrderItem, setPosId} from '../../store/orders';
 import OrderItems from '../../components/inventory/OrderItems';
+
 const {width, height} = Dimensions.get('screen');
 
 const MD = 412;
@@ -28,6 +30,7 @@ const shortScreen = true;
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
+  const [showDrawer, setShowDrawer] =  useState(false);
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [importing, setImporting] = useState(null);
@@ -159,11 +162,11 @@ const Dashboard = props => {
   };
   return (
     <>
-      <View className="flex p-2 mt-2 flex-row justify-between">
+      <View className="flex p-2 mt-2 flex-row mb-5 justify-between">
         <View className="flex flex-row justify-center items-center space-x-2">
-          <TouchableOpacity>
+          {/*<TouchableOpacity>
             <Ionicons name="menu-outline" color={colors.black} size={30} />
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
           <Text className="text-black  font-bold text-sm lg:text-lg">
             {userData.user.fullName}
           </Text>
@@ -171,8 +174,10 @@ const Dashboard = props => {
             <Text className="text-xs mx-2 text-church-800">Attendant</Text>
           </View>
         </View>
-        <TouchableOpacity>
-          <Ionicons name="settings-outline" color={colors.black} size={30} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ReportScreen')}
+          className="w-12 h-12 rounded-full bg-white flex justify-center items-center">
+          <Icon name="microsoft-excel" color={colors.green['600']} size={30} />
         </TouchableOpacity>
       </View>
       <View

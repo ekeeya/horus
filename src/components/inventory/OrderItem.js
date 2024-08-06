@@ -8,8 +8,8 @@ import {DOMAIN} from '../../axios';
 
 const {width, height} = Dimensions.get('screen');
 
-const smallScreen = width < 412;
-
+// const smallScreen = width < 412;
+const smallScreen = true;
 const OrderItem = ({item, onClicked}) => {
   const {name, price, quantity} = item;
 

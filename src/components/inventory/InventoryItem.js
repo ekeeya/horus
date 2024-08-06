@@ -14,7 +14,7 @@ const MD = 412;
 const smallScreen = true;
 
 const InventoryItem = ({item}) => {
-  const { name, price} = item;
+  const {name, price} = item;
   const [quantity, setQuantity] = useState(0);
   const [itemCategory, setItemCategory] = useState();
   const dispatch = useDispatch();
