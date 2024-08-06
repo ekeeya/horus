@@ -10,7 +10,8 @@ import InventoryService from '../../services/InventoryService';
 const {width, height} = Dimensions.get('screen');
 
 const MD = 412;
-const smallScreen = width < MD;
+//const smallScreen = width < MD;
+const smallScreen = true;
 
 const InventoryItem = ({item}) => {
   const { name, price} = item;

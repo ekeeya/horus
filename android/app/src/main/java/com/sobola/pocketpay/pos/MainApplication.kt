@@ -1,4 +1,4 @@
-package com.sobola.org.pos
+package com.sobola.pocketpay.pos
 
 import android.app.Application
 import com.facebook.react.PackageList

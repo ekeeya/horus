@@ -21,8 +21,10 @@ import OrderItems from '../../components/inventory/OrderItems';
 const {width, height} = Dimensions.get('screen');
 
 const MD = 412;
-const smallScreen = width < MD;
-const shortScreen = height < 700;
+//const smallScreen = width < MD;
+//const shortScreen = height < 700;
+const smallScreen = true;
+const shortScreen = true;
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
@@ -43,7 +45,7 @@ const Dashboard = props => {
   const navigation = useNavigation();
 
   const handleFocus = () => {
-    setIsFocused(true);
+    //setIsFocused(true);
     // Any additional logic you want to execute when the TextInput is focused
   };
 
@@ -178,10 +180,8 @@ const Dashboard = props => {
           smallScreen ? 'mt-0 h-16' : 'mt-5'
         } p-2 justify-between`}>
         <View
-          className={`flex flex-row justify-center items-center p-1 rounded-2xl
-                            border border-gray-300 bg-white ${
-                              smallScreen ? 'w-72' : 'w-96'
-                            }`}>
+          className={`flex flex-row justify-center mb-2 items-center p-1 rounded-2xl
+                            border border-gray-300 bg-white w-10/12 h-14`}>
           <Ionicons name="search-outline" size={28} />
           <TextInput
             onFocus={handleFocus}
@@ -189,12 +189,12 @@ const Dashboard = props => {
             placeholder="Search Items"
             onChangeText={setSearchTerm}
             placeholderTextColor={colors.gray['400']}
-            className={`h-auto ${smallScreen ? 'w-52' : 'w-80'}`}
+            className={`h-auto ${smallScreen ? 'w-72' : 'w-80'}`}
           />
         </View>
         <TouchableOpacity
           onPress={() => reSyncInventory()}
-          className="bg-white p-1 items-center justify-center rounded-2xl border border-gray-300 w-12">
+          className="bg-white p-1 items-center h-14 justify-center rounded-2xl border border-gray-300 w-14">
           <Ionicons
             name="sync-circle-outline"
             size={30}
@@ -202,11 +202,9 @@ const Dashboard = props => {
           />
         </TouchableOpacity>
       </View>
-      {!shortScreen && (
-        <View className="flex h-fit align-middle content-center  w-full">
-          <OrderItems items={orderItems} handleRemove={removeOrderItem} />
-        </View>
-      )}
+      <View className="flex h-fit align-middle content-center  w-full">
+        <OrderItems items={orderItems} handleRemove={removeOrderItem} />
+      </View>
       <View
         className={`flex ${
           smallScreen ? 'mt-1 p-1' : 'mt-5 p-2'

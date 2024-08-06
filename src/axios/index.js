@@ -1,6 +1,6 @@
 import axios from 'axios';
-export const DOMAIN = 'https://sobola.org';
-// export const DOMAIN = 'http:192.168.1.116:8000';
+// export const DOMAIN = 'https://sobola.org';
+export const DOMAIN = 'http://192.168.1.116:8000';
 const prefix = '/';
 
 const TIME_OUT = 100000;

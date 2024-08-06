@@ -5,10 +5,11 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '../../axios';
-import InventoryService from '../../services/InventoryService';
 const {width, height} = Dimensions.get('screen');
 
-const smallScreen = width < 365;
+// const smallScreen = width < 365;
+const smallScreen = true;
+
 const InventoryItem = ({item}) => {
   const {name, price} = item;
   const [quantity, setQuantity] = useState(item.quantity);
@@ -51,7 +52,11 @@ const InventoryItem = ({item}) => {
         <View className="mx-2">
           <Image
             resizeMode="center"
-            source={{uri: `${DOMAIN}/statics/${item.category.image}`}}
+            source={{
+              uri: `${DOMAIN}/statics/${
+                item.category ? item.category.image : item.category.image
+              }`,
+            }}
             className="h-full w-10"
           />
         </View>
