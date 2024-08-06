@@ -22,6 +22,7 @@ const setForUpdate = (r)=>{
     store.dispatch(setEdit(true))
     store.dispatch(setSelectedRequest(r));
 }
+
 const approveRejectRequest = (id, action) => {
     const payload = action==="approve" ? {id,action: action} :{id};
     return MySwal.fire({
@@ -69,7 +70,7 @@ const columns = [
         cell: row => (
             <div className='d-flex justify-content-left align-items-center'>
                 <div className='d-flex flex-column'>
-                    <span className='user_name text-truncate text-body'>{row.school.name}</span>
+                    <span className='user_name text-truncate text-body'>{row.school ? row.school.name: "-"}</span>
                 </div>
             </div>
         )

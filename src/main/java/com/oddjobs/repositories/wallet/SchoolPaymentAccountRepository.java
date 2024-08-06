@@ -14,9 +14,7 @@
 package com.oddjobs.repositories.wallet;
 
 import com.oddjobs.entities.School;
-import com.oddjobs.entities.wallets.SchoolCollectionAccount;
 import com.oddjobs.entities.wallets.SchoolPaymentAccount;
-import com.oddjobs.entities.wallets.SchoolWithdrawAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

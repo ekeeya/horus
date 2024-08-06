@@ -48,7 +48,7 @@ export const columns = [
                         className='user_name text-truncate text-body'
                         onClick={() => store.dispatch(getStudent(row.student.id))}
                     >
-                        <small className='mb-0'>{row.receiver.fullName}</small>
+                        <small className='mb-0'>{row.student.fullName}</small>
                     </Link>
                     <small className='text-truncate text-muted mb-0'>{row.school.name}</small>
                 </div>

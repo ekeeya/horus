@@ -166,9 +166,9 @@ const RequestSidebar = ({open, toggleSidebar}) => {
                     <div className='meetup-header d-flex align-items-center'>
                         <div className='my-auto'>
                             <CardTitle tag='h4' className='mb-25'>
-                                Funds withdraw Request from
+                                Funds withdraw Request form
                             </CardTitle>
-                            <CardText className='mb-0'>{selectedRequest.school.name}</CardText>
+                            <CardText className='mb-0'>{selectedRequest.school ? selectedRequest.school.name: ''}</CardText>
                         </div>
                     </div>
                     <div>

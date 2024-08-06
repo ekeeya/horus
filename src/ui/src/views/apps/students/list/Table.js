@@ -90,10 +90,6 @@ const CustomHeader = ({ toggleSidebar, handlePerPage, rowsPerPage, displayModal 
                 <span className='align-middle'>Export</span>
               </DropdownToggle>
               <DropdownMenu>
-                <DropdownItem className='w-100' onClick={() => console.log("downloading")}>
-                  <FileText className='font-small-4 me-50' />
-                  <span className='align-middle'>CSV</span>
-                </DropdownItem>
                 <DropdownItem className='w-100'>
                   <Grid className='font-small-4 me-50' />
                   <span className='align-middle'>Excel</span>

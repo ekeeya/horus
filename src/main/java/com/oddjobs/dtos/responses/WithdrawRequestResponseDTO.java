@@ -31,7 +31,7 @@ public class WithdrawRequestResponseDTO implements Serializable {
         setCancelReason(request.getCancelReason());
         setCreatedAt(request.getCreatedAt());
         setAmountReceived(request.amountReceived().doubleValue());
-        SchoolResponseDTO s = new SchoolResponseDTO(request.getSchool());
+        SchoolResponseDTO s = request.getSchool() != null ? new SchoolResponseDTO(request.getSchool()) : null;
         setSchool(s);
         List<Image> images = request.getReceipts();
         if(images != null ){

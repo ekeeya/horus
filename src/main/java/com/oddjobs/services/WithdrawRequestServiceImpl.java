@@ -5,10 +5,7 @@ import com.oddjobs.dtos.requests.CashOutRequestDTO;
 import com.oddjobs.dtos.requests.PaymentRequestDTO;
 import com.oddjobs.dtos.requests.WithdrawRequestDTO;
 import com.oddjobs.entities.transactions.CashoutTransaction;
-import com.oddjobs.entities.transactions.PaymentTransaction;
-import com.oddjobs.entities.transactions.Transaction;
 import com.oddjobs.entities.wallets.AccountEntity;
-import com.oddjobs.entities.wallets.SchoolPaymentAccount;
 import com.oddjobs.entities.wallets.StudentWalletAccount;
 import com.oddjobs.exceptions.InsufficientBalanceException;
 import com.oddjobs.exceptions.ResourceFobidenException;
@@ -19,11 +16,7 @@ import com.oddjobs.entities.WithdrawRequest;
 import com.oddjobs.entities.transactions.WithDrawTransaction;
 import com.oddjobs.entities.users.SchoolUser;
 import com.oddjobs.entities.users.User;
-import com.oddjobs.entities.wallets.SchoolCollectionAccount;
-import com.oddjobs.repositories.wallet.SchoolCollectionAccountRepository;
-import com.oddjobs.repositories.wallet.SchoolPaymentAccountRepository;
-import com.oddjobs.repositories.wallet.SchoolWithdrawAccountRepository;
-import com.oddjobs.repositories.wallet.StudentWalletAccountRepository;
+import com.oddjobs.repositories.wallet.*;
 import com.oddjobs.services.transactions.TransactionService;
 import com.oddjobs.entities.Image;
 import com.oddjobs.entities.Notification;
@@ -52,9 +45,7 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
 
     private final WithdrawRequestRepository withdrawRequestRepository;
     private final SchoolService schoolService;
-    private final SchoolCollectionAccountRepository schoolCollectionAccountRepository;
-    private final SchoolWithdrawAccountRepository schoolWithdrawAccountRepository;
-    private final SchoolPaymentAccountRepository schoolPaymentAccountRepository;
+    private final WithdrawAccountRepository withdrawAccountRepository;
     private final NotificationService notificationService;
     private final WalletService walletService;
     private final ContextProvider contextProvider;
@@ -62,43 +53,50 @@ public class WithdrawRequestServiceImpl implements WithdrawRequestService{
     private final TransactionService transactionService;
     private final TransactionRepository transactionRepository;
     private final EntityManager entityManager;
+    private final AccountRepository accountRepository;
 
     @Value("${application.default.currency}")
     private String DEFAULT_CURRENCY;
     @Override
     public WithdrawRequest createWithdrawRequest(WithdrawRequestDTO request) throws Exception {
-        User user = contextProvider.getPrincipal();
-        if(user instanceof SchoolUser){
-            WithdrawRequest withdrawRequest = new WithdrawRequest();
-            School school =  schoolService.findById(request.getSchoolId());
-            List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
-            Double amountInPendingWithdraw = withdrawRequestRepository.sumWithdrawRequestsByStatusInAndSchool(statuses, school);
-            AccountEntity debitAccount = walletService.findById(request.getAccountId());
-            AccountEntity creditAccount = schoolWithdrawAccountRepository.findSchoolWalletAccountBySchool(school);
 
-            withdrawRequest.setDebitAccount(debitAccount);
-            withdrawRequest.setCreditAccount(creditAccount);
-            // check if one Already pending
-            if(withdrawRequestRepository.countBySchoolAndStatus(school, WithdrawRequest.Status.PENDING) > 0){
-                throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
-            }
-            // determine which account we are withdrawing from
-            if (request.getAmount() > (debitAccount.getBalance().doubleValue() + amountInPendingWithdraw)){
-                throw new InsufficientBalanceException(request.getAmount(), debitAccount.getName());
-            }
-            withdrawRequest.setSchool(school);
-            withdrawRequest.setStatus(request.getStatus());
-            withdrawRequest.setType(request.getType());
-            withdrawRequest.setAmount(BigDecimal.valueOf(request.getAmount()));
-            withdrawRequest =  withdrawRequestRepository.save(withdrawRequest);
-            String msg = String.format("A withdraw request has been created by %s on behalf of %s", user.fullName(),((SchoolUser) user).getSchool().getName());
-            notificationService.createNotification(Notification.Type.WITHDRAW_REQUEST, withdrawRequest.getId(), Notification.Action.Create, msg);
-            // create Transaction
-            WithDrawTransaction transaction = transactionService.recordDisbursementTransaction(withdrawRequest);
-            log.info(String.format("Disbursement transaction has been created %s", transaction));
-            return withdrawRequest;
+        User user = contextProvider.getPrincipal();
+        WithdrawRequest withdrawRequest = new WithdrawRequest();
+        List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
+
+        AccountEntity debitAccount = walletService.findById(request.getAccountId());
+        withdrawRequest.setDebitAccount(debitAccount);
+
+        School school =  request.getSchoolId() != null ? schoolService.findById(request.getSchoolId()) : null;
+        Double amountInPendingWithdraw;
+        AccountEntity creditAccount;
+        if (school!=null){
+             creditAccount = withdrawAccountRepository.findWithdrawAccountBySchool(school);
+             amountInPendingWithdraw = withdrawRequestRepository.sumWithdrawRequestsByStatusInAndSchool(statuses, school);
+        }else{
+            creditAccount = withdrawAccountRepository.findWithdrawAccountBySchoolIsNull();
+            amountInPendingWithdraw = withdrawRequestRepository.sumSystemWithdrawRequestsByStatus(statuses);
         }
-        throw new ResourceFobidenException(String.format("Only users with role %s are allowed to carry out this action", Utils.ROLES.ROLE_SCHOOL));
+        withdrawRequest.setCreditAccount(creditAccount);
+        // check if one Already pending
+        if(school != null && withdrawRequestRepository.countBySchoolAndStatus(school, WithdrawRequest.Status.PENDING) > 0){
+            throw new Exception(String.format("This school %s already has a pending withdraw request", school.getName()));
+        }
+
+        if (request.getAmount() > (debitAccount.getBalance().doubleValue() + amountInPendingWithdraw)){
+            throw new InsufficientBalanceException(request.getAmount(), debitAccount.getName());
+        }
+        withdrawRequest.setSchool(school);
+        withdrawRequest.setStatus(request.getStatus());
+        withdrawRequest.setType(request.getType());
+        withdrawRequest.setAmount(BigDecimal.valueOf(request.getAmount()));
+        withdrawRequest =  withdrawRequestRepository.save(withdrawRequest);
+        String msg = String.format("A withdraw request has been created by %s", user.fullName());
+        notificationService.createNotification(Notification.Type.WITHDRAW_REQUEST, withdrawRequest.getId(), Notification.Action.Create, msg);
+        // create Transaction
+        WithDrawTransaction transaction = transactionService.recordDisbursementTransaction(withdrawRequest);
+        log.info(String.format("Disbursement transaction has been created %s", transaction));
+        return withdrawRequest;
     }
 
     @Override

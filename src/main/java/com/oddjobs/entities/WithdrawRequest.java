@@ -45,7 +45,7 @@ public class WithdrawRequest extends BaseEntity{
 
 
     @ManyToOne
-    @JoinColumn(name="school_id", nullable=false, referencedColumnName = "id")
+    @JoinColumn(name="school_id", referencedColumnName = "id")
     private School school;
 
     private BigDecimal amount=new BigDecimal(0);

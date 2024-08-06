@@ -45,15 +45,9 @@ export const fetchAllowedWithdrawPaymentAccountBalance = createAsyncThunk('appWi
 export const fetchWithdrawRequests = createAsyncThunk('appWithdrawRequests/fetchWithdrawRequests', async (configs, thunkAPI) => {
     try {
         let {page} = configs;
-        page = page ? page : 0
-        delete configs['page'];
-        let url = `/api/v1/finance/withdraw-requests?page=${page}`;
-        Object.keys(configs).forEach(key => {
-            if (configs[key] != null || configs[key] !== "") {
-                url += `&${key}=${configs[key]}`
-            }
-        });
-        const response = await client.get(url);
+        configs['page']= page ? page : 0;
+        let url = `/api/v1/finance/withdraw-requests`;
+        const response = await client.get(url, {params:configs});
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(generateError(error))

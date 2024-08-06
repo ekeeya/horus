@@ -137,14 +137,13 @@ public class FinanceController {
                 }else{
                     p = withdrawRequestRepository.findWithdrawRequestsBySchool(school, pageable);
                 }
-
             }else if(referenceNo != null){
                 WithdrawRequest r =  withdrawRequestRepository.findByReferenceNo(referenceNo);
                 requests.add(new WithdrawRequestResponseDTO(r));
             } else if (status != null) {
                 p = withdrawRequestRepository.findWithdrawRequestsByStatus(status, pageable);
             } else{
-                List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED);
+                List<WithdrawRequest.Status> statuses = List.of(WithdrawRequest.Status.PENDING, WithdrawRequest.Status.APPROVED, WithdrawRequest.Status.PROCESSED, WithdrawRequest.Status.CANCELLED);
                 p =  withdrawRequestRepository.findWithdrawRequestsByStatusIn(statuses, pageable);
             }
             if(p != null){

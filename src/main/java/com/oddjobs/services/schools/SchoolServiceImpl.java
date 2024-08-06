@@ -81,8 +81,15 @@ public class SchoolServiceImpl implements SchoolService{
                     commissionAccount.setEnabled(true);
                     walletAccountRepository.save(commissionAccount);
 
+                    // create school charges account to record cashout charges
+                    ChargeAccount chargeAccount =  new ChargeAccount();
+                    chargeAccount.setSchool(school);
+                    chargeAccount.setName(school.getAlias()+"- Charges");
+                    commissionAccount.setEnabled(true);
+                    walletAccountRepository.save(commissionAccount);
+
                     // Withdraw school account
-                    SchoolWithdrawAccount withdrawAccount =  new SchoolWithdrawAccount();
+                    WithdrawAccount withdrawAccount =  new WithdrawAccount();
                     withdrawAccount.setSchool(school);
                     withdrawAccount.setName(school.getName()+" Withdraw");
                     walletAccountRepository.save(withdrawAccount);

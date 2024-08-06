@@ -89,7 +89,7 @@ const columns = [
                 <div className='column-action d-flex align-items-center'>
 
                     {
-                        (["SCHOOL_PAYMENT", "COMMISSION"].includes(row.accountType)) && (
+                        (["SCHOOL_PAYMENT", "COMMISSION", "CHARGE"].includes(row.accountType)) && (
                             <>
                                 <Button size="sm"  outline color='info'
                                         onClick={() => openShowModal(row)}

@@ -2,7 +2,7 @@
 import { GrAtm } from "react-icons/gr";
 import { TfiWallet } from "react-icons/tfi";
 import {CiBoxList, CiShop} from "react-icons/ci";
-import {GiBuyCard, GiMoneyStack, GiReceiveMoney, GiShoppingCart, GiTwoCoins} from "react-icons/gi";
+import {GiBuyCard, GiMoneyStack, GiReceiveMoney, GiShoppingCart, GiTakeMyMoney, GiTwoCoins} from "react-icons/gi";
 import {FaRegHandshake} from "react-icons/fa6";
 import {BiMoney} from "react-icons/bi";
 export default [
@@ -45,6 +45,12 @@ export default [
         title: 'Payments',
         icon: <GiBuyCard size={12} />,
         navLink: '/transactions/payments'
+      },
+      {
+        id: 'commissions',
+        title: 'Commissions',
+        icon: <GiTakeMyMoney size={12}/>,
+        navLink: '/transactions/commissions'
       },
       {
         id: 'withdraws',

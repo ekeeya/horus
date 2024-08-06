@@ -38,7 +38,8 @@ public class Utils {
         SYSTEM(Values.SYSTEM),
         SCHOOL_COLLECTION(Values.SCHOOL_COLLECTION),
         COMMISSION(Values.COMMISSION),
-        SCHOOL_WITHDRAW(Values.SCHOOL_WITHDRAW),
+        CHARGE(Values.CHARGE),
+        WITHDRAW(Values.WITHDRAW),
         SCHOOL_PAYMENT(Values.SCHOOL_PAYMENT),
         STUDENT(Values.STUDENT);
         private WALLET_ACCOUNT_TYPES (String val) {
@@ -49,9 +50,10 @@ public class Utils {
 
         public static class Values {
             public static final String SYSTEM= "SYSTEM";
+            public static final String CHARGE= "CHARGE";
             public static final String COMMISSION= "COMMISSION";
             public static final String SCHOOL_COLLECTION= "SCHOOL_COLLECTION";
-            public static final String SCHOOL_WITHDRAW= "SCHOOL_WITHDRAW";
+            public static final String WITHDRAW= "WITHDRAW";
             public static final String SCHOOL_PAYMENT= "SCHOOL_PAYMENT";
             public static final String STUDENT= "STUDENT";
         }

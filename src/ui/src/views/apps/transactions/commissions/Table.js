@@ -21,17 +21,15 @@ import {
   DropdownToggle,
   UncontrolledButtonDropdown, Label
 } from 'reactstrap'
-import {columns} from "@src/views/apps/transactions/collections/columns";
+import {columns} from "@src/views/apps/transactions/commissions/columns";
 import {useDispatch, useSelector} from "react-redux";
 import Loader from "@components/spinner/Loader";
 import UILoader from "@components/ui-loader";
 import {fetchTransactions} from "@src/views/apps/transactions/store";
 import Select from "react-select";
-import {store} from "@store/store";
 import {debounce} from "lodash";
 import {fetchSchools} from "@src/views/apps/schools/store";
 import {fetchUsers} from "@src/views/apps/user/store";
-import {fetchStudents} from "@src/views/apps/students/store";
 import Flatpickr from "react-flatpickr";
 import {convertDate, todayDates} from "@utils";
 import {useLocation} from "react-router-dom";
@@ -204,7 +202,7 @@ const CommissionsTransactions = () => {
       <UILoader blocking={loading} loader={<Loader />}>
       <Card>
         <CardHeader className='flex-md-row flex-column align-md-items-center align-items-start border-bottom'>
-          <CardTitle tag='h4'>Card Deposit Transactions</CardTitle>
+          <CardTitle tag='h4'>Commission Transactions</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
             <UncontrolledButtonDropdown>
               <DropdownToggle color='secondary' caret outline>

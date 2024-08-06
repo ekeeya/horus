@@ -29,4 +29,9 @@ public interface WithdrawRequestRepository extends JpaRepository<WithdrawRequest
             @Param("statuses")List<WithdrawRequest.Status> statuses,
              @Param("school")School school
     );
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM WithdrawRequest  WHERE school IS NULL AND  status IN (:statuses) AND type='PAYMENTS'")
+    Double sumSystemWithdrawRequestsByStatus(
+            @Param("statuses")List<WithdrawRequest.Status> statuses
+    );
 }

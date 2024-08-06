@@ -79,19 +79,6 @@ const CustomHeader = ({userData, setShowModal, handlePerPage, rowsPerPage}) => {
                         <label htmlFor='rows-per-page'>Entries</label>
                     </div>
                 </Col>
-                <Col
-                    xl='10'
-                    className='d-flex align-items-sm-center justify-content-xl-end justify-content-start flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1'
-                >
-                    {userData.role === "SCHOOL" &&
-                        (<div className='d-flex align-items-center table-header-actions'>
-                            <Button className='me-50' size="sm" outline color='info' onClick={setShowModal}>
-                                <PlusCircle size={14}/>
-                                <span className='align-middle me-30 '>&nbsp;Initiate Withdraw Request</span>
-                            </Button>
-                        </div>)
-                    }
-                </Col>
             </Row>
         </div>
     )
