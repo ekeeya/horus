@@ -46,6 +46,7 @@ export const fetchInventoryData = createAsyncThunk(
             searchTerm.toLowerCase(),
             'frequency',
           );
+          console.log(data);
         } else {
           data = await InventoryService.fetch(
             tableName,

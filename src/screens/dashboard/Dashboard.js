@@ -8,8 +8,10 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-const Icon = React.lazy(() => import('react-native-vector-icons/MaterialCommunityIcons'));
+const Ionicons = React.lazy(() => import('react-native-vector-icons/Ionicons'));
+const Icon = React.lazy(() =>
+  import('react-native-vector-icons/MaterialCommunityIcons'),
+);
 import colors from 'tailwindcss/colors';
 import DynamicIcon from '../../components/DynamicIcon';
 import InventoryItems from '../../components/inventory/InventoryItems';
@@ -30,7 +32,7 @@ const shortScreen = true;
 
 const Dashboard = props => {
   const [active, setActive] = useState(0);
-  const [showDrawer, setShowDrawer] =  useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [importing, setImporting] = useState(null);
@@ -104,7 +106,9 @@ const Dashboard = props => {
 
   useEffect(() => {
     let items = importItems.slice(0, 5).map(item => {
-      const cat = categories.find(category => category.id === item.categoryId);
+      const cat = categories.find(
+        category => parseInt(category.id) === parseInt(item.categoryId),
+      );
       return {
         ...item,
         category: cat,

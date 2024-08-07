@@ -5,6 +5,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {removeOrderItem, setOrderItems} from '../../store/orders';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '../../axios';
+import InventoryService from '../../services/InventoryService';
 const {width, height} = Dimensions.get('screen');
 
 // const smallScreen = width < 365;
@@ -13,8 +14,26 @@ const smallScreen = true;
 const InventoryItem = ({item}) => {
   const {name, price} = item;
   const [quantity, setQuantity] = useState(item.quantity);
+  const [itemCategory, setItemCategory] = useState({});
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const cat = await InventoryService.getById('category', item.categoryId);
+        setItemCategory(cat);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (!item.category) {
+      fetchData();
+    } else {
+      setItemCategory(item.category);
+    }
+  }, [itemCategory]);
+
   useEffect(() => {
     if (quantity < 1) {
       setQuantity(0);
@@ -22,7 +41,6 @@ const InventoryItem = ({item}) => {
       dispatch(removeOrderItem(item));
     }
   }, [quantity]);
-
 
   const addOrderItem = quantity => {
     setQuantity(quantity);
@@ -54,7 +72,7 @@ const InventoryItem = ({item}) => {
             resizeMode="center"
             source={{
               uri: `${DOMAIN}/statics/${
-                item.category ? item.category.image : item.category.image
+                item.category ? item.category.image : 'other.png'
               }`,
             }}
             className="h-full w-10"
